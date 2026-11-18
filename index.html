@@ -283,6 +283,10 @@
   /* livello: inizio e fine */
   #lvl { position:fixed; inset:0; z-index:12; background:var(--lv); color:var(--on-lv); display:grid; place-items:center; overflow:hidden; padding:24px; }
   #lvl .arcs { animation:grow 1.4s var(--ease) both; }
+  #lvl .lv-masc { width:150px; height:auto; overflow:visible; display:block; margin-bottom:6px; }
+  #lvl .lv-masc .mhead { fill:var(--paper); }
+  .masc.cheering .mjump { animation:cheer .7s cubic-bezier(.3,0,.3,1) infinite; transform-origin:center bottom; }
+  .masc.cheering .marm { animation:wave .3s ease-in-out infinite alternate; }
   #lvl .lv-inner { position:relative; display:grid; grid-template-columns:auto 1fr; gap:clamp(20px,4vw,56px); align-items:center; max-width:1000px; }
   #lvl .lv-num { font-size:clamp(160px,30vh,300px); font-weight:900; line-height:.75; letter-spacing:-.04em; animation:slidein .8s var(--ease) both; }
   #lvl h2 { font-size:clamp(40px,7vh,76px); font-weight:900; line-height:.95; letter-spacing:-.03em; animation:slidein .8s .1s var(--ease) both; }
@@ -304,15 +308,40 @@
   .tut-head h2 { font-size:clamp(26px,4.4vh,44px); font-weight:900; letter-spacing:-.03em; margin-right:auto; line-height:1; }
   .tut-head button { border-color:var(--on-lv); }
   .tut-dots { display:flex; gap:8px; } .tut-dots i { width:12px; height:12px; border:2px solid var(--on-lv); border-radius:50%; transition:background .3s; } .tut-dots i.on { background:var(--on-lv); }
-  .tut-art { display:grid; align-content:center; justify-items:center; gap:2vh; padding:2vh clamp(20px,4vw,60px); min-height:0; }
-  .tut-art svg { width:min(100%, 1140px); height:auto; max-height:50vh; overflow:visible; }
-  #tutStaff { max-height:24vh; }
+  .tut-art { display:grid; align-content:center; justify-items:center; gap:1vh; padding:1vh clamp(16px,3vw,40px); min-height:0; }
+  .tut-art svg { width:min(100%, 1140px); height:auto; max-height:64vh; overflow:visible; }
+  #tutStaff { max-height:22vh; } .tut-art:has(#tutStaff) #tutKb { max-height:44vh; }
   .twk { fill:#fff; stroke:var(--ink); stroke-width:2.5; transition:fill .45s var(--ease), transform .45s var(--ease); transform-box:fill-box; transform-origin:top; }
   .tbk { fill:var(--ink); transition:fill .45s var(--ease), transform .45s var(--ease); transform-box:fill-box; transform-origin:top; }
   .twk.on, .tbk.on { fill:var(--lv); transform:scaleY(.985) translateY(4px); }
   .twk.soft { fill:color-mix(in srgb,var(--lv) 28%,#fff); } .tbk.soft { fill:color-mix(in srgb,var(--lv) 55%,var(--ink)); }
   .twk.glow, .tbk.glow { fill:var(--lv); animation:glow 1s ease-in-out infinite alternate; }
   .tdot { fill:var(--ink); }
+  .twk.press, .tbk.press { animation:keypress .45s cubic-bezier(.3,1.6,.5,1); }
+  .twk.ripple { animation:ripple .5s ease-out; }
+  @keyframes keypress { 0% { transform:translateY(0); } 35% { transform:translateY(12px) scaleY(.97); } 100% { transform:translateY(4px) scaleY(.985); } }
+  @keyframes ripple { 0%, 100% { transform:none; } 40% { transform:translateY(10px); fill:color-mix(in srgb,var(--lv) 40%,#fff); } }
+  /* mascotte */
+  .masc { transition:transform .7s cubic-bezier(.5,0,.25,1); }
+  .mhead { fill:var(--lv); stroke:var(--ink); stroke-width:4; }
+  .mstem, .marm { fill:none; stroke:var(--ink); stroke-width:6; stroke-linecap:round; } .mflag { fill:var(--ink); }
+  .meyes ellipse { fill:#fff; stroke:var(--ink); stroke-width:3; } .mpup { fill:var(--ink); }
+  .msmile { fill:none; stroke:var(--ink); stroke-width:4; stroke-linecap:round; }
+  .mshadow { fill:rgba(17,17,17,.14); }
+  .mbob { animation:bob 1.4s ease-in-out infinite alternate; }
+  .meyes { animation:blink 4.2s infinite; transform-box:fill-box; transform-origin:center; }
+  .mjump, .marm { transform-box:fill-box; }
+  .mjump.hop { animation:hop .7s cubic-bezier(.3,0,.3,1); transform-origin:center bottom; }
+  .masc.wave .mar { animation:wave .35s ease-in-out 4 alternate; transform-origin:0% 100%; }
+  .masc.cheer .mjump { animation:cheer .6s cubic-bezier(.3,0,.3,1) 3; transform-origin:center bottom; }
+  .masc.cheer .marm { animation:wave .3s ease-in-out 6 alternate; }
+  .spark line { stroke:var(--lv); stroke-width:5; stroke-linecap:round; animation:spark .7s ease-out both; transform-box:fill-box; transform-origin:center; }
+  @keyframes bob { from { transform:translateY(0); } to { transform:translateY(-7px); } }
+  @keyframes blink { 0%, 94%, 100% { transform:scaleY(1); } 97% { transform:scaleY(.1); } }
+  @keyframes hop { 0% { transform:translateY(0) scale(1); } 15% { transform:translateY(4px) scale(1.08,.9); } 50% { transform:translateY(-70px) rotate(-10deg); } 80% { transform:translateY(0) scale(1.1,.88); } 100% { transform:none; } }
+  @keyframes cheer { 0%, 100% { transform:none; } 20% { transform:scale(1.1,.85); } 55% { transform:translateY(-55px) rotate(8deg); } }
+  @keyframes wave { from { transform:rotate(0); } to { transform:rotate(-28deg); } }
+  @keyframes spark { from { opacity:1; transform:scale(.3); } to { opacity:0; transform:scale(1.3); } }
   .pill { animation:pillin .55s cubic-bezier(.2,1.4,.4,1) both; }
   .pill rect { fill:var(--ink); } .pill text { fill:var(--paper); font-weight:800; font-size:24px; text-anchor:middle; }
   .pill.big rect { fill:var(--lv); stroke:var(--ink); stroke-width:3; } .pill.big text { fill:var(--on-lv); font-size:28px; }
@@ -321,7 +350,7 @@
   .draw { fill:none; stroke:var(--ink); stroke-width:4; stroke-linecap:round; stroke-dasharray:1200; stroke-dashoffset:1200; animation:draw .9s var(--ease) forwards; }
   .brk text { font-size:30px; font-weight:900; text-anchor:middle; fill:var(--ink); animation:pillin .5s .4s both; } .brk { animation:none; }
   .arrow { stroke:var(--lv); stroke-width:5; } .ahead { fill:var(--lv); }
-  .tsl { stroke:var(--ink); stroke-width:2; } .tsl.draw { stroke-width:2; animation-duration:.7s; }
+  .tsl { stroke:var(--ink); stroke-width:2; } .fadein { animation:fadein .5s ease-out both; } @keyframes fadein { from { opacity:0; } to { opacity:1; } }
   .tclef, .tclefb { font-family:'Noto Music',serif; fill:var(--ink); font-size:96px; } .tclefb { font-size:86px; }
   .tnote { animation:drop .7s cubic-bezier(.2,1.3,.4,1) both; } .tnote ellipse { fill:var(--ink); } .tnote text { font-size:24px; font-weight:800; text-anchor:middle; fill:var(--ink); }
   .tut-foot { display:grid; grid-template-columns:1fr auto; gap:24px; align-items:center; padding:2vh clamp(20px,4vw,60px) 3vh; border-top:3px solid var(--ink); }
@@ -345,7 +374,7 @@
   #done button { border-color:var(--on-lv); } #done button.primary { background:var(--on-lv); color:var(--lv); }
   #done button:hover { background:var(--on-lv); color:var(--lv); }
   @keyframes rise { from { clip-path:circle(0 at 50% 50%); } to { clip-path:circle(150% at 50% 50%); } }
-  @media (prefers-reduced-motion:reduce) { .pill, .tnote, .draw, #tutTxt.in, .twk, .tbk { animation:none !important; transition:none !important; stroke-dashoffset:0 !important; } .ftag, .demo-note, .demo-lbl, #lvl *, .key.together, .mk.pulse { animation:none !important; } .ring, .burst, .pulse, .xpf { display:none; } #done { animation:none; } * { transition:none !important; } }
+  @media (prefers-reduced-motion:reduce) { .masc, .mbob, .meyes, .mjump, .marm, .spark line, .twk.press, .tbk.press, .twk.ripple { animation:none !important; transition:none !important; } .pill, .tnote, .draw, #tutTxt.in, .twk, .tbk { animation:none !important; transition:none !important; stroke-dashoffset:0 !important; } .ftag, .demo-note, .demo-lbl, #lvl *, .key.together, .mk.pulse { animation:none !important; } .ring, .burst, .pulse, .xpf { display:none; } #done { animation:none; } * { transition:none !important; } }
   @media (max-width:760px) { .lib { grid-template-columns:1fr; } .stats, .row2 { grid-template-columns:1fr; } .next .arcs { display:none; } .stage { padding-block:16px; align-items:start; } .stage.with-card { grid-template-columns:1fr; } .band { grid-template-columns:auto 1fr; } .band .meta { grid-column:1/-1; flex-direction:row; justify-content:space-between; align-items:center; } }
 </style>
 </head>
@@ -398,15 +427,15 @@
 
 <script>
 // aggiornamenti: se online c'è una versione più nuova, ricarica subito quella (l'iPad tiene in memoria la pagina vecchia)
-const APP_V = '202611181825';
+const APP_V = '202611181833';
 fetch('version.json?' + Date.now(), { cache:'no-store' }).then(r => r.json()).then(j => {
   if (j.v && j.v !== APP_V && !location.search.includes('v=' + j.v)) location.replace(location.pathname + '?v=' + j.v + location.hash);
 }).catch(() => {});
 </script>
-<script src="i18n.js?v=202611181825"></script>
-<script src="curriculum.en.js?v=202611181825"></script>
-<script src="curriculum.uk.js?v=202611181825"></script>
-<script src="curriculum.js?v=202611181825"></script>
+<script src="i18n.js?v=202611181833"></script>
+<script src="curriculum.en.js?v=202611181833"></script>
+<script src="curriculum.uk.js?v=202611181833"></script>
+<script src="curriculum.js?v=202611181833"></script>
 <script>
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -973,7 +1002,7 @@ function stopAnim() { animTs.forEach(clearTimeout); animTs = []; }
 const nm = pc => NAMES[pc], WK = [0, 2, 4, 5, 7, 9, 11];
 const ORD = n => I18N[LANG].ord ? I18N[LANG].ord(n) : n + '°';
 // tastiera disegnata: Do3–Do5 (15 tasti bianchi), tasti da y=150, etichette sopra
-const TK = { lo:48, hi:72, W:1000 / 15, top:150, wh:230, bh:140 };
+const TK = { lo:48, hi:72, W:1000 / 15, top:130, wh:240, bh:150 };
 const tWhites = () => { const w = []; for (let m = TK.lo; m <= TK.hi; m++) if (!SHARP[m % 12]) w.push(m); return w; };
 const tX = m => { const w = tWhites(), i = w.filter(x => x < m).length; return SHARP[m % 12] ? i * TK.W : i * TK.W + TK.W / 2; };   // centro del tasto
 function tutKeyboard() {
@@ -984,11 +1013,36 @@ function tutKeyboard() {
   return h;
 }
 const tKey = m => $(`#tutKb [data-m="${m}"]`);
-function tOn(m, cls = 'on', delay = 0) { later(delay, () => tKey(m)?.classList.add(cls)); }
+// mascotte: una nota con gli occhi che salta sotto il tasto che si accende
+const MY = () => TK.top + TK.wh + 34;
+const mascot = (x, y, cls = '') => `<g class="masc ${cls}" style="transform:translate(${x}px,${y}px)"><ellipse class="mshadow" cx="0" cy="96" rx="34" ry="7"/><g class="mbob"><g class="mjump">
+  <path class="mstem" d="M28 44 V-26"/><path class="mflag" d="M28 -26 q30 12 22 40 q-6 -16 -22 -18 z"/>
+  <ellipse class="mhead" cx="0" cy="54" rx="40" ry="31" transform="rotate(-18 0 54)"/>
+  <path class="marm mal" d="M-38 60 q-18 4 -26 -14"/><path class="marm mar" d="M24 34 q14 -18 4 -40"/>
+  <g class="meyes"><ellipse cx="-13" cy="48" rx="8" ry="10"/><ellipse cx="12" cy="44" rx="8" ry="10"/><circle class="mpup" cx="-11" cy="44" r="4"/><circle class="mpup" cx="14" cy="40" r="4"/></g>
+  <path class="msmile" d="M-14 66 q13 11 26 -4"/></g></g></g>`;
+function mTo(m) {
+  const g = $('#masc'); if (!g) return;
+  g.style.transform = `translate(${tX(m)}px,${MY()}px)`;
+  const j = g.querySelector('.mjump'); j.classList.remove('hop'); j.getBoundingClientRect(); j.classList.add('hop');
+}
+function mDo(cls, ms = 1400) { const g = $('#masc'); if (!g) return; g.classList.remove('cheer', 'wave'); g.getBoundingClientRect(); g.classList.add(cls); later(ms, () => g.classList.remove(cls)); }
+function tSpark(m) {   // scintille sopra il tasto premuto
+  const x = tX(m), y = TK.top - 8;
+  tFx(`<g class="spark">${Array.from({ length:8 }, (_, i) => { const a = i * Math.PI / 4, r1 = 14, r2 = 34; return `<line x1="${x + Math.cos(a) * r1}" y1="${y + Math.sin(a) * r1 * .7}" x2="${x + Math.cos(a) * r2}" y2="${y + Math.sin(a) * r2 * .7}"/>`; }).join('')}</g>`);
+  const sp = $('#tfx').lastElementChild; later(800, () => sp?.remove());
+}
+function tOn(m, cls = 'on', delay = 0) {
+  later(delay, () => {
+    const k = tKey(m); if (!k) return;
+    k.classList.remove('press'); k.getBoundingClientRect(); k.classList.add(cls, ...(cls === 'on' || cls === 'glow' ? ['press'] : []));
+    if (cls === 'on') { mTo(m); later(380, () => tSpark(m)); }   // la mascotte ci salta sotto e lo "preme"
+  });
+}
 function tFx(html) { $('#tfx').insertAdjacentHTML('beforeend', html); }
 // etichetta sopra il tasto, collegata da una linea che si disegna
 function tPill(m, text, { row = 0, big = false, delay = 0 } = {}) {
-  const x = tX(m), y = 100 - row * 54, w = Math.max(64, text.length * (big ? 17 : 14) + 34), cx = Math.max(w / 2 + 4, Math.min(1000 - w / 2 - 4, x));
+  const x = tX(m), y = 86 - row * 50, w = Math.max(64, text.length * (big ? 17 : 14) + 34), cx = Math.max(w / 2 + 4, Math.min(1000 - w / 2 - 4, x));
   tFx(`<g class="pill ${big ? 'big' : ''}" style="animation-delay:${delay}ms"><line x1="${x}" x2="${x}" y1="${y + 20}" y2="${TK.top - 4}" class="lead" style="animation-delay:${delay}ms"/>
     <rect x="${cx - w / 2}" y="${y - 22}" width="${w}" height="${big ? 48 : 42}" rx="21"/><text x="${cx}" y="${y + (big ? 10 : 7)}">${esc(text)}</text></g>`);
 }
@@ -1006,7 +1060,7 @@ function tArrow(m1, m2, delay = 0) {
 const tStaffY = m => m >= 60 ? 176 - (dia(m) - 30) * 9 : 176 - (dia(m) - 18) * 9;   // linea in basso: Mi4 (violino) / Sol2 (basso)
 function tStaff(bass) {
   let h = '';
-  for (let i = 0; i < 5; i++) h += `<line x1="40" x2="960" y1="${104 + i * 18}" y2="${104 + i * 18}" class="tsl draw" style="animation-delay:${i * 80}ms"/>`;
+  for (let i = 0; i < 5; i++) h += `<line x1="40" x2="960" y1="${104 + i * 18}" y2="${104 + i * 18}" class="tsl fadein" style="animation-delay:${i * 80}ms"/>`;
   h += bass ? `<text x="60" y="160" class="tclefb">𝄢</text>` : `<text x="56" y="180" class="tclef">𝄞</text>`;
   $('#tutStaff').innerHTML = h + '<g id="tnotes"></g>';
 }
@@ -1075,7 +1129,7 @@ function startTour(name, key) {
   const d = $('#tut'); d.hidden = false;
   d.innerHTML = `<header class="tut-head on-colour"><button class="icon" id="tutClose" aria-label="${t('tSkip')}">${icon('back')}</button><h2>${esc(card?.h || cur.t)}</h2><span class="tut-dots">${Array.from({ length:n }, (_, i) => `<i data-i="${i}"></i>`).join('')}</span></header>
     <div class="tut-art">${name in STAFF_TOURS ? '<svg id="tutStaff" viewBox="0 0 1000 230" aria-hidden="true"></svg>' : ''}
-      <svg id="tutKb" viewBox="0 0 1000 ${TK.top + TK.wh + 10}" role="img" aria-label="${esc(card?.h || '')}"><defs><marker id="ahead" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="ahead"/></marker></defs><g id="tkeys">${tutKeyboard()}</g><g id="tfx"></g></svg></div>
+      <svg id="tutKb" viewBox="0 -10 1000 ${TK.top + TK.wh + 145}" role="img" aria-label="${esc(card?.h || '')}"><defs><marker id="ahead" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="ahead"/></marker></defs><g id="tkeys">${tutKeyboard()}</g><g id="tfx"></g>${mascot(tX(60), MY()).replace('class="masc ', 'id="masc" class="masc ')}</svg></div>
     <div class="tut-foot"><p id="tutTxt" aria-live="polite"></p><div class="tut-btns"><button id="tutBack">${icon('back')} ${t('tutBack')}</button><button class="primary" id="tutNext"></button></div></div>`;
   $('#tutClose').onclick = () => endTour();
   $('#tutBack').onclick = () => { if (tour.i > 0) { tour.i--; tourStep(); } };
@@ -1089,6 +1143,8 @@ function tourStep() {
   document.querySelectorAll('#tutKb .on, #tutKb .soft, #tutKb .glow').forEach(k => k.classList.remove('on', 'soft', 'glow'));
   $('#tfx').innerHTML = ''; if ($('#tutStaff')) $('#tutStaff').innerHTML = '';
   TUT[name][i]();
+  if (i === 0) { mDo('wave'); tWhites().forEach((m, k) => later(k * 35, () => { const e = tKey(m); e?.classList.remove('ripple'); e?.getBoundingClientRect(); e?.classList.add('ripple'); })); }
+  if (i === n - 1) later(900, () => mDo('cheer', 1800));
   const txt = $('#tutTxt'); txt.textContent = tourText(name, i); txt.classList.remove('in'); void txt.offsetWidth; txt.classList.add('in');
   document.querySelectorAll('.tut-dots i').forEach((d, k) => d.classList.toggle('on', k <= i));
   $('#tutBack').disabled = i === 0;
@@ -1376,7 +1432,7 @@ function showLevelDone(li) {
   const got = ids.reduce((a, id) => a + (P.prog[id] || 0), 0), tot = ids.length * 3;
   d.hidden = false;
   d.innerHTML = `${arcs(1400, 6, 1.2, 'left:50%;top:50%;transform:translate(-50%,-50%)', 20)}<div class="lv-inner"><div class="lv-num">${li}</div>
-    <div><h2>${t('lvlDone', { n:li })}</h2><div class="bigstars">${stars(3)}</div><p class="lv-d">${t('lvlStars', { s:got, t:tot })}</p>
+    <div><svg class="lv-masc" viewBox="-80 -40 160 150" aria-hidden="true">${mascot(0, 0, 'cheering')}</svg><h2>${t('lvlDone', { n:li })}</h2><div class="bigstars">${stars(3)}</div><p class="lv-d">${t('lvlStars', { s:got, t:tot })}</p>
     ${N ? `<div class="lv-unlock" style="--nc:${N.c};--nci:${N.ci}"><b>${li + 1}</b><div><p class="lv-kick">${t('lvlUnlock', { n:li + 1 })}</p><h3 style="font-size:26px;font-weight:900">${esc(N.title)}</h3></div></div>` : `<p class="lv-d">${t('lvlLast')}</p>`}
     <button id="lvlGo">${t('cont')} ${icon('arrow')}</button></div></div>`;
   lvlAt = performance.now();
