@@ -127,6 +127,8 @@
   .newp input { font:inherit; font-size:20px; min-height:52px; border:2px solid var(--ink); background:#fff; padding:0 14px; border-radius:0; width:min(320px,80vw); }
   .combo { font-size:18px; font-weight:900; min-height:22px; }
   .tip { text-align:center; color:var(--mute); font-size:17px; font-weight:600; }
+  .tip.hot { color:var(--ink); font-size:clamp(18px,2.6vh,22px); font-weight:800; }
+  #done .advice { max-width:46ch; margin:22px auto 0; font-size:18px; font-weight:600; }
   .xpf { position:absolute; left:50%; bottom:46%; font-weight:900; font-size:22px; background:var(--ink); color:var(--paper); padding:2px 8px; pointer-events:none; z-index:6; white-space:nowrap; animation:float .9s var(--ease) forwards; }
   @keyframes float { from { opacity:1; transform:translate(-50%,0); } to { opacity:0; transform:translate(-50%,-70px); } }
   #done .gain { display:flex; gap:36px; justify-content:center; margin-top:20px; }
@@ -466,18 +468,25 @@ function showWho() {
     e.preventDefault();
     const name = $('#pname').value.trim(); if (!name) return;
     const [c, ci] = PCOL[profiles.length % PCOL.length];
-    profiles.push({ id:'p' + Date.now(), name, c, ci, xp:0, prog:profiles.length ? {} : store.get('progress', {}), days:[], daily:{}, week:{}, best:0 });
+    profiles.push({ id:'p' + Date.now(), name, c, ci, xp:0, prog:profiles.length ? {} : store.get('progress', {}), days:[], daily:{}, week:{}, best:0, err:{} });
     saveP(); pick(profiles.length - 1);
   };
   (w.querySelector('.player') || $('#pname')).focus();
 }
-function pick(i) { P = profiles[i]; store.set('current', P.id); $('#who').hidden = true; goHome(); }
+function pick(i) { P = profiles[i]; P.err ||= {}; store.set('current', P.id); $('#who').hidden = true; goHome(); }
 
 // ===== Home =====
 function drillPool() {   // le note singole delle lezioni già superate
   const pool = new Set();
   allLessons().forEach(x => { if (!x.imported && P.prog[x.id] > 0) compile(x).forEach(s => s.need?.length === 1 && pool.add(s.need[0])); });
   return [...pool];
+}
+const errRate = m => { const [t, e] = P.err[m] || [0, 0]; return e / (t + e || 1); };
+function pickWeighted(pool) {   // le note che sbagli di più escono più spesso (fino a 5 volte)
+  const w = pool.map(m => 1 + 4 * errRate(m)), tot = w.reduce((a, b) => a + b, 0);
+  let r = Math.random() * tot;
+  for (let i = 0; i < pool.length; i++) if ((r -= w[i]) <= 0) return pool[i];
+  return pool[pool.length - 1];
 }
 function renderHome() {
   const list = allLessons(), home = $('#home');
@@ -688,21 +697,23 @@ function songSteps(so, diff) {
 
 // ===== Lezione =====
 let cur = null, idx = -1, step = 0, hit = new Set(), errors = 0, wrongKeys = new Set(), burst = -1, combo = 0, bestCombo = 0, lessonXp = 0;
+let errSteps = new Set(), stepErr = 0, pending = null, idleT = 0;
 const multOf = c => c >= 20 ? 3 : c >= 8 ? 2 : 1;
 function start(i) {
-  idx = i;
-  if (i === 'drill') { const pool = drillPool(); if (pool.length < 3) return goHome(); cur = { t:'Allenamento lampo', id:'drill', level:'', L:DRILL_LEVEL, tip:'Leggi la nota e suonala. Più combo fai, più punti prendi.', steps:Array.from({ length:20 }, () => [pool[Math.floor(Math.random() * pool.length)]]) }; }
+  const prevIdx = idx; idx = i;
+  if (i === 'drill') { const pool = drillPool(); if (pool.length < 3) return goHome(); cur = { t:'Allenamento lampo', id:'drill', level:'', L:DRILL_LEVEL, tip:'Leggi la nota e suonala. Più combo fai, più punti prendi.', steps:Array.from({ length:20 }, () => [pickWeighted(pool)]) }; }
+  else if (typeof i === 'object') { cur = i; idx = prevIdx; }
   else cur = allLessons()[i];
-  cur.st = compile(cur);
-  history.replaceState(null, '', i === 'drill' ? '#allenamento' : `#lezione-${i}`);
-  step = 0; hit.clear(); wrongKeys.clear(); errors = 0; burst = -1; combo = 0; bestCombo = 0; lessonXp = 0;
+  cur.st = cur.st0 ? cur.st0.map(x => ({ ...x })) : compile(cur);
+  if (!cur.repair) { pending = null; history.replaceState(null, '', i === 'drill' ? '#allenamento' : `#lezione-${i}`); }
+  step = 0; hit.clear(); wrongKeys.clear(); errors = 0; burst = -1; combo = 0; bestCombo = 0; lessonXp = 0; errSteps.clear(); stepErr = 0;
   $('#base').hidden = !(cur.song || cur.acc); baseLabel();
   setLevel(cur.L);
   $('#home-view').hidden = true; $('#player').hidden = false; $('#done').hidden = true;
   $('#band-arcs').innerHTML = arcs(460, 4, 3, 'right:-170px;top:-270px');
   $('#title').textContent = cur.t;
-  $('#sub').textContent = cur.imported ? `${cur.sub} · ${songDiff === 'facile' ? 'Facile' : 'Normale'}` : cur.id === 'drill' ? 'Allenamento' : `${cur.goal ? 'Obiettivo · ' : ''}Livello ${cur.level} · ${cur.L.title}`;
-  $('#tip').textContent = cur.cards ? '' : cur.tip || '';
+  $('#sub').textContent = cur.repair ? cur.sub : cur.imported ? `${cur.sub} · ${songDiff === 'facile' ? 'Facile' : 'Normale'}` : cur.id === 'drill' ? 'Allenamento' : `${cur.goal ? 'Obiettivo · ' : ''}Livello ${cur.level} · ${cur.L.title}`;
+  setTip(cur.cards ? '' : cur.tip || '');
   buildKeys(); render();
 }
 function buildKeys() {
@@ -735,7 +746,9 @@ function buildKeys() {
   $('#map').innerHTML = mh;
 }
 function render() {
-  const s = cur.st[step] || {}, card = cur.cards?.[s.card], names = showNames && !card?.hideNames;
+  const s = cur.st[step] || {}, card = cur.cards?.[s.card], names = showNames && !card?.hideNames && !cur.hideNames;
+  clearTimeout(idleT);
+  if (s.need && !$('#player').hidden) { const at = step; idleT = setTimeout(() => cur && step === at && hint(s, 'idle'), 9000); }
   // tastiera
   const targets = new Set((s.need || []).filter(m => !hit.has(m)).concat(s.any || []));
   const marks = new Set(card?.mark ? token(card.mark).any : []);
@@ -824,6 +837,21 @@ function ring(m) {
   const r = document.createElement('span'); r.className = 'ring';
   k.append(r); r.addEventListener('animationend', () => r.remove());
 }
+// ===== Consigli del maestro =====
+const WHERE = ['Il Do è il bianco a sinistra dei due tasti neri.', 'Il Do♯ è il nero a destra del Do.', 'Il Re sta in mezzo ai due tasti neri.', 'Il Re♯ è il secondo nero del gruppo da due.',
+  'Il Mi è il bianco a destra dei due tasti neri.', 'Il Fa è il bianco a sinistra dei tre tasti neri.', 'Il Fa♯ è il primo nero del gruppo da tre.', 'Il Sol sta tra il primo e il secondo nero del gruppo da tre.',
+  'Il Sol♯ è il nero in mezzo al gruppo da tre.', 'Il La sta tra il secondo e il terzo nero del gruppo da tre.', 'Il La♯ è l\'ultimo nero del gruppo da tre.', 'Il Si è il bianco a destra dei tre tasti neri.'];
+const ADVICE = ['Dita curve, come se tenessi una pallina. Polso morbido, all\'altezza dei tasti.', 'Siediti al centro, davanti al Do centrale, con i gomiti un po\' più avanti del busto.',
+  'Meglio lento e giusto che veloce e sbagliato: ogni ripetizione sbagliata ne chiede tre giuste per essere cancellata.', 'Guarda lo spartito, non le mani: le dita imparano la strada da sole.',
+  'Pochi minuti ogni giorno valgono più di un\'ora una volta a settimana.', 'Se un punto non viene, isolalo: due o tre note, lente, finché vengono tre volte di fila.',
+  'Respira e rilassa le spalle: la tensione rende le dita lente.', 'Canta o conta a voce mentre suoni: aiuta il ritmo e la memoria.', 'Prima di suonare, trova con gli occhi la prima nota e metti già il dito giusto sopra.'];
+function setTip(t, hot) { const el = $('#tip'); el.textContent = t; el.classList.toggle('hot', !!hot); }
+function hint(s, why, m) {
+  const target = (s.need || []).find(n => !hit.has(n)) ?? s.need?.[0]; if (target === undefined) return;
+  if (why === 'octave') return setTip('Nota giusta, ottava sbagliata: usa il pallino del Do centrale come riferimento.', true);
+  if (why === 'near') return setTip('Quasi: hai preso il tasto vicino. Un dito per tasto, dita curve.', true);
+  setTip(WHERE[target % 12] + (s.finger ? ` Usa il dito ${String(s.finger).split('-')[0]}.` : ''), true);
+}
 function floatXp(m, txt) {
   const k = $(`.key[data-m="${m}"]`); if (!k) return;
   const f = document.createElement('span'); f.className = 'xpf'; f.textContent = txt;
@@ -832,6 +860,9 @@ function floatXp(m, txt) {
 function advance(m) {
   const s = cur.st[step];
   if (!s.next) {
+    (s.need || []).forEach(n => (P.err[n] ||= [0, 0])[0]++);   // tentativi riusciti per nota
+    if (stepErr) setTip(cur.cards ? '' : cur.tip || '');
+    stepErr = 0;
     combo++; bestCombo = Math.max(bestCombo, combo);
     const g = multOf(combo); lessonXp += g;   // 1 XP a nota, ×2 da 8 di combo, ×3 da 20
     if (m !== undefined) floatXp(m, multOf(combo) > 1 ? `+${g} ×${multOf(combo)}` : `+${g}`);
@@ -857,34 +888,74 @@ function handle(m) {
       return render();
     }
   }
-  errors++; combo = 0; wrongKeys.add(m); render();   // il tasto sbagliato resta segnato finché non suoni quello giusto
+  errors++; combo = 0; wrongKeys.add(m); errSteps.add(step); stepErr++;
+  const tgt = s.need ? s.need.filter(n => !hit.has(n)) : [];
+  tgt.forEach(n => (P.err[n] ||= [0, 0])[1]++);
+  render();   // il tasto sbagliato resta segnato finché non suoni quello giusto
+  if (tgt.some(n => Math.abs(n - m) === 12)) hint(s, 'octave');
+  else if (tgt.some(n => Math.abs(n - m) <= 2)) stepErr >= 2 && hint(s, 'near');
+  if (stepErr >= 2 && !tgt.some(n => Math.abs(n - m) === 12 || Math.abs(n - m) <= 2)) hint(s, 'where');
+  if (stepErr >= 3) hint(s, 'where');
+}
+// Tratti da riparare: ogni passo sbagliato con i 2 prima e quello dopo; tratti vicini si uniscono
+function makeChunks(st, errSet) {
+  const out = [];
+  for (const i of [...errSet].sort((x, y) => x - y)) {
+    const a = Math.max(0, i - 2), b = Math.min(st.length - 1, i + 1), last = out[out.length - 1];
+    if (last && a <= last.b + 1) last.b = Math.max(last.b, b); else out.push({ a, b });
+  }
+  return out.map(({ a, b }) => st.slice(a, b + 1).filter(x => x.need).map(x => ({ need:x.need, finger:x.finger }))).filter(c => c.length);
+}
+const CLEAN = 3;   // un tratto è riparato dopo 3 volte di fila senza errori
+function startRepair() {
+  const p = pending;
+  start({ t:'Ripara gli errori', repair:true, id:'repair', L:p.lesson.L, level:'', hideNames:p.rep === CLEAN - 1,
+    sub:`Tratto ${p.ci + 1} di ${p.chunks.length} · pulito ${p.rep} su ${CLEAN}`,
+    tip:p.rep === 0 ? 'Qui avevi sbagliato. Suona lento: conta la precisione, non la velocità.' : p.rep === CLEAN - 1 ? 'Ultima volta, senza nomi delle note.' : 'Bene. Ancora, senza errori.',
+    st0:p.chunks[p.ci] });
 }
 function finish() {
-  const n = cur.st.length, st = errors <= 1 ? 3 : errors <= Math.max(3, n * 0.15) ? 2 : 1;
+  if (cur.repair) {
+    const p = pending;
+    p.rep = errors === 0 ? p.rep + 1 : 0;
+    if (p.rep >= CLEAN) { p.ci++; p.rep = 0; p.fixed++; p.repairXp += 5; }
+    return p.ci >= p.chunks.length ? showDone(p) : startRepair();
+  }
+  const res = { lesson:cur, idx, errors, bestCombo, lessonXp, n:cur.st.length, fixed:0, repairXp:0 };
+  const chunks = cur.id === 'drill' ? [] : makeChunks(cur.st, errSteps);
+  saveP();
+  if (chunks.length) { pending = { ...res, chunks, ci:0, rep:0 }; return startRepair(); }
+  showDone(res);
+}
+function showDone(r) {
+  pending = null; cur = r.lesson; idx = r.idx; setLevel(cur.L);
+  const st = r.errors <= 1 ? 3 : r.errors <= Math.max(3, r.n * 0.15) ? 2 : 1;
   const first = cur.id !== 'drill' && !(P.prog[cur.id] > 0);
-  const total = lessonXp + st * 5 + (first ? 20 : 0), before = lvOf(P.xp);
+  const total = r.lessonXp + st * 5 + (first ? 20 : 0) + r.repairXp, before = lvOf(P.xp);
   if (cur.id !== 'drill') P.prog[cur.id] = Math.max(P.prog[cur.id] || 0, st);
-  P.best = Math.max(P.best || 0, bestCombo);
+  P.best = Math.max(P.best || 0, r.bestCombo);
   addXp(total);
   const after = lvOf(P.xp), list = allLessons(), hasNext = cur.id === 'drill' || idx + 1 < list.length;
+  const advice = r.errors > 4 ? 'Molti errori: rifalla più lenta. Tre volte giuste valgono più di trenta sbagliate.' : ADVICE[(P.xp + r.n) % ADVICE.length];
   const d = $('#done');
   d.innerHTML = `${arcs(1400, 4, 1.6, 'left:50%;top:50%;transform:translate(-50%,-50%)', 33)}<div class="inner">
     <h2 id="done-h">${st === 3 ? 'Perfetto.' : 'Fatto.'}</h2><div class="big" aria-label="${st} stelle su 3">${stars(st)}</div>
-    <div class="gain"><div><b>+${total}</b><span>XP${first ? ' (+20 prima volta)' : ''}</span></div><div><b>${bestCombo}</b><span>combo migliore</span></div><div><b>${errors}</b><span>${errors === 1 ? 'errore' : 'errori'}</span></div><div><b>${streakOf(P)}</b><span>giorni di fila</span></div></div>
+    <div class="gain"><div><b>+${total}</b><span>XP${first ? ' (+20 prima volta)' : ''}</span></div><div><b>${r.bestCombo}</b><span>combo migliore</span></div><div><b>${r.errors}</b><span>${r.errors === 1 ? 'errore' : 'errori'}</span></div>${r.fixed ? `<div><b>${r.fixed}</b><span>${r.fixed === 1 ? 'punto riparato' : 'punti riparati'}</span></div>` : ''}<div><b>${streakOf(P)}</b><span>giorni di fila</span></div></div>
     ${after > before ? `<p class="lvup">Livello ${after} raggiunto · ${titleOf(after)}</p>` : ''}
+    <p class="advice">${esc(advice)}</p>
     <div class="acts">${hasNext ? `<button class="primary" id="next">${cur.id === 'drill' ? 'Ancora' : 'Prossima lezione'} ${icon('arrow')}</button>` : ''}
       <button id="again">${icon('restart')} Riprova</button><button id="home-btn">Home</button></div></div>`;
-  d.hidden = false;
+  $('#player').hidden = false; d.hidden = false;
   $('#again').onclick = () => start(idx);
   if (hasNext) { $('#next').onclick = () => start(cur.id === 'drill' ? 'drill' : idx + 1); $('#next').focus(); } else $('#home-btn').focus();
   $('#home-btn').onclick = goHome;
 }
-function goHome() { history.replaceState(null, '', location.pathname); cur = null; $('#player').hidden = true; $('#done').hidden = true; $('#home-view').hidden = false; renderHome(); }
+function goHome() { history.replaceState(null, '', location.pathname); clearTimeout(idleT); pending = null; cur = null; $('#player').hidden = true; $('#done').hidden = true; $('#home-view').hidden = false; renderHome(); }
 $('#back').innerHTML = icon('back'); $('#listen').innerHTML = icon('play'); $('#restart').innerHTML = icon('restart');
-$('#back').onclick = goHome;
+$('#back').onclick = () => pending ? showDone(pending) : goHome();   // uscire dalla riparazione chiude comunque la lezione
 const baseLabel = () => { $('#base').innerHTML = icon('drum'); $('#base').setAttribute('aria-pressed', baseOn); $('#base').title = baseOn ? 'Base accesa' : 'Base spenta'; $('#base').classList.toggle('off', !baseOn); };
 $('#base').onclick = () => { baseOn = !baseOn; store.set('base', baseOn); baseLabel(); };
-$('#restart').onclick = () => start(idx);
+$('#restart').onclick = () => cur?.repair ? (pending.rep = 0, startRepair()) : start(idx);
 $('#listen').onclick = () => cur.st.forEach((s, i) => (s.need || []).forEach(m => beep(m, 0.45, i * 0.5)));
 addEventListener('keydown', e => { if (e.key === 'Escape' && cur) goHome(); });
 addEventListener('resize', () => { if (cur && !$('#player').hidden) { buildKeys(); render(); } });
@@ -1009,11 +1080,13 @@ $('#names').onchange = e => { showNames = e.target.checked; store.set('names', s
 console.assert(note('C4') === 60 && note('F#4') === 66 && note('Bb3') === 58, 'note()');
 console.assert(JSON.stringify(songSteps({ mel:[[0,60],[5,64],[480,62]] }, 'normale').map(g => g.need)) === '[[60,64],[62]]', 'songSteps');
 console.assert(LEVELS.every(L => L.lessons.every(x => !x.acc || words(x.acc).length === compile(x).length)), 'base allineata');
+console.assert(JSON.stringify(makeChunks([1,2,3,4,5,6,7,8].map(n => ({ need:[n] })), new Set([1, 6])).map(c => c.map(x => x.need[0]))) === '[[1,2,3],[5,6,7,8]]', 'tratti da riparare');
 console.assert(lvOf(0) === 1 && lvOf(100) === 2 && lvOf(399) === 2 && lvOf(400) === 3, 'livelli');
 console.assert(token('*F#').any.every(m => m % 12 === 6) && token('*#').any.every(m => SHARP[m % 12]), 'token any');
 console.assert(LEVELS.every(L => L.lessons.every(x => compile(x).every(s => s.next || (s.need || s.any).every(Number.isInteger)))), 'curriculum');
 console.assert(compile(LEVELS[1].lessons[0])[1].finger === 2, 'dita automatiche');
 P = profiles.find(p => p.id === store.get('current'));
+if (P) P.err ||= {};
 if (!P) showWho();
 else {
   renderHome();
