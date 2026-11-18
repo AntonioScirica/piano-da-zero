@@ -184,7 +184,7 @@
   .import label.check input { width:22px; height:22px; accent-color:var(--ink); }
 
   /* ===== Lezione ===== */
-  #player { height:100dvh; display:grid; grid-template-rows:auto 6px 1fr auto auto; overflow:hidden; }
+  #player { height:100dvh; display:grid; grid-template-rows:auto 6px 1fr auto; overflow:hidden; }
   .band { min-height:min(24vh,210px); background:var(--lv); color:var(--on-lv); padding:clamp(14px,2.4vh,26px) clamp(20px,3vw,40px); display:grid; grid-template-columns:auto 1fr auto; gap:20px; align-items:start; position:relative; overflow:hidden; }
   .band h1 { font-size:clamp(30px,min(11vh,8vw),96px); overflow-wrap:anywhere; font-weight:900; line-height:.9; letter-spacing:-.04em; position:relative; text-wrap:balance; }
   .band .sub { font-weight:600; font-size:17px; margin-top:8px; position:relative; }
@@ -244,7 +244,7 @@
   .mk.c4 em { color:var(--lv); background:var(--ink); }
   .mk.c4::after { content:''; position:absolute; bottom:3px; left:50%; width:4px; height:4px; margin-left:-2px; border-radius:50%; background:var(--ink); }
   .win { position:absolute; top:0; bottom:0; border:3px solid var(--lv); box-shadow:0 0 0 999px rgba(17,17,17,.55); z-index:2; pointer-events:none; }
-  #kbd { position:relative; height:clamp(150px,27vh,280px); user-select:none; -webkit-user-select:none; touch-action:none; }
+  #kbd { border-top:3px solid var(--ink); position:relative; height:clamp(150px,27vh,280px); user-select:none; -webkit-user-select:none; touch-action:none; }
   .key { position:absolute; top:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:8px; padding-bottom:12px; font-weight:700; font-size:clamp(14px,1.9vw,21px); }
   .key.white { height:100%; background:#fff; border-right:2px solid var(--ink); z-index:1; }
   .key.black { height:61%; background:var(--ink); color:var(--paper); z-index:2; }
@@ -418,7 +418,6 @@
       <p class="tip" id="tip"></p>
     </div>
   </div>
-  <div id="mapbar"><span>Melody 61<br><small data-t="mapSub">Do contati da sinistra</small></span><div id="map" aria-hidden="true"></div></div>
   <div id="kbd"></div>
 </section>
 <div id="who" class="who" hidden role="dialog" aria-modal="true" aria-label="Chi suona?" data-ta="who"></div>
@@ -429,15 +428,15 @@
 
 <script>
 // aggiornamenti: se online c'è una versione più nuova, ricarica subito quella (l'iPad tiene in memoria la pagina vecchia)
-const APP_V = '202611181839';
+const APP_V = '202611181841';
 fetch('version.json?' + Date.now(), { cache:'no-store' }).then(r => r.json()).then(j => {
   if (j.v && j.v !== APP_V && !location.search.includes('v=' + j.v)) location.replace(location.pathname + '?v=' + j.v + location.hash);
 }).catch(() => {});
 </script>
-<script src="i18n.js?v=202611181839"></script>
-<script src="curriculum.en.js?v=202611181839"></script>
-<script src="curriculum.uk.js?v=202611181839"></script>
-<script src="curriculum.js?v=202611181839"></script>
+<script src="i18n.js?v=202611181841"></script>
+<script src="curriculum.en.js?v=202611181841"></script>
+<script src="curriculum.uk.js?v=202611181841"></script>
+<script src="curriculum.js?v=202611181841"></script>
 <script>
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -986,16 +985,6 @@ function buildKeys() {
     kbd.append(k);
   }
   kbd.insertAdjacentHTML('beforeend', '<div id="fx" aria-hidden="true"></div>');
-  // mappa della Melody 61 (61 tasti, Do2–Do7): la zona chiara è dove vanno le mani
-  const MLO = 36, MHI = 96, mw = [];
-  for (let m = MLO; m <= MHI; m++) if (!SHARP[m % 12]) mw.push(m);
-  const u = 100 / mw.length, wl = m => mw.filter(x => x < m).length * u;
-  let mh = '';
-  for (let m = MLO; m <= MHI; m++) mh += SHARP[m % 12]
-    ? `<i class="mk b" data-m="${m}" style="left:${wl(m) - u * 0.32}%;width:${u * 0.64}%"></i>`
-    : `<i class="mk w${m === 60 ? ' c4' : ''}" data-m="${m}" style="left:${wl(m)}%;width:${u}%">${m % 12 === 0 ? `<em>${(m - 36) / 12 + 1}</em>` : ''}</i>`;
-  mh += `<b class="win" style="left:${wl(Math.max(lo, MLO))}%;width:${wl(Math.min(hi, MHI) + 1) - wl(Math.max(lo, MLO))}%"></b>`;
-  $('#map').innerHTML = mh;
 }
 // ===== Tutorial a schermo intero: prima si spiega (disegno grande, animato), poi si suona =====
 let animTs = [], animKey = null, tour = null;
@@ -1129,6 +1118,7 @@ function tourText(name, i) {
   return (TOURS[name]?.[LANG] || TOURS[name]?.it || [])[i]?.replace(/\{(\w+)\}/g, (m, k) => v[k] ?? m) || '';
 }
 function startTour(name, key) {
+  if (!cur || $('#player').hidden) return;   // lezione già chiusa
   stopAnim();
   const n = (TOURS[name]?.it || []).length; if (!n || !TUT[name]) return;
   const card = cur.cards?.[cur.st[step]?.card];
@@ -1186,14 +1176,13 @@ function render() {
     const label = !SHARP[m % 12] && names ? NAMES[m % 12] + (ord ? `<small class="ord">${L10N.ord(ord)}</small>` : '') : '';
     k.innerHTML = fg + (m === 60 ? '<span class="c4" aria-hidden="true"></span>' : '') + `<span>${label}</span>`;
   });
-  document.querySelectorAll('.mk').forEach(k => k.classList.toggle('t', targets.has(+k.dataset.m)));
   // testa
   const total = cur.st.length, practice = cur.st.filter(x => !x.next).length, done = cur.st.slice(0, step).filter(x => !x.next).length;
   $('#count').innerHTML = practice ? `${done}<small>/${practice}</small>` : '';
   $('#combo').textContent = combo >= 3 ? t('combo', { n:combo }) + (multOf(combo) > 1 ? t('comboX', { m:multOf(combo) }) : '') : '';
   $('#bar').style.width = 100 * step / total + '%';
   // scena: scheda di teoria e/o pentagramma
-  const showStaff = true;   // il pentagramma si vede sempre
+  const showStaff = !card || card.staff || !!s.need || (!!s.any && new Set(s.any.map(m => m % 12)).size === 1);   // il pentagramma solo quando c'è una nota da leggere
   $('#stage').className = 'stage ' + (card ? (showStaff ? 'with-card' : 'card-only') : '');
   $('#card').hidden = !card;
   if (card) {
