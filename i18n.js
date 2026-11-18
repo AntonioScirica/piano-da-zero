@@ -70,6 +70,8 @@ const STR = {
   // Home
   lv:['Lv {lv}', 'Lv {lv}', 'Рів. {lv}'],
   hold:[' e tieni {n} battiti', ' and hold for {n} beats', ' і тримай {n} долі'],
+  holdNow:['Tieni premuto finché la linea arriva alla nota dopo', 'Keep holding until the line reaches the next note', 'Тримай, доки лінія не дійде до наступної ноти'],
+  holdShort:['Troppo presto: tieni premuto finché la linea arriva. Riprova.', 'Too soon: keep holding until the line arrives. Try again.', 'Зарано: тримай, доки лінія не дійде. Спробуй ще раз.'],
   meSub:['Lv {lv} · {x}', 'Lv {lv} · {x}', 'Рів. {lv} · {x}'],
   pmSwitch:['Cambia profilo', 'Switch profile', 'Змінити профіль'],
   pmLogout:['Esci', 'Log out', 'Вийти'],

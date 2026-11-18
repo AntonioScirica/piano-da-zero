@@ -841,7 +841,7 @@ function start(i) {
   else cur = allLessons()[i];
   cur.st = cur.st0 ? cur.st0.map(x => ({ ...x })) : compile(cur);
   if (!cur.repair) { pending = null; history.replaceState(null, '', i === 'drill' ? '#allenamento' : `#lezione-${i}`); }
-  stopTimed(); lastTx = null; lastHead = null; viewOff = null; lastAct = 0; step = 0; hit = new Set(); wrongKeys.clear(); errors = 0; burst = -1; combo = 0; bestCombo = 0; lessonXp = 0; errSteps.clear(); stepErr = 0;
+  stopTimed(); cancelHold(true); lastTx = null; lastHead = null; viewOff = null; lastAct = 0; step = 0; hit = new Set(); wrongKeys.clear(); errors = 0; burst = -1; combo = 0; bestCombo = 0; lessonXp = 0; errSteps.clear(); stepErr = 0;
   $('#base').hidden = !(cur.song || cur.acc); baseLabel();
   setLevel(cur.L);
   $('#home-view').hidden = true; $('#player').hidden = false; $('#done').hidden = true;
@@ -870,6 +870,7 @@ function buildKeys() {
     if (SHARP[m % 12]) { k.className = 'key black'; k.style.left = (wi * w - w * 0.31) + '%'; k.style.width = w * 0.62 + '%'; }
     else { k.className = 'key white'; k.style.left = wi * w + '%'; k.style.width = w + '%'; }
     k.onpointerdown = e => { e.preventDefault(); noteOn(m, 'screen'); };
+    k.onpointerup = k.onpointerleave = k.onpointercancel = () => noteOff(m, 'screen');
     kbd.append(k);
   }
   // mappa della Melody 61 (61 tasti, Do2–Do7): la zona chiara è dove vanno le mani
@@ -940,6 +941,8 @@ const posY = m => m >= 60 ? 120 - (dia(m) - 30) * 7 : 190 - (dia(m) - 26) * 7;
 // A tempo: lo spartito scorre verso la linea fissa; si suona quando la nota la tocca
 const PLAY_X = 210, PXB = 95, FOLLOW_X = 470;
 let lastTx = null, lastHead = null, viewOff = null, moveDur = 0;   // posizione della linea, pixel per battito
+// la linea avanza fino a metà schermo, poi scorre anche lo spartito
+const viewFor = b => { const abs = PLAY_X + b * PXB, off = Math.max(0, abs - FOLLOW_X); return { off, tx:-off, headX:abs - off }; };
 const beatNow = () => timed ? (performance.now() - timed.t0) / (timed.spb * 1000) : 0;
 function drawStaff(names) {
   const W = 1000;
@@ -953,9 +956,7 @@ function drawStaff(names) {
   let tx, headX;
   if (timed) { tx = -beatNow() * PXB; headX = PLAY_X; }
   else {
-    const abs = PLAY_X + b0 * PXB;
-    viewOff = Math.max(0, abs - FOLLOW_X);   // la linea avanza fino a metà, poi scorre anche lo spartito
-    tx = -viewOff; headX = abs - viewOff;
+    const v = viewFor(b0); viewOff = v.off; tx = v.tx; headX = v.headX;
   }
   const bLo = timed ? b0 - 3 : (viewOff - PLAY_X) / PXB - 1, bHi = timed ? b0 + 12 : (viewOff + W - PLAY_X) / PXB + 1;
   const from = Math.max(0, cur.st.findIndex(x => x.beat >= bLo)), view = cur.st.slice(from).filter(x => x.beat <= bHi);
@@ -999,7 +1000,7 @@ function drawStaff(names) {
   burst = -1;
   $('#staff').innerHTML = h;
   const mv = moveDur; moveDur = 0;   // Impara: la linea va alla nota dopo nel tempo della nota appena suonata
-  if (!timed) requestAnimationFrame(() => { const g = $('#rollin'), hd = $('#head'), tr = mv ? `transform ${mv}s linear` : '';
+  if (!timed) requestAnimationFrame(() => { const g = $('#rollin'), hd = $('#head'), tr = mv ? `transform ${mv}s cubic-bezier(.2,.8,.2,1)` : '';
     if (g) { g.style.transition = tr; g.style.transform = `translateX(${tx}px)`; } if (hd) { hd.style.transition = tr; hd.style.transform = `translateX(${headX}px)`; } });
   lastTx = tx; lastHead = headX;
 }
@@ -1024,7 +1025,7 @@ function floatXp(m, txt) {
 }
 function advance(m) {
   const s = cur.st[step];
-  if (!timed && !s.next) moveDur = (s.dur || 1) * 60 / (cur.bpm || 80);   // semiminima ≈ 0,75 s, minima il doppio
+  if (!timed && !s.next) moveDur = s.dur >= 2 ? 0 : 0.18;   // nota piena: scatto alla successiva; nota vuota: la linea ci è già arrivata tenendo premuto
   if (!s.next) {
     (s.need || []).forEach(n => (P.err[n] ||= [0, 0])[0]++);   // tentativi riusciti per nota
     if (stepErr) setTip(cur.cards ? '' : cur.tip || '');
@@ -1040,8 +1041,48 @@ function advance(m) {
   render();
 }
 // Metodo "aspetta la nota giusta"
+// ===== Note vuote (minima, semibreve): vanno tenute premute per tutta la durata =====
+let hold = null;
+function startHold(s, m, src) {
+  const ms = s.dur * 60000 / (cur.bpm || 80), nx = cur.st[step + 1], v = viewFor(nx ? nx.beat : s.beat + s.dur);
+  hold = { step, m, src, need:s.need.slice(), t0:performance.now(), ms, peak:0, v };
+  render(); setTip(t('holdNow'), true);
+  requestAnimationFrame(() => requestAnimationFrame(() => {   // dopo il render: la linea scorre per tutta la durata della nota
+    if (!hold) return; const tr = `transform ${ms / 1000}s linear`, g = $('#rollin'), hd = $('#head');
+    if (g) { g.style.transition = tr; g.style.transform = `translateX(${v.tx}px)`; }
+    if (hd) { hd.style.transition = tr; hd.style.transform = `translateX(${v.headX}px)`; }
+  }));
+  hold.timer = setTimeout(finishHold, ms);
+}
+function finishHold() {
+  if (!hold) return;
+  const h = hold; hold = null; clearTimeout(h.timer);
+  lastTx = h.v.tx; lastHead = h.v.headX; moveDur = 0;
+  setTip(cur.cards ? '' : cur.tip || ''); advance(h.m);
+}
+function cancelHold(silent) {
+  if (!hold) return;
+  clearTimeout(hold.timer); hold = null;
+  if (silent) return;
+  errors++; errSteps.add(step); hit.clear(); render(); setTip(t('holdShort'), true);   // lasciata troppo presto: si rifà
+}
+function noteOff(m, src) {
+  if (!hold || timed) return;
+  if (src !== 'mic' && !hold.need.includes(m)) return;
+  performance.now() - hold.t0 >= hold.ms * 0.85 ? finishHold() : cancelHold();
+}
+function holdMic(rms) {   // col microfono: quando lasci il tasto il suono crolla
+  if (!hold || hold.src !== 'mic') return;
+  hold.peak = Math.max(hold.peak, rms);
+  if (performance.now() - hold.t0 > 150 && rms < hold.peak * 0.06) noteOff(hold.m, 'mic');
+}
 function handle(m, src) {
   if (!cur || $('#player').hidden || !$('#done').hidden || step >= cur.st.length) return;
+  if (hold) {   // mentre tieni una nota lunga
+    if (performance.now() - hold.t0 >= hold.ms * 0.85) finishHold();   // quasi finita: vale, e la nuova nota va alla prossima
+    else { if (!hold.need.includes(m)) cancelHold(); return; }
+    if (!cur || step >= cur.st.length || !$('#done').hidden) return;
+  }
   const s = cur.st[step];
   if (s.next) return advance();
   const octaveOk = n => micOn && n % 12 === m % 12;   // ponytail: col microfono accetto errori d'ottava (armoniche)
@@ -1051,7 +1092,7 @@ function handle(m, src) {
     let t = s.need.includes(m) ? m : s.need.find(n => octaveOk(n) && !hit.has(n));
     if (t !== undefined) {
       ring(t); hit.add(t);
-      if (s.need.every(n => hit.has(n))) return advance(t);
+      if (s.need.every(n => hit.has(n))) return !timed && s.dur >= 2 ? startHold(s, t, src) : advance(t);   // nota vuota: va tenuta
       return render();
     }
   }
@@ -1132,7 +1173,7 @@ function showDone(r) {
   ($('#snext') || $('#next') || $('#home-btn')).focus();
   $('#home-btn').onclick = goHome;
 }
-function goHome() { stopTimed(); calib = null; history.replaceState(null, '', location.pathname); clearTimeout(idleT); pending = null; cur = null; $('#player').hidden = true; $('#done').hidden = true; $('#home-view').hidden = false; renderHome(); }
+function goHome() { stopTimed(); cancelHold(true); calib = null; history.replaceState(null, '', location.pathname); clearTimeout(idleT); pending = null; cur = null; $('#player').hidden = true; $('#done').hidden = true; $('#home-view').hidden = false; renderHome(); }
 $('#calib').innerHTML = icon('target'); $('#back').innerHTML = icon('back'); $('#listen').innerHTML = icon('play'); $('#restart').innerHTML = icon('restart');
 $('#back').onclick = () => { stopTimed(); calib = null; pending ? showDone(pending) : goHome(); };   // uscire dalla riparazione chiude comunque la lezione
 const baseLabel = () => { $('#base').innerHTML = icon('drum'); $('#base').setAttribute('aria-pressed', baseOn); $('#base').title = baseOn ? t('baseOn') : t('baseOff'); $('#base').classList.toggle('off', !baseOn); };
@@ -1320,6 +1361,7 @@ addEventListener('keydown', e => {
   if (e.key === 'z') oct -= 12; else if (e.key === 'x') oct += 12;
   else { const i = KEYS.indexOf(e.key.toLowerCase()); if (i >= 0) noteOn(60 + i + oct, 'pc'); }
 });
+addEventListener('keyup', e => { const i = KEYS.indexOf(e.key.toLowerCase()); if (i >= 0) noteOff(60 + i + oct, 'pc'); });
 
 // MIDI (pianola via USB, Chrome)
 let midiCount = 0;
@@ -1327,7 +1369,7 @@ const status = (ic, s) => $('#status').innerHTML = s ? icon(ic) + esc(s) : '';
 if (navigator.requestMIDIAccess) navigator.requestMIDIAccess().then(acc => {
   const bind = () => {
     let n = 0;
-    acc.inputs.forEach(i => { n++; i.onmidimessage = e => { const [s, d, v] = e.data; if ((s & 0xf0) === 0x90 && v > 0) noteOn(d, 'midi'); }; });
+    acc.inputs.forEach(i => { n++; i.onmidimessage = e => { const [s, d, v] = e.data; if ((s & 0xf0) === 0x90 && v > 0) noteOn(d, 'midi'); else if ((s & 0xf0) === 0x80 || (s & 0xf0) === 0x90) noteOff(d, 'midi'); }; });
     midiCount = n; status('midi', n ? t('usb') : '');
   };
   bind(); acc.onstatechange = bind;
@@ -1362,6 +1404,7 @@ async function startMic() {
     (function loop() {
       an.getFloatTimeDomainData(buf);
       const [f, rms] = detect(buf, a.sampleRate), m = f ? Math.round(69 + 12 * Math.log2(f / 440)) : null;
+      holdMic(rms);
       if (rms > 1.5 * env && rms > 0.02) last = null;   // nuovo attacco: permette note ripetute
       env = Math.max(rms, env * 0.9);
       if (m === cand) cnt++; else { cand = m; cnt = 0; }
