@@ -55,7 +55,13 @@
   .arcs { position:absolute; pointer-events:none; }
   .arcs circle { fill:none; stroke:currentColor; }
 
-  .session { cursor:default; }
+  .session { cursor:default; align-content:start; }
+  .shead { display:flex; justify-content:space-between; align-items:flex-start; gap:24px; flex-wrap:wrap; position:relative; }
+  .next .go.cta { flex-direction:column; align-items:flex-start; gap:4px; background:var(--on-lv); color:var(--lv); border-color:var(--on-lv); padding:16px 26px; font-size:28px; font-weight:900; max-width:min(420px,100%); }
+  .next .go.cta span { display:inline-flex; align-items:center; gap:12px; }
+  .next .go.cta small { font-size:15px; font-weight:700; }
+  .next .go.cta:hover, .next .go.cta:focus-visible { background:transparent; color:var(--on-lv); }
+  .session + .stats { margin-top:28px; }
   .steps { list-style:none; padding:0; margin-top:20px; display:grid; gap:4px; max-width:640px; position:relative; }
   .steps button { all:unset; box-sizing:border-box; cursor:pointer; display:flex; align-items:center; gap:14px; width:100%; min-height:46px; font-size:19px; font-weight:700; }
   .steps button:focus-visible { outline:3px solid var(--on-lv); outline-offset:2px; }
@@ -78,7 +84,7 @@
   .me:focus-visible { outline:3px solid var(--ink); outline-offset:3px; }
   .me i { width:42px; height:42px; background:var(--pc); color:var(--pci); display:grid; place-items:center; font-style:normal; font-weight:900; font-size:22px; }
   .me small { display:block; font-weight:600; font-size:13px; color:var(--mute); }
-  .stats { display:grid; grid-template-columns:auto 1fr 1fr; gap:32px; align-items:end; margin-bottom:28px; }
+  .stats { display:grid; grid-template-columns:auto 1fr 1fr; gap:32px; align-items:end; }
   .stat b { font-size:44px; font-weight:900; letter-spacing:-.03em; line-height:1; display:flex; align-items:center; gap:8px; }
   .stat b small { font-size:18px; font-weight:700; }
   .stat b svg.i { width:36px; height:36px; }
@@ -517,18 +523,20 @@ function renderHome() {
   me.innerHTML = `<i>${esc(P.name[0].toUpperCase())}</i><span>${esc(P.name)}<small>Lv ${lv} · ${titleOf(lv)} · cambia</small></span>`;
   me.onclick = showWho;
   const pool = drillPool(), ranked = [...profiles].sort((a, b) => weekXp(b) - weekXp(a) || b.xp - a.xp);
-  home.innerHTML = `<div class="stats">
+  const ctaMain = left.length ? (left.length === se.items.length ? 'Inizia' : 'Continua') : 'Continua';
+  const ctaSub = left.length ? `Prossimo: ${left[0].label}` : `Prossima lezione: ${nx.t}`;
+  home.innerHTML = `<section class="next on-colour session">
+      ${arcs(560, 4, 3.2, 'right:-280px;bottom:-360px')}
+      <div class="shead"><div><h1>${left.length ? 'La sessione di oggi' : 'Sessione completata.'}</h1>
+        <p>${left.length ? `Circa ${se.items.reduce((a, it) => a + it.min, 0)} minuti · ${se.items.length - left.length} di ${se.items.length} fatti` : 'Ottimo lavoro. Domani una nuova sessione, intanto puoi andare avanti.'}</p></div>
+        <button class="go cta" id="continue"><span>${ctaMain} ${icon('arrow')}</span><small>${esc(ctaSub)}</small></button></div>
+      <ol class="steps">${se.items.map((it, k) => `<li class="${se.done.includes(it.ref) ? 'done' : ''}"><button data-k="${k}"><span class="num">${se.done.includes(it.ref) ? '✓' : k + 1}</span><span class="l">${esc(it.label)}</span><small>${it.min} min</small></button></li>`).join('')}</ol>
+    </section>
+    <div class="stats">
       <div class="stat"><b>${icon('flame')}${st}</b><span>${st === 1 ? 'giorno' : 'giorni'} di fila</span></div>
       <div class="stat"><b>${mins}<small>/${GOAL_MIN} min</small></b><span>${mins >= GOAL_MIN ? 'Pratica di oggi fatta' : 'Pratica di oggi'} · ${dx} XP</span><div class="meter"><i style="width:${Math.min(100, mins / GOAL_MIN * 100)}%"></i></div></div>
       <div class="stat"><b>Lv ${lv}<small>${titleOf(lv)}</small></b><span>${into}/${need} XP al livello ${lv + 1}</span><div class="meter"><i style="width:${into / need * 100}%"></i></div></div>
     </div>
-    <section class="next on-colour session">
-      ${arcs(560, 4, 3.2, 'right:-260px;top:-330px')}
-      <div><h1>${left.length ? 'La sessione di oggi' : 'Sessione completata.'}</h1>
-        <p>${left.length ? `Circa ${se.items.reduce((a, it) => a + it.min, 0)} minuti · ${se.items.length - left.length} di ${se.items.length} fatti` : 'Ottimo lavoro. Domani una nuova sessione, intanto puoi andare avanti.'}</p>
-        <ol class="steps">${se.items.map((it, k) => `<li class="${se.done.includes(it.ref) ? 'done' : ''}"><button data-k="${k}"><span class="num">${se.done.includes(it.ref) ? '✓' : k + 1}</span><span class="l">${esc(it.label)}</span><small>${it.min} min</small></button></li>`).join('')}</ol></div>
-      <button class="go" id="continue">${left.length ? (left.length === se.items.length ? 'Inizia' : 'Continua') : `Prossima lezione: ${esc(nx.t)}`} ${icon('arrow')}</button>
-    </section>
     <div class="row2">
       <button class="drill" id="drill" aria-disabled="${pool.length < 3}">${arcs(300, 3, 3, 'right:-90px;bottom:-120px')}
         <h2>Allenamento lampo</h2><p>${pool.length < 3 ? 'Si sblocca dopo le prime lezioni del Livello 0.' : `20 note a caso tra quelle che conosci. Fai combo per punti doppi e tripli.`}</p></button>
