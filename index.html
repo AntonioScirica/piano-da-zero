@@ -144,6 +144,9 @@
   .newp label { display:flex; flex-direction:column; gap:6px; font-weight:700; }
   .newp input { font:inherit; font-size:20px; min-height:52px; border:2px solid var(--ink); background:#fff; padding:0 14px; border-radius:0; width:min(320px,80vw); }
   .combo { font-size:18px; font-weight:900; min-height:22px; }
+  .micv { font-size:14px; font-weight:700; min-height:18px; opacity:.85; }
+  .sens { display:inline-flex; align-items:center; gap:8px; font-weight:700; font-size:15px; }
+  .sens select { font:inherit; min-height:44px; border:2px solid var(--ink); background:var(--paper); border-radius:0; padding:0 8px; }
   .tip { text-align:center; color:var(--mute); font-size:18px; font-weight:600; line-height:1.3; min-height:2.6em; }
   .tip.hot { color:var(--ink); font-weight:800; }
   #done .anykey { font-weight:700; font-size:16px; margin-top:16px; opacity:.85; }
@@ -216,11 +219,15 @@
   .say em { font-style:normal; background:var(--lv); color:var(--on-lv); padding:0 8px; }
 
   #mapbar { display:grid; grid-template-columns:auto 1fr; align-items:stretch; background:var(--ink); color:var(--paper); border-top:3px solid var(--ink); }
-  #mapbar span { font-size:13px; font-weight:700; padding:0 12px; display:flex; align-items:center; white-space:nowrap; }
-  #map { position:relative; height:clamp(28px,4.4vh,42px); overflow:hidden; background:#fff; }
+  #mapbar span { font-size:13px; font-weight:700; padding:0 12px; display:flex; flex-direction:column; justify-content:center; white-space:nowrap; line-height:1.15; }
+  #map { position:relative; height:clamp(34px,5vh,48px); overflow:hidden; background:#fff; }
+  .mk em { position:absolute; left:0; right:0; bottom:2px; text-align:center; font-style:normal; font-weight:900; font-size:11px; color:var(--ink); z-index:3; }
+  .key .ord { display:block; font-size:.8em; font-weight:800; opacity:.75; }
+  #mapbar small { font-weight:600; opacity:.8; }
   .mk { position:absolute; top:0; }
   .mk.w { height:100%; background:#fff; border-right:1px solid #999; } .mk.b { height:60%; background:var(--ink); z-index:1; }
   .mk.t { background:var(--lv) !important; }
+  .mk.c4 em { color:var(--lv); background:var(--ink); }
   .mk.c4::after { content:''; position:absolute; bottom:3px; left:50%; width:4px; height:4px; margin-left:-2px; border-radius:50%; background:var(--ink); }
   .win { position:absolute; top:0; bottom:0; border:3px solid var(--lv); box-shadow:0 0 0 999px rgba(17,17,17,.55); z-index:2; pointer-events:none; }
   #kbd { position:relative; height:clamp(150px,27vh,280px); user-select:none; -webkit-user-select:none; touch-action:none; }
@@ -264,6 +271,7 @@
     <button class="me" id="me"></button>
     <span class="chip" id="status"></span>
     <button id="mic"></button>
+    <label class="sens">Filtro voce <select id="sens"><option value="leggero">Leggero</option><option value="medio">Medio</option><option value="forte">Forte</option></select></label>
     <label class="switch"><input type="checkbox" id="names"> Nomi delle note</label>
   </header>
   <main id="home"></main>
@@ -277,6 +285,7 @@
     <div class="meta">
       <div class="count" id="count"></div>
       <div class="combo" id="combo" aria-live="polite"></div>
+      <div class="micv" id="micv" aria-hidden="true"></div>
       <div class="tools">
         <select id="mode" aria-label="Modalità"><option value="wait">Impara</option><option value="t70">A tempo 70%</option><option value="t100">A tempo 100%</option></select>
         <button class="icon" id="calib" aria-label="Calibra il ritardo"></button>
@@ -295,7 +304,7 @@
       <p class="tip" id="tip"></p>
     </div>
   </div>
-  <div id="mapbar"><span>Alesis Melody 61</span><div id="map" aria-hidden="true"></div></div>
+  <div id="mapbar"><span>Melody 61<br><small>Do contati da sinistra</small></span><div id="map" aria-hidden="true"></div></div>
   <div id="kbd"></div>
 </section>
 <div id="who" class="who" hidden role="dialog" aria-modal="true" aria-label="Chi suona?"></div>
@@ -782,7 +791,7 @@ function buildKeys() {
   let mh = '';
   for (let m = MLO; m <= MHI; m++) mh += SHARP[m % 12]
     ? `<i class="mk b" data-m="${m}" style="left:${wl(m) - u * 0.32}%;width:${u * 0.64}%"></i>`
-    : `<i class="mk w${m === 60 ? ' c4' : ''}" data-m="${m}" style="left:${wl(m)}%;width:${u}%"></i>`;
+    : `<i class="mk w${m === 60 ? ' c4' : ''}" data-m="${m}" style="left:${wl(m)}%;width:${u}%">${m % 12 === 0 ? `<em>${(m - 36) / 12 + 1}</em>` : ''}</i>`;
   mh += `<b class="win" style="left:${wl(Math.max(lo, MLO))}%;width:${wl(Math.min(hi, MHI) + 1) - wl(Math.max(lo, MLO))}%"></b>`;
   $('#map').innerHTML = mh;
 }
@@ -800,7 +809,8 @@ function render() {
     k.classList.toggle('mark', marks.has(m));
     k.classList.toggle('wrong', wrongKeys.has(m));
     const fg = targets.has(m) && ti >= 0 && fingers[ti] ? `<span class="fg">${esc(fingers[ti])}</span>` : '';
-    const label = !SHARP[m % 12] && names ? NAMES[m % 12] : '';
+    const ord = m % 12 === 0 && m >= 36 && m <= 96 ? (m - 36) / 12 + 1 : 0;   // i Do della Melody 61 contati da sinistra
+    const label = !SHARP[m % 12] && names ? NAMES[m % 12] + (ord ? `<small class="ord">${ord}°</small>` : '') : '';
     k.innerHTML = fg + (m === 60 ? '<span class="c4" aria-hidden="true"></span>' : '') + `<span>${label}</span>`;
   });
   document.querySelectorAll('.mk').forEach(k => k.classList.toggle('t', targets.has(+k.dataset.m)));
@@ -951,6 +961,7 @@ function handle(m, src) {
       return render();
     }
   }
+  if (src === 'mic' && (s.need || s.any || []).every(n => Math.abs(n - m) > 9)) return;   // col microfono un suono lontanissimo è voce o rumore
   errors++; combo = 0; wrongKeys.add(m); errSteps.add(step); stepErr++;
   const tgt = s.need ? s.need.filter(n => !hit.has(n)) : [];
   tgt.forEach(n => (P.err[n] ||= [0, 0])[1]++);
@@ -1163,6 +1174,7 @@ function handleTimed(m, src) {
     const n = x.need.includes(m) && !got.has(m) ? m : micOn ? x.need.find(y => y % 12 === m % 12 && !got.has(y)) : undefined;
     if (n !== undefined && Math.abs(d) < Math.abs(bd)) { best = i; bd = d; bn = n; }
   }
+  if (best < 0 && src === 'mic' && cur.st.slice(step, step + 3).every(x => !x.need || x.need.every(n => Math.abs(n - m) > 9))) return;   // voce o rumore
   if (best < 0) {   // nota che non c'entra
     errors++; combo = 0; wrongKeys.add(m); render(); setTimeout(() => { wrongKeys.delete(m); timed && render(); }, 350); return;
   }
@@ -1205,6 +1217,7 @@ function noteOn(m, src) {
   if (src === 'screen' || src === 'pc') beep(m);   // la pianola suona già da sola
   const k = $(`.key[data-m="${m}"]`);
   if (k) { k.classList.add('on'); setTimeout(() => k.classList.remove('on'), 160); }
+  if (src === 'mic' && !$(`.key[data-m="${m}"]`)) return;   // fuori dalla tastiera sullo schermo: rumore, non un errore
   timed ? handleTimed(m, src) : handle(m, src);
 }
 
@@ -1217,12 +1230,13 @@ addEventListener('keydown', e => {
 });
 
 // MIDI (pianola via USB, Chrome)
+let midiCount = 0;
 const status = (ic, s) => $('#status').innerHTML = s ? icon(ic) + esc(s) : '';
 if (navigator.requestMIDIAccess) navigator.requestMIDIAccess().then(acc => {
   const bind = () => {
     let n = 0;
     acc.inputs.forEach(i => { n++; i.onmidimessage = e => { const [s, d, v] = e.data; if ((s & 0xf0) === 0x90 && v > 0) noteOn(d, 'midi'); }; });
-    status('midi', n ? 'Pianola collegata via USB' : '');
+    midiCount = n; status('midi', n ? 'Pianola collegata via USB' : '');
   };
   bind(); acc.onstatechange = bind;
 }, () => status('midi', '')); else status('midi', '');
@@ -1240,30 +1254,62 @@ function detect(b, sr) {
   const a = c[p - 1], bb = c[p], cc = c[p + 1], shift = (a - cc) / (2 * (a - 2 * bb + cc)) || 0;
   return [sr / (p + shift), rms, max / c[0]];   // chiarezza: quanto il suono è regolare (tastiera ≈ 1, voce meno)
 }
+// Filtro anti-voce: una nota vale solo se è da tastiera.
+// attacco netto entro 280 ms, 4 letture stabili (±0,3 semitoni), intonata (entro 22 centesimi), suono chiaro
+const MICS = {   // quanto filtrare la voce: leggero = riconosce di più, forte = ignora di più
+  leggero:{ classic:true },   // il riconoscimento originale: nota ferma per 3 letture
+  medio:  { win:420, frames:3, spread:0.5, cents:32, clarity:0.62, ratio:1.4 },
+  forte:  { win:300, frames:4, spread:0.3, cents:22, clarity:0.8, ratio:1.6 } };
+let micLevel = store.get('micLevel', 'medio'), MIC = MICS[micLevel] || MICS.medio;
+function micPick(fr) {   // fr: semitoni stimati (decimali) dopo l'ultimo attacco
+  if (fr.length < MIC.frames) return null;
+  const r = fr.slice(-MIC.frames), avg = r.reduce((x, y) => x + y) / r.length, m = Math.round(avg);
+  if (Math.max(...r) - Math.min(...r) > MIC.spread || Math.abs(avg - m) * 100 > MIC.cents) return null;
+  return m;
+}
 const micLabel = () => $('#mic').innerHTML = icon('mic') + (micOn ? 'Microfono attivo' : 'Usa il microfono');
 micLabel();
-$('#mic').onclick = async () => {
+async function startMic() {
   if (micOn) return;
   if (!navigator.mediaDevices?.getUserMedia) { alert('Il microfono funziona solo da un indirizzo https:// o da localhost.'); return; }
   try {
-    const s = await navigator.mediaDevices.getUserMedia({ audio:{ echoCancellation:true, noiseSuppression:false, autoGainControl:false } });
+    const s = await navigator.mediaDevices.getUserMedia({ audio:{ echoCancellation:false, noiseSuppression:false, autoGainControl:false }   /* l'eco-cancellazione di iOS tratta la musica come rumore */ });
     const a = audio(); await a.resume();
     const an = a.createAnalyser(); an.fftSize = 2048;
     a.createMediaStreamSource(s).connect(an);
-    const buf = new Float32Array(2048); let cand = null, cnt = 0, last = null, env = 0;
+    const buf = new Float32Array(2048); let onset = -1e9, fr = [], last = null, env = 0, floor = 0.003, stab = 0, prevM = null, shown = 0, nullRun = 0;
+    const target = m => { const x = cur?.st?.[step]; return !!x && !timed && (x.need || x.any || []).some(n => n % 12 === m % 12) && !hit.has(m); };
     micOn = true; micLabel(); $('#mic').classList.add('primary');
     (function loop() {
       an.getFloatTimeDomainData(buf);
-      const [f, rms] = detect(buf, a.sampleRate), m = f ? Math.round(69 + 12 * Math.log2(f / 440)) : null;
-      if (rms > 1.5 * env && rms > 0.02) last = null;   // nuovo attacco: permette note ripetute
-      env = Math.max(rms, env * 0.9);
-      if (m === cand) cnt++; else { cand = m; cnt = 0; }
-      if (cnt === 3) { if (m !== null && m !== last) noteOn(m, 'mic'); last = m; }
+      const [f, rms, cl] = detect(buf, a.sampleRate), now = performance.now();
+      floor = Math.min(0.02, rms < floor * 2 ? floor * 0.97 + rms * 0.03 : floor * 1.0003);   // rumore di fondo della stanza (limitato: prima cresceva senza fine)
+      if (!MIC.classic && rms > MIC.ratio * env && rms > Math.max(0.005, floor * 2.5)) { onset = now; fr = []; last = null; }   // nuovo attacco di un tasto
+      const prevEnv = env; env = Math.max(rms, env * 0.9);
+      const semi = f && (MIC.classic || cl >= MIC.clarity) ? 69 + 12 * Math.log2(f / 440) : null, mm = semi === null ? null : Math.round(semi);
+      stab = mm !== null && mm === prevM && (MIC.classic || Math.abs(semi - mm) * 100 <= MIC.cents) ? stab + 1 : 0; prevM = mm;
+      if (mm !== null && now - shown > 120) { shown = now; $('#micv').textContent = `Sento: ${NAMES[mm % 12]}${Math.floor(mm / 12) - 1}`; }
+      if (MIC.classic) {   // Leggero: come all'inizio, nessun filtro sull'attacco
+        if (rms > 1.5 * prevEnv && rms > 0.02) last = null;
+        if (stab === 3 && mm !== last) { last = mm; noteOn(mm, 'mic'); }   // 4 letture uguali di fila
+        nullRun = mm === null ? nullRun + 1 : 0; if (nullRun >= 4) last = null;   // silenzio vero: la stessa nota si può risuonare
+      } else if (semi !== null && now - onset < MIC.win) {
+        fr.push(semi);
+        const m = micPick(fr);
+        if (m !== null && m !== last) { last = m; onset = -1e9; noteOn(m, 'mic'); }   // una nota per attacco
+      } else if (stab >= 4 && mm !== last && target(mm)) { last = mm; noteOn(mm, 'mic'); }   // la nota giusta, intonata e ferma, vale anche senza attacco netto
+      if (!MIC.classic && rms < floor * 1.5) last = null;   // silenzio: la stessa nota si può risuonare
       requestAnimationFrame(loop);
     })();
-  } catch (e) { alert('Non riesco ad aprire il microfono: ' + e.message + '. Controlla i permessi del browser.'); }
-};
+  } catch (e) { micTried = true; alert('Il microfono non è autorizzato, quindi l\'app non sente la pianola.\n\nSu iPad: Impostazioni › Safari › Microfono › Consenti (oppure tocca "aA" nella barra degli indirizzi › Impostazioni sito web › Microfono). Poi ricarica la pagina.'); }
+}
+$('#mic').onclick = startMic;
+// microfono acceso da solo al primo tocco (i browser non lo permettono prima); non serve se la pianola è collegata col cavo
+let micTried = false;
+addEventListener('pointerdown', () => { if (!micOn && !micTried && !midiCount) { micTried = true; startMic(); } }, true);
 
+$('#sens').value = micLevel;
+$('#sens').onchange = e => { micLevel = e.target.value; MIC = MICS[micLevel]; store.set('micLevel', micLevel); };
 $('#names').checked = showNames;
 $('#names').onchange = e => { showNames = e.target.checked; store.set('names', showNames); };
 
@@ -1278,6 +1324,7 @@ console.assert(LEVELS.every(L => L.lessons.every(x => x.notime || x.cards || (()
 console.assert(new Set(LEVELS.flatMap(L => L.lessons.map(x => slug(x.t)))).size === LEVELS.reduce((a, L) => a + L.lessons.length, 0), 'id lezioni unici');
 console.assert(token('Bb4').flats[0] === 70 && token('*Bb').any.every(m => m % 12 === 10), 'bemolli');
 console.assert(LEVELS.every(L => L.lessons.every(x => !x.acc || words(x.acc).length === compile(x).length)), 'sigle allineate');
+console.assert(micPick([60.02, 59.98, 60.05, 60.01]) === 60 && micPick([60.48, 60.45, 60.5, 60.47]) === null && micPick([58, 59, 60, 61]) === null, 'filtro voce');
 console.assert(lvOf(0) === 1 && lvOf(100) === 2 && lvOf(399) === 2 && lvOf(400) === 3, 'livelli');
 console.assert(token('*F#').any.every(m => m % 12 === 6) && token('*#').any.every(m => SHARP[m % 12]), 'token any');
 console.assert(LEVELS.every(L => L.lessons.every(x => compile(x).every(s => s.next || s.rest || (s.need || s.any).every(Number.isInteger)))), 'curriculum');
