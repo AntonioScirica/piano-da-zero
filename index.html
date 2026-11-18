@@ -441,17 +441,18 @@ function genExtra(li) {
 }
 // la sessione di oggi: si decide una volta al giorno, poi si spunta
 function todayPlan() {
-  if (P.session?.date !== today()) {
-    const list = allLessons(), items = [{ ref:'warmup', label:'Riscaldamento', min:2 }];
+  if (P.session?.date !== today() || P.session.v !== 2) {
+    const list = allLessons(), beginner = LEVELS[0].lessons.some(x => !(P.prog['l-' + slug(x.t)] > 0));   // Livello 0 non ancora finito
+    const items = beginner ? [] : [{ ref:'warmup', label:'Riscaldamento', min:2 }];   // il riscaldamento solo quando conosci note e dita
     list.filter(x => !x.imported && P.srs[x.id]?.due <= today()).sort((a, b) => P.srs[a.id].due.localeCompare(P.srs[b.id].due))
       .slice(0, 2).forEach(x => items.push({ ref:x.id, label:`Ripasso · ${x.t}`, min:3 }));
     const ni = list.findIndex((x, i) => !x.imported && unlocked(list, i) && !(P.prog[x.id] > 0));
-    const news = ni < 0 ? [] : list.slice(ni, ni + (items.length > 1 ? 1 : 2)).filter(x => !x.imported);   // senza ripassi: due lezioni nuove
+    const news = ni < 0 ? [] : list.slice(ni, ni + (beginner ? 3 : items.length > 1 ? 1 : 2)).filter(x => !x.imported);   // all'inizio tre lezioni del Livello 0, poi una o due
     news.forEach(nx => items.push({ ref:nx.id, label:`${nx.goal ? 'Obiettivo' : 'Nuova'} · ${nx.t}`, min:6 }));
-    if (drillPool().length >= 3) items.push({ ref:'drill', label:'Lettura · Allenamento lampo', min:2 });
+    if (!beginner && drillPool().length >= 3) items.push({ ref:'drill', label:'Lettura · Allenamento lampo', min:2 });
     const sp = list.filter(x => x.song && x.part >= 0).sort((a, b) => (P.prog[a.id] || 0) - (P.prog[b.id] || 0))[0];
     if (sp) items.push({ ref:sp.id, label:`Premio · ${sp.t} (${sp.sub})`, min:4 });
-    P.session = { date:today(), items, done:[] }; saveP();
+    P.session = { date:today(), v:2, items, done:P.session?.date === today() ? P.session.done : [] }; saveP();
   }
   return P.session;
 }
