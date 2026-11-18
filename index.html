@@ -7,7 +7,7 @@
 <title>Piano da zero</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Music&family=Schibsted+Grotesk:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root {
     --paper:#f3f3ef; --ink:#111; --mute:#55534d; --line:#d9d8d2;
@@ -75,7 +75,7 @@
   .import label.check input { width:22px; height:22px; accent-color:var(--ink); }
 
   /* ===== Lezione ===== */
-  #player { height:100dvh; display:grid; grid-template-rows:auto 6px 1fr auto; overflow:hidden; }
+  #player { height:100dvh; display:grid; grid-template-rows:auto 6px 1fr auto auto; overflow:hidden; }
   .band { min-height:min(24vh,210px); background:var(--lv); color:var(--on-lv); padding:clamp(14px,2.4vh,26px) clamp(20px,3vw,40px); display:grid; grid-template-columns:auto 1fr auto; gap:20px; align-items:start; position:relative; overflow:hidden; }
   .band h1 { font-size:clamp(30px,min(11vh,8vw),96px); overflow-wrap:anywhere; font-weight:900; line-height:.9; letter-spacing:-.04em; position:relative; text-wrap:balance; }
   .band .sub { font-weight:600; font-size:17px; margin-top:8px; position:relative; }
@@ -96,20 +96,29 @@
   .card p { font-size:clamp(20px,3.1vh,27px); margin-top:16px; max-width:38ch; text-wrap:pretty; }
   .card .cont { margin-top:22px; }
   .staffwrap { display:flex; flex-direction:column; gap:6px; min-height:0; }
-  #staff { width:100%; height:auto; max-height:38vh; }
+  #staff { width:100%; height:auto; max-height:31vh; }
   .sl { stroke:var(--ink); stroke-width:1.5; }
-  .clef { font-size:110px; fill:var(--ink); } .clefb { font-size:62px; fill:var(--ink); }
+  .clef, .clefb, .acc { font-family:'Noto Music',serif; fill:var(--ink); } .clef { font-size:56px; } .clefb { font-size:56px; }
+  .stem { stroke:var(--ink); stroke-width:1.9; } .stem.past, .sl.past { stroke:#bdbbb4; }
   .note { fill:var(--ink); } .note.past { fill:#bdbbb4; } .note.hit { fill:var(--lv); stroke:var(--ink); stroke-width:2; }
   .halo { fill:none; stroke:var(--lv); }
   .pulse { fill:none; stroke:var(--lv); stroke-width:3; transform-box:fill-box; transform-origin:center; animation:pulse 1.8s var(--ease) infinite; }
   @keyframes pulse { from { transform:scale(.7); opacity:.9; } to { transform:scale(1.9); opacity:0; } }
-  .acc { font-size:30px; font-weight:700; fill:var(--ink); } .acc.past { fill:#bdbbb4; }
-  .fnum { font-size:22px; font-weight:800; text-anchor:middle; fill:var(--ink); }
+  .acc { font-size:46px; } .acc.past { fill:#bdbbb4; }
+  .fnum { font-size:20px; font-weight:800; text-anchor:middle; fill:var(--ink); }
   .burst { fill:none; stroke:var(--lv); stroke-width:6; transform-box:fill-box; transform-origin:center; animation:burst .7s var(--ease) forwards; }
   .say { font-size:clamp(22px,3.6vh,34px); font-weight:800; letter-spacing:-.01em; text-align:center; }
   .say em { font-style:normal; background:var(--lv); color:var(--on-lv); padding:0 8px; }
 
-  #kbd { position:relative; height:clamp(170px,31vh,300px); user-select:none; -webkit-user-select:none; touch-action:none; border-top:3px solid var(--ink); }
+  #mapbar { display:grid; grid-template-columns:auto 1fr; align-items:stretch; background:var(--ink); color:var(--paper); border-top:3px solid var(--ink); }
+  #mapbar span { font-size:13px; font-weight:700; padding:0 12px; display:flex; align-items:center; white-space:nowrap; }
+  #map { position:relative; height:clamp(28px,4.4vh,42px); overflow:hidden; background:#fff; }
+  .mk { position:absolute; top:0; }
+  .mk.w { height:100%; background:#fff; border-right:1px solid #999; } .mk.b { height:60%; background:var(--ink); z-index:1; }
+  .mk.t { background:var(--lv) !important; }
+  .mk.c4::after { content:''; position:absolute; bottom:3px; left:50%; width:4px; height:4px; margin-left:-2px; border-radius:50%; background:var(--ink); }
+  .win { position:absolute; top:0; bottom:0; border:3px solid var(--lv); box-shadow:0 0 0 999px rgba(17,17,17,.55); z-index:2; pointer-events:none; }
+  #kbd { position:relative; height:clamp(150px,27vh,280px); user-select:none; -webkit-user-select:none; touch-action:none; }
   .key { position:absolute; top:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:8px; padding-bottom:12px; font-weight:700; font-size:clamp(14px,1.9vw,21px); }
   .key.white { height:100%; background:#fff; border-right:2px solid var(--ink); z-index:1; }
   .key.black { height:61%; background:var(--ink); color:var(--paper); z-index:2; }
@@ -175,6 +184,7 @@
       <p class="say" id="say"></p>
     </div>
   </div>
+  <div id="mapbar"><span>Alesis Melody 61</span><div id="map" aria-hidden="true"></div></div>
   <div id="kbd"></div>
 </section>
 <div id="done" class="on-colour" hidden role="dialog" aria-modal="true" aria-labelledby="done-h"></div>
@@ -440,6 +450,16 @@ function buildKeys() {
     k.onpointerdown = e => { e.preventDefault(); noteOn(m, 'screen'); };
     kbd.append(k);
   }
+  // mappa della Melody 61 (61 tasti, Do2–Do7): la zona chiara è dove vanno le mani
+  const MLO = 36, MHI = 96, mw = [];
+  for (let m = MLO; m <= MHI; m++) if (!SHARP[m % 12]) mw.push(m);
+  const u = 100 / mw.length, wl = m => mw.filter(x => x < m).length * u;
+  let mh = '';
+  for (let m = MLO; m <= MHI; m++) mh += SHARP[m % 12]
+    ? `<i class="mk b" data-m="${m}" style="left:${wl(m) - u * 0.32}%;width:${u * 0.64}%"></i>`
+    : `<i class="mk w${m === 60 ? ' c4' : ''}" data-m="${m}" style="left:${wl(m)}%;width:${u}%"></i>`;
+  mh += `<b class="win" style="left:${wl(Math.max(lo, MLO))}%;width:${wl(Math.min(hi, MHI) + 1) - wl(Math.max(lo, MLO))}%"></b>`;
+  $('#map').innerHTML = mh;
 }
 function render() {
   const s = cur.st[step] || {}, card = cur.cards?.[s.card], names = showNames && !card?.hideNames;
@@ -456,6 +476,7 @@ function render() {
     const label = !SHARP[m % 12] && names ? NAMES[m % 12] : '';
     k.innerHTML = fg + (m === 60 ? '<span class="c4" aria-hidden="true"></span>' : '') + `<span>${label}</span>`;
   });
+  document.querySelectorAll('.mk').forEach(k => k.classList.toggle('t', targets.has(+k.dataset.m)));
   // testa
   const total = cur.st.length, practice = cur.st.filter(x => !x.next).length, done = cur.st.slice(0, step).filter(x => !x.next).length;
   $('#count').innerHTML = practice ? `${done}<small>/${practice}</small>` : '';
@@ -482,31 +503,44 @@ function sayText(s, names) {
   if (s.need.length > 1) return `Suona insieme <em>${nm}</em>${micOn ? ' (col microfono, una alla volta)' : ''}`;
   return names ? `Suona il <em>${nm}</em>${f}` : `Quale nota è?${f}`;
 }
-const ledger = (x, y, w) => `<line x1="${x - w}" x2="${x + w}" y1="${y}" y2="${y}" class="sl"/>`;
+const ledger = (x, y, w, cls = '') => `<line x1="${x - w}" x2="${x + w}" y1="${y}" y2="${y}" class="sl ${cls}"/>`;
+const SP = 14;                                   // spazio tra le linee del pentagramma
+const dia = m => (Math.floor(m / 12) - 1) * 7 + PC_DIA[m % 12];
+const posY = m => m >= 60 ? 120 - (dia(m) - 30) * 7 : 190 - (dia(m) - 26) * 7;
+// note vere: testa ovale inclinata, gambo, tagli addizionali; le alte (da Do4) in chiave di violino, le basse in chiave di basso
 function drawStaff(names) {
-  const many = cur.cards ? 5 : 8, W = 190 + many * 105;
+  const many = cur.cards ? 5 : 8, W = 200 + many * 100;
   $('#staff').setAttribute('viewBox', `0 0 ${W} 300`);
   let h = '';
-  for (let i = 0; i < 5; i++) for (const y0 of [64, 190]) h += `<line x1="10" x2="${W - 10}" y1="${y0 + i * 14}" y2="${y0 + i * 14}" class="sl"/>`;
-  h += `<text x="14" y="142" class="clef">𝄞</text><text x="18" y="236" class="clefb">𝄢</text>`;
-  const from = Math.max(0, step - 1), view = cur.st.slice(from, from + many);
-  view.forEach((s, k) => {
-    const idxS = from + k, x = 190 + k * 105, rel = idxS - step;
+  for (let i = 0; i < 5; i++) for (const y0 of [64, 190]) h += `<line x1="20" x2="${W - 10}" y1="${y0 + i * SP}" y2="${y0 + i * SP}" class="sl"/>`;
+  h += `<line x1="20" x2="20" y1="64" y2="246" class="sl" style="stroke-width:2.5"/>`;
+  h += `<text x="30" y="113" class="clef">𝄞</text><text x="32" y="234" class="clefb">𝄢</text>`;
+  const from = Math.max(0, step - 1), RX = 8.6, RY = 6.3;
+  cur.st.slice(from, from + many).forEach((s, k) => {
     if (!s.need) return;
-    // la scala porta la gerarchia: la nota attuale è la più grande, le prossime si rimpiccioliscono
-    const sc = rel === 0 ? 1.35 : rel < 0 ? 0.9 : Math.max(0.68, 1 - rel * 0.06), rx = 15 * sc, ry = 11 * sc;
-    s.need.forEach((m, ni) => {
-      const d = (Math.floor(m / 12) - 1) * 7 + PC_DIA[m % 12], tr = m >= 60;
-      const Y = l => tr ? 120 - (l - 30) * 7 : 190 - (l - 26) * 7, y = Y(d);
-      const lw = rx + 9;
-      if (tr) { for (let l = 28; l >= d; l -= 2) h += ledger(x, Y(l), lw); for (let l = 40; l <= d; l += 2) h += ledger(x, Y(l), lw); }
-      else { for (let l = 28; l <= d; l += 2) h += ledger(x, Y(l), lw); for (let l = 16; l >= d; l -= 2) h += ledger(x, Y(l), lw); }
-      if (rel === 0 && !hit.has(m)) h += `<circle cx="${x}" cy="${y}" r="${rx + 14}" class="halo" stroke-width="3"/><circle cx="${x}" cy="${y}" r="${rx + 26}" class="halo" stroke-width="1.5"/><circle cx="${x}" cy="${y}" r="${rx + 14}" class="pulse"/>`;
-      if (SHARP[m % 12]) h += `<text x="${x - rx - 22}" y="${y + 10}" class="acc ${rel < 0 ? 'past' : ''}">♯</text>`;
-      h += `<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" transform="rotate(-18 ${x} ${y})" class="note ${rel < 0 ? 'past' : ''} ${rel === 0 && hit.has(m) ? 'hit' : ''}"/>`;
-      if (idxS === burst) h += `<circle cx="${x}" cy="${y}" r="${rx + 6}" class="burst"/>`;
-    });
-    if (rel === 0 && s.finger && s.need.length === 1) h += `<text x="${x}" y="292" class="fnum">${esc(s.finger)}</text>`;
+    const idxS = from + k, x = 200 + k * 100, rel = idxS - step, past = rel < 0 ? 'past' : '';
+    for (const tr of [true, false]) {
+      const g = s.need.filter(m => (m >= 60) === tr); if (!g.length) continue;
+      const ys = g.map(posY), lo = Math.max(...ys), hiY = Math.min(...ys);
+      const up = ys.reduce((a, b) => a + b, 0) / ys.length > (tr ? 92 : 218);   // sotto la linea centrale: gambo in su
+      const sx = up ? x + RX - 0.8 : x - RX + 0.8, y2 = up ? hiY - 3.5 * SP : lo + 3.5 * SP;
+      for (const m of g) {
+        const d = dia(m), y = posY(m), Y = l => tr ? 120 - (l - 30) * 7 : 190 - (l - 26) * 7;
+        if (tr) { for (let l = 28; l >= d; l -= 2) h += ledger(x, Y(l), RX + 6, past); for (let l = 40; l <= d; l += 2) h += ledger(x, Y(l), RX + 6, past); }
+        else { for (let l = 28; l <= d; l += 2) h += ledger(x, Y(l), RX + 6, past); for (let l = 16; l >= d; l -= 2) h += ledger(x, Y(l), RX + 6, past); }
+        if (rel === 0 && !hit.has(m)) h += `<circle cx="${x}" cy="${y}" r="20" class="halo" stroke-width="3"/><circle cx="${x}" cy="${y}" r="30" class="halo" stroke-width="1.5"/><circle cx="${x}" cy="${y}" r="20" class="pulse"/>`;
+        if (SHARP[m % 12]) h += `<text x="${x - RX - 22}" y="${y + 10}" class="acc ${past}">♯</text>`;
+        h += `<ellipse cx="${x}" cy="${y}" rx="${RX}" ry="${RY}" transform="rotate(-20 ${x} ${y})" class="note ${past} ${rel === 0 && hit.has(m) ? 'hit' : ''}"/>`;
+        if (idxS === burst) h += `<circle cx="${x}" cy="${y}" r="14" class="burst"/>`;
+      }
+      h += `<line x1="${sx}" x2="${sx}" y1="${up ? lo : hiY}" y2="${y2}" class="stem ${past}"/>`;
+      // diteggiatura: sopra il violino, sotto il basso, come sugli spartiti
+      if (rel === 0 && s.finger) {
+        const fy = tr ? Math.min(hiY, y2) - 14 : Math.max(lo, y2) + 26;
+        const fs = String(s.finger).split('-').filter((_, i) => (s.need[i] >= 60) === tr).join(' ');
+        if (fs) h += `<text x="${x}" y="${fy}" class="fnum">${esc(fs)}</text>`;
+      }
+    }
   });
   burst = -1;
   $('#staff').innerHTML = h;
