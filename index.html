@@ -205,7 +205,7 @@
   .flag { fill:none; stroke:var(--ink); stroke-width:2.6; } .flag.past { stroke:#bdbbb4; }
   .rest { font-family:'Noto Music',serif; font-size:42px; text-anchor:middle; fill:var(--ink); } .rest.past { fill:#bdbbb4; }
   .sl.bar { stroke-width:1.6; }
-  #rollin { transition:transform .35s var(--ease); } #rollin.live { transition:none; }
+  #rollin, #head { transition:transform .35s var(--ease); } #rollin.live, #head.live { transition:none; }
   .playhead { stroke:var(--lv); stroke-width:4; } .playtip { fill:var(--lv); }
   .sym { font-size:24px; font-weight:900; fill:var(--ink); } .sym.past { fill:#bdbbb4; } .stem.past, .sl.past { stroke:#bdbbb4; }
   .note { fill:var(--ink); } .note.past { fill:#bdbbb4; } .note.hit { fill:var(--lv); stroke:var(--ink); stroke-width:2; }
@@ -500,6 +500,8 @@ function showWho() {
   $('#newp').onsubmit = e => {
     e.preventDefault();
     const name = $('#pname').value.trim(); if (!name) return;
+    const same = profiles.findIndex(p => p.name.toLowerCase() === name.toLowerCase());
+    if (same >= 0) return pick(same);   // stesso nome = stesso giocatore
     const [c, ci] = PCOL[profiles.length % PCOL.length];
     profiles.push({ id:'p' + Date.now(), name, c, ci, xp:0, prog:profiles.length ? {} : store.get('progress', {}), days:[], daily:{}, week:{}, best:0, err:{}, srs:{} });
     saveP(); pick(profiles.length - 1);
@@ -753,7 +755,7 @@ function start(i) {
   else cur = allLessons()[i];
   cur.st = cur.st0 ? cur.st0.map(x => ({ ...x })) : compile(cur);
   if (!cur.repair) { pending = null; history.replaceState(null, '', i === 'drill' ? '#allenamento' : `#lezione-${i}`); }
-  stopTimed(); lastTx = null; lastAct = 0; step = 0; hit = new Set(); wrongKeys.clear(); errors = 0; burst = -1; combo = 0; bestCombo = 0; lessonXp = 0; errSteps.clear(); stepErr = 0;
+  stopTimed(); lastTx = null; lastHead = null; viewOff = null; lastAct = 0; step = 0; hit = new Set(); wrongKeys.clear(); errors = 0; burst = -1; combo = 0; bestCombo = 0; lessonXp = 0; errSteps.clear(); stepErr = 0;
   $('#base').hidden = !(cur.song || cur.acc); baseLabel();
   setLevel(cur.L);
   $('#home-view').hidden = true; $('#player').hidden = false; $('#done').hidden = true;
@@ -849,8 +851,8 @@ const dia = m => (Math.floor(m / 12) - 1) * 7 + PC_DIA[m % 12];
 const posY = m => m >= 60 ? 120 - (dia(m) - 30) * 7 : 190 - (dia(m) - 26) * 7;
 // note vere: testa ovale inclinata, gambo, tagli addizionali; le alte (da Do4) in chiave di violino, le basse in chiave di basso
 // A tempo: lo spartito scorre verso la linea fissa; si suona quando la nota la tocca
-const PLAY_X = 210, PXB = 95;
-let lastTx = null;   // posizione della linea, pixel per battito
+const PLAY_X = 210, PXB = 95, FOLLOW_X = 470;
+let lastTx = null, lastHead = null, viewOff = null;   // posizione della linea, pixel per battito
 const beatNow = () => timed ? (performance.now() - timed.t0) / (timed.spb * 1000) : 0;
 function drawStaff(names) {
   const W = 1000;
@@ -860,8 +862,16 @@ function drawStaff(names) {
   h += `<line x1="20" x2="20" y1="64" y2="246" class="sl" style="stroke-width:2.5"/>`;
   h += `<text x="30" y="113" class="clef">𝄞</text><text x="32" y="234" class="clefb">𝄢</text>`;
   const RX = 8.6, RY = 6.3, bars = canTime(), bpb = 4, b0 = cur.st[step]?.beat ?? 0;
-  const from = Math.max(0, cur.st.findIndex(x => x.beat >= b0 - 3)), view = cur.st.slice(from).filter(x => x.beat <= b0 + 12);
-  const tx = -(timed ? beatNow() : b0) * PXB;   // Impara: scorre di una nota a ogni nota giusta; A tempo: scorre col tempo
+  // A tempo: linea ferma e spartito che scorre col tempo. Impara: spartito fermo, la linea avanza nota per nota e gira pagina vicino al bordo
+  let tx, headX;
+  if (timed) { tx = -beatNow() * PXB; headX = PLAY_X; }
+  else {
+    const abs = PLAY_X + b0 * PXB;
+    viewOff = Math.max(0, abs - FOLLOW_X);   // la linea avanza fino a metà, poi scorre anche lo spartito
+    tx = -viewOff; headX = abs - viewOff;
+  }
+  const bLo = timed ? b0 - 3 : (viewOff - PLAY_X) / PXB - 1, bHi = timed ? b0 + 12 : (viewOff + W - PLAY_X) / PXB + 1;
+  const from = Math.max(0, cur.st.findIndex(x => x.beat >= bLo)), view = cur.st.slice(from).filter(x => x.beat <= bHi);
   h += `<clipPath id="rollclip"><rect x="88" y="0" width="${W}" height="300"/></clipPath><g clip-path="url(#rollclip)"><g id="rollin" class="${timed ? 'live' : ''}" style="transform:translateX(${lastTx ?? tx}px)">`;
   view.forEach((s, k) => {
     const idxS = from + k, x = PLAY_X + s.beat * PXB, rel = idxS - step, past = rel < 0 ? 'past' : '';
@@ -898,11 +908,11 @@ function drawStaff(names) {
       }
     }
   });
-  h += `</g></g><line x1="${PLAY_X}" x2="${PLAY_X}" y1="40" y2="262" class="playhead"/><path d="M${PLAY_X - 9} 34h18l-9 12z" class="playtip"/>`;
+  h += `</g></g><g id="head" class="${timed ? 'live' : ''}" style="transform:translateX(${lastHead ?? headX}px)"><line x1="0" x2="0" y1="40" y2="262" class="playhead"/><path d="M-9 34h18l-9 12z" class="playtip"/></g>`;
   burst = -1;
   $('#staff').innerHTML = h;
-  if (!timed && lastTx !== tx) requestAnimationFrame(() => { const g = $('#rollin'); if (g) g.style.transform = `translateX(${tx}px)`; });
-  lastTx = tx;
+  if (!timed) requestAnimationFrame(() => { const g = $('#rollin'), hd = $('#head'); if (g) g.style.transform = `translateX(${tx}px)`; if (hd) hd.style.transform = `translateX(${headX}px)`; });
+  lastTx = tx; lastHead = headX;
 }
 function ring(m) {
   const k = $(`.key[data-m="${m}"]`); if (!k) return;
@@ -1329,6 +1339,7 @@ console.assert(lvOf(0) === 1 && lvOf(100) === 2 && lvOf(399) === 2 && lvOf(400) 
 console.assert(token('*F#').any.every(m => m % 12 === 6) && token('*#').any.every(m => SHARP[m % 12]), 'token any');
 console.assert(LEVELS.every(L => L.lessons.every(x => compile(x).every(s => s.next || s.rest || (s.need || s.any).every(Number.isInteger)))), 'curriculum');
 console.assert(compile(LEVELS[1].lessons[0])[1].finger === 2, 'dita automatiche');
+navigator.storage?.persist?.();   // chiede all'iPad di non cancellare i progressi
 P = profiles.find(p => p.id === store.get('current'));
 profiles.forEach(migrateIds); saveP();
 if (P) { P.err ||= {}; P.srs ||= {}; }
