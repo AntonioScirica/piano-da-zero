@@ -376,7 +376,7 @@ function compile(x) {
 
 // ===== Stato salvato: giocatori, punti, classifica =====
 const store = { get:(k,d) => JSON.parse(localStorage.getItem(k) ?? 'null') ?? d, set:(k,v) => localStorage.setItem(k, JSON.stringify(v)) };
-if (store.get('dataVersion', 0) < 3) { localStorage.clear(); store.set('dataVersion', 3); }   // azzeramento richiesto: tutti ripartono da zero, una volta sola
+if (store.get('dataVersion', 0) < 4) { localStorage.clear(); store.set('dataVersion', 4); }   // azzeramento richiesto: tutti ripartono da zero, una volta sola
 const PCOL = [['#2747d6','#fff'], ['#e0367a','#111'], ['#1f9d6b','#111'], ['#ff7a1a','#111'], ['#6a3fd1','#fff'], ['#f2b705','#111']];
 const PART = 24;   // una "parte" di canzone = 24 passi
 let profiles = store.get('profiles', []), P = null, songs = store.get('songs', []), showNames = store.get('names', true), micOn = false;
@@ -1297,7 +1297,13 @@ async function startMic() {
 $('#mic').onclick = startMic;
 // microfono acceso da solo al primo tocco (i browser non lo permettono prima); non serve se la pianola è collegata col cavo
 let micTried = false;
-addEventListener('pointerdown', () => { if (!micOn && !micTried && !midiCount) { micTried = true; startMic(); } }, true);
+let pendingTap = null;   // il tocco che ha fatto partire la richiesta del microfono
+addEventListener('pointerdown', e => {
+  if (micOn || micTried || midiCount) return;
+  micTried = true; pendingTap = e.target.closest('button, a, label');
+  startMic().finally(() => { const t = pendingTap; pendingTap = null; if (t && document.contains(t)) t.click(); });   // dopo il permesso: esegue il tocco
+}, true);
+addEventListener('click', e => { if (pendingTap && pendingTap.contains(e.target)) pendingTap = null; }, true);   // se il tocco è già andato a buon fine, non ripeterlo
 
 $('#names').checked = showNames;
 $('#names').onchange = e => { showNames = e.target.checked; store.set('names', showNames); };
