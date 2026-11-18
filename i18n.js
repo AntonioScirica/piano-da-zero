@@ -312,6 +312,8 @@ const TOURS = {
     en:['A chord is several notes played together.', '{c} major: start from {c}…', '…skip a key and take {e}…', '…skip again and take {g}.', 'Now all three together: {c}, {e}, {g}.'],
     uk:['Акорд — це кілька нот, зіграних разом.', '{c} мажор: почни з {c}…', '…пропусти клавішу й візьми {e}…', '…пропусти ще одну й візьми {g}.', 'А тепер усі три разом: {c}, {e}, {g}.'] },
 };
+STR.tutBack = ['Indietro', 'Back', 'Назад'];
+STR.tutStart = ['Inizia l’esercizio', 'Start the exercise', 'Почати вправу'];
 STR.tSkip = ['Salta', 'Skip', 'Пропустити'];
 STR.tReplay = ['Rivedi la spiegazione', 'Watch the explanation again', 'Переглянути пояснення'];
 STR.tVoice = ['Voce', 'Voice', 'Голос'];

@@ -184,7 +184,7 @@
   .import label.check input { width:22px; height:22px; accent-color:var(--ink); }
 
   /* ===== Lezione ===== */
-  #player { height:100dvh; display:grid; grid-template-rows:auto 6px 1fr auto auto auto; overflow:hidden; }
+  #player { height:100dvh; display:grid; grid-template-rows:auto 6px 1fr auto auto; overflow:hidden; }
   .band { min-height:min(24vh,210px); background:var(--lv); color:var(--on-lv); padding:clamp(14px,2.4vh,26px) clamp(20px,3vw,40px); display:grid; grid-template-columns:auto 1fr auto; gap:20px; align-items:start; position:relative; overflow:hidden; }
   .band h1 { font-size:clamp(30px,min(11vh,8vw),96px); overflow-wrap:anywhere; font-weight:900; line-height:.9; letter-spacing:-.04em; position:relative; text-wrap:balance; }
   .band .sub { font-weight:600; font-size:17px; margin-top:8px; position:relative; }
@@ -263,13 +263,7 @@
   @keyframes burst { from { transform:scale(.6); opacity:1; } to { transform:scale(2.4); opacity:0; } }
 
   /* ===== Fine lezione ===== */
-  .tourcap { display:flex; align-items:center; gap:16px; background:var(--ink); color:var(--paper); padding:12px clamp(20px,3vw,40px); border-bottom:2px solid var(--paper); animation:slidein .35s var(--ease) both; }
-  .tourcap p { flex:1; font-size:clamp(18px,2.6vh,24px); font-weight:800; line-height:1.25; }
-  .tourbtns { display:flex; gap:8px; } .tourbtns button { border-color:var(--paper); color:var(--paper); min-height:44px; font-size:15px; }
-  .tourbtns button:hover { background:var(--paper); color:var(--ink); } .tourbtns button[aria-pressed="false"] { opacity:.5; }
   .replay { margin:12px 12px 0 0; min-height:40px; font-size:14px; padding:0 12px; }
-  #kbd.touring .key > span:not(.fg) { visibility:hidden; }
-  #staff.touring #rollin, #staff.touring #head { opacity:.08; transition:opacity .3s; }
   #fx { position:absolute; inset:0; pointer-events:none; z-index:8; }
   .ftag { position:absolute; background:var(--ink); color:var(--paper); font-weight:800; font-size:clamp(15px,1.9vw,20px); padding:4px 10px; white-space:nowrap; animation:pop .35s var(--ease) both; }
   .ftag.big { font-size:clamp(18px,2.6vw,26px); background:var(--lv); color:var(--on-lv); border:2px solid var(--ink); }
@@ -304,6 +298,42 @@
   @keyframes slidein { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:none; } }
   @keyframes grow { from { transform:scale(.2); opacity:0; } to { transform:none; opacity:1; } }
   @media (max-width:760px) { #lvl .lv-inner { grid-template-columns:1fr; } }
+  /* tutorial a schermo intero */
+  .tut { position:fixed; inset:0; z-index:11; background:var(--paper); display:grid; grid-template-rows:auto 1fr auto; }
+  .tut-head { display:flex; align-items:center; gap:18px; background:var(--lv); color:var(--on-lv); padding:14px clamp(20px,3vw,40px); }
+  .tut-head h2 { font-size:clamp(26px,4.4vh,44px); font-weight:900; letter-spacing:-.03em; margin-right:auto; line-height:1; }
+  .tut-head button { border-color:var(--on-lv); }
+  .tut-dots { display:flex; gap:8px; } .tut-dots i { width:12px; height:12px; border:2px solid var(--on-lv); border-radius:50%; transition:background .3s; } .tut-dots i.on { background:var(--on-lv); }
+  .tut-art { display:grid; align-content:center; justify-items:center; gap:2vh; padding:2vh clamp(20px,4vw,60px); min-height:0; }
+  .tut-art svg { width:min(100%, 1140px); height:auto; max-height:50vh; overflow:visible; }
+  #tutStaff { max-height:24vh; }
+  .twk { fill:#fff; stroke:var(--ink); stroke-width:2.5; transition:fill .45s var(--ease), transform .45s var(--ease); transform-box:fill-box; transform-origin:top; }
+  .tbk { fill:var(--ink); transition:fill .45s var(--ease), transform .45s var(--ease); transform-box:fill-box; transform-origin:top; }
+  .twk.on, .tbk.on { fill:var(--lv); transform:scaleY(.985) translateY(4px); }
+  .twk.soft { fill:color-mix(in srgb,var(--lv) 28%,#fff); } .tbk.soft { fill:color-mix(in srgb,var(--lv) 55%,var(--ink)); }
+  .twk.glow, .tbk.glow { fill:var(--lv); animation:glow 1s ease-in-out infinite alternate; }
+  .tdot { fill:var(--ink); }
+  .pill { animation:pillin .55s cubic-bezier(.2,1.4,.4,1) both; }
+  .pill rect { fill:var(--ink); } .pill text { fill:var(--paper); font-weight:800; font-size:24px; text-anchor:middle; }
+  .pill.big rect { fill:var(--lv); stroke:var(--ink); stroke-width:3; } .pill.big text { fill:var(--on-lv); font-size:28px; }
+  .pill.fing circle { fill:var(--ink); } .pill.fing text { fill:var(--paper); font-size:28px; font-weight:900; text-anchor:middle; }
+  .lead { stroke:var(--ink); stroke-width:2; stroke-dasharray:4 5; }
+  .draw { fill:none; stroke:var(--ink); stroke-width:4; stroke-linecap:round; stroke-dasharray:1200; stroke-dashoffset:1200; animation:draw .9s var(--ease) forwards; }
+  .brk text { font-size:30px; font-weight:900; text-anchor:middle; fill:var(--ink); animation:pillin .5s .4s both; } .brk { animation:none; }
+  .arrow { stroke:var(--lv); stroke-width:5; } .ahead { fill:var(--lv); }
+  .tsl { stroke:var(--ink); stroke-width:2; } .tsl.draw { stroke-width:2; animation-duration:.7s; }
+  .tclef, .tclefb { font-family:'Noto Music',serif; fill:var(--ink); font-size:96px; } .tclefb { font-size:86px; }
+  .tnote { animation:drop .7s cubic-bezier(.2,1.3,.4,1) both; } .tnote ellipse { fill:var(--ink); } .tnote text { font-size:24px; font-weight:800; text-anchor:middle; fill:var(--ink); }
+  .tut-foot { display:grid; grid-template-columns:1fr auto; gap:24px; align-items:center; padding:2vh clamp(20px,4vw,60px) 3vh; border-top:3px solid var(--ink); }
+  #tutTxt { font-size:clamp(22px,3.6vh,36px); font-weight:800; line-height:1.2; letter-spacing:-.01em; max-width:42ch; }
+  #tutTxt.in { animation:slidein .5s var(--ease) both; }
+  .tut-btns { display:flex; gap:10px; } .tut-btns button { min-height:56px; font-size:18px; padding:0 24px; }
+  @keyframes pillin { from { opacity:0; transform:translateY(16px) scale(.8); } to { opacity:1; transform:none; } }
+  @keyframes draw { to { stroke-dashoffset:0; } }
+  @keyframes drop { from { opacity:0; transform:translateY(-60px); } to { opacity:1; transform:none; } }
+  @keyframes glow { from { filter:brightness(1); } to { filter:brightness(1.25); } }
+  .pill, .tnote { transform-box:fill-box; transform-origin:center bottom; }
+  @media (max-width:760px) { .tut-foot { grid-template-columns:1fr; } }
   #done { position:fixed; inset:0; background:var(--lv); color:var(--on-lv); display:grid; place-items:center; z-index:10; overflow:hidden; animation:rise .45s var(--ease); }
   #done .inner { position:relative; text-align:center; padding:24px; }
   #done h2 { font-size:clamp(80px,16vh,170px); font-weight:900; letter-spacing:-.04em; line-height:.85; }
@@ -315,7 +345,7 @@
   #done button { border-color:var(--on-lv); } #done button.primary { background:var(--on-lv); color:var(--lv); }
   #done button:hover { background:var(--on-lv); color:var(--lv); }
   @keyframes rise { from { clip-path:circle(0 at 50% 50%); } to { clip-path:circle(150% at 50% 50%); } }
-  @media (prefers-reduced-motion:reduce) { .ftag, .demo-note, .demo-lbl, #lvl *, .key.together, .mk.pulse { animation:none !important; } .ring, .burst, .pulse, .xpf { display:none; } #done { animation:none; } * { transition:none !important; } }
+  @media (prefers-reduced-motion:reduce) { .pill, .tnote, .draw, #tutTxt.in, .twk, .tbk { animation:none !important; transition:none !important; stroke-dashoffset:0 !important; } .ftag, .demo-note, .demo-lbl, #lvl *, .key.together, .mk.pulse { animation:none !important; } .ring, .burst, .pulse, .xpf { display:none; } #done { animation:none; } * { transition:none !important; } }
   @media (max-width:760px) { .lib { grid-template-columns:1fr; } .stats, .row2 { grid-template-columns:1fr; } .next .arcs { display:none; } .stage { padding-block:16px; align-items:start; } .stage.with-card { grid-template-columns:1fr; } .band { grid-template-columns:auto 1fr; } .band .meta { grid-column:1/-1; flex-direction:row; justify-content:space-between; align-items:center; } }
 </style>
 </head>
@@ -357,26 +387,26 @@
       <p class="tip" id="tip"></p>
     </div>
   </div>
-  <div class="tourcap" id="tourcap" hidden></div>
   <div id="mapbar"><span>Melody 61<br><small data-t="mapSub">Do contati da sinistra</small></span><div id="map" aria-hidden="true"></div></div>
   <div id="kbd"></div>
 </section>
 <div id="who" class="who" hidden role="dialog" aria-modal="true" aria-label="Chi suona?" data-ta="who"></div>
 <div id="settings" class="who" hidden role="dialog" aria-modal="true"></div>
+<div id="tut" class="tut" hidden role="dialog" aria-modal="true"></div>
 <div id="lvl" class="on-colour" hidden role="dialog" aria-modal="true"></div>
 <div id="done" class="on-colour" hidden role="dialog" aria-modal="true" aria-labelledby="done-h"></div>
 
 <script>
 // aggiornamenti: se online c'è una versione più nuova, ricarica subito quella (l'iPad tiene in memoria la pagina vecchia)
-const APP_V = '202611181816';
+const APP_V = '202611181825';
 fetch('version.json?' + Date.now(), { cache:'no-store' }).then(r => r.json()).then(j => {
   if (j.v && j.v !== APP_V && !location.search.includes('v=' + j.v)) location.replace(location.pathname + '?v=' + j.v + location.hash);
 }).catch(() => {});
 </script>
-<script src="i18n.js?v=202611181816"></script>
-<script src="curriculum.en.js?v=202611181816"></script>
-<script src="curriculum.uk.js?v=202611181816"></script>
-<script src="curriculum.js?v=202611181816"></script>
+<script src="i18n.js?v=202611181825"></script>
+<script src="curriculum.en.js?v=202611181825"></script>
+<script src="curriculum.uk.js?v=202611181825"></script>
+<script src="curriculum.js?v=202611181825"></script>
 <script>
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -891,7 +921,7 @@ function start(i) {
   else cur = allLessons()[i];
   cur.st = cur.st0 ? cur.st0.map(x => ({ ...x })) : compile(cur);
   if (!cur.repair) { pending = null; history.replaceState(null, '', i === 'drill' ? '#allenamento' : `#lezione-${i}`); }
-  stopTimed(); cancelHold(true); endTour(true); stopAnim(); animKey = null; if ($('#tourcap')) $('#tourcap').hidden = true; lastTx = null; lastHead = null; viewOff = null; lastAct = 0; step = 0; hit = new Set(); wrongKeys.clear(); errors = 0; burst = -1; combo = 0; bestCombo = 0; lessonXp = 0; errSteps.clear(); stepErr = 0;
+  stopTimed(); cancelHold(true); endTour(true); stopAnim(); animKey = null; lastTx = null; lastHead = null; viewOff = null; lastAct = 0; step = 0; hit = new Set(); wrongKeys.clear(); errors = 0; burst = -1; combo = 0; bestCombo = 0; lessonXp = 0; errSteps.clear(); stepErr = 0;
   $('#base').hidden = !(cur.song || cur.acc); baseLabel();
   setLevel(cur.L);
   $('#home-view').hidden = true; $('#player').hidden = false; $('#done').hidden = true;
@@ -936,158 +966,148 @@ function buildKeys() {
   mh += `<b class="win" style="left:${wl(Math.max(lo, MLO))}%;width:${wl(Math.min(hi, MHI) + 1) - wl(Math.max(lo, MLO))}%"></b>`;
   $('#map').innerHTML = mh;
 }
-// ===== Animazioni delle schede di teoria: mostrano dove sta la nota e cosa vuol dire =====
-let animTs = [], animOn = null, animKey = null;
-const keyEl = m => $(`.key[data-m="${m}"]`);
-const lit = (m, cls = 'lit') => keyEl(m)?.classList.add(cls);
-function tag(m, text, cls = '') {
-  const k = keyEl(m), fx = $('#fx'); if (!k || !fx) return;
-  const r = k.getBoundingClientRect(), b = fx.getBoundingClientRect(), el = document.createElement('span');
-  el.className = 'ftag ' + cls; el.textContent = text;
-  fx.append(el);
-  el.style.top = (b.height - el.offsetHeight - 12) + 'px';   // in basso, al posto dei nomi (nascosti durante la spiegazione)
-  const w = el.offsetWidth, cx = r.left - b.left + r.width / 2;
-  el.style.left = Math.max(4, Math.min(b.width - w - 4, cx - w / 2)) + 'px';   // mai tagliata dai bordi
-}
-function clearFx() {
-  document.querySelectorAll('.key.lit, .key.lit2, .key.together').forEach(k => k.classList.remove('lit', 'lit2', 'together'));
-  document.querySelectorAll('.mk.pulse').forEach(k => k.classList.remove('pulse'));
-  if ($('#fx')) $('#fx').innerHTML = ''; $('#demo')?.remove();
-}
-function stopAnim() { animTs.forEach(clearTimeout); animTs = []; animOn = null; clearFx(); }
-function demo(list) {   // note disegnate sul pentagramma durante la spiegazione
-  $('#demo')?.remove(); const svg = $('#staff'); if (!svg || $('#staffwrap').hidden) return;
-  const g = document.createElementNS('http://www.w3.org/2000/svg', 'g'); g.id = 'demo';
-  g.innerHTML = list.map(({ m, x, l }) => { const y = posY(m), led = (m === 60 ? `<line x1="${x - 16}" x2="${x + 16}" y1="${y}" y2="${y}" class="sl"/>` : '');
-    return `${led}<ellipse cx="${x}" cy="${y}" rx="9" ry="6.6" transform="rotate(-20 ${x} ${y})" class="note demo-note"/>${l ? `<text x="${x}" y="${m >= 60 ? 40 : 284}" class="demo-lbl">${esc(l)}</text>` : ''}`; }).join('');
-  svg.append(g);
-}
-const WK = [0, 2, 4, 5, 7, 9, 11];
-const ANIMS = {
-  groups:() => [[0, () => { [49, 51, 61, 63].forEach(m => lit(m)); tag(50, t('tag2')); tag(62, t('tag2')); }],
-    [1600, () => { clearFx(); [54, 56, 58, 66, 68, 70].forEach(m => lit(m)); tag(56, t('tag3')); tag(68, t('tag3')); }],
-    [3200, () => { [49, 51, 61, 63].forEach(m => lit(m, 'lit2')); }], [4200, () => {}]],
-  lowhigh:() => { const w = []; for (let m = 48; m <= 72; m++) if (WK.includes(m % 12)) w.push(m);
-    return [[0, () => tag(48, t('low'), 'big')], ...w.map((m, i) => [200 + i * 110, () => lit(m, i < w.length / 2 ? 'lit2' : 'lit')]), [200 + w.length * 110, () => tag(72, t('high'), 'big')]]; },
-  find:(x) => { const pc = NOTE[x], ref = pc === 0 ? [1, 3] : [6, 8, 10], st = [];
-    [48, 60, 72].forEach((o, i) => { const m = o + pc; if (m > 72) return;
-      st.push([i * 1700, () => ref.forEach(r => lit(o + r, 'lit2'))], [i * 1700 + 800, () => { lit(m); tag(m, NAMES[pc]); }]); });
-    return st; },
-  seven:() => WK.map((pc, i) => [i * 650, () => { lit(60 + pc); tag(60 + pc, NAMES[pc]); }]).concat([[WK.length * 650 + 200, () => { lit(72, 'lit2'); tag(72, NAMES[0], 'soft'); }]]),
-  middleC:() => [[0, () => { [48, 72].forEach(m => { lit(m, 'lit2'); tag(m, NAMES[0], 'soft'); }); }],
-    [900, () => { lit(60); tag(60, t('midC'), 'big'); document.querySelector('.mk[data-m="60"]')?.classList.add('pulse'); }], [3000, () => {}]],
-  fingers:() => [60, 62, 64, 65, 67].map((m, i) => [i * 550, () => { lit(m); tag(m, String(i + 1), 'fing'); }]).concat([[3200, () => {}]]),
-  staff:() => { const ns = [60, 62, 64, 65, 67], acc = [];
-    return ns.map((m, i) => [i * 900, () => { clearFx(); lit(m); tag(m, NAMES[m % 12]); acc.push({ m, x:300 + i * 130, l:NAMES[m % 12] }); demo(acc); }]).concat([[ns.length * 900 + 800, () => {}]]); },
-  bass:() => { const ns = [48, 50, 52, 53, 55], acc = [];
-    return ns.map((m, i) => [i * 900, () => { clearFx(); lit(m); tag(m, NAMES[m % 12]); acc.push({ m, x:300 + i * 130, l:NAMES[m % 12] }); demo(acc); }]).concat([[ns.length * 900 + 800, () => {}]]); },
-  intervals:() => [[62, 'iv2'], [64, 'iv3'], [65, 'iv4'], [67, 'iv5']].map(([m, k], i) => [i * 1500, () => {
-    clearFx(); lit(60); lit(m); tag(m, t(k), 'big'); demo([{ m:60, x:320 }, { m, x:470, l:t(k) }]); }]).concat([[6200, () => {}]]),
-  sharp:() => [[0, () => { lit(65); tag(65, NAMES[5]); }], [1100, () => { lit(66); tag(66, NAMES[6] + ' · ' + t('upOne'), 'big'); }], [3000, () => {}]],
-  flat:() => [[0, () => { lit(71); tag(71, NAMES[11]); }], [1100, () => { lit(70); tag(70, FLATN[10] + ' · ' + t('downOne'), 'big'); }], [3000, () => {}]],
-  chord:() => [[0, () => { lit(60); tag(60, NAMES[0]); }], [700, () => tag(62, t('skip'), 'soft')], [1100, () => { lit(64); tag(64, NAMES[4]); }],
-    [1800, () => tag(65, t('skip'), 'soft')], [2200, () => { lit(67); tag(67, NAMES[7]); }], [3000, () => [60, 64, 67].forEach(m => keyEl(m)?.classList.add('together'))], [4800, () => {}]],
-};
-function playAnim(name, loop) {
-  stopAnim(); if (!name) return;
-  const [kind, arg] = name.split(':'), make = ANIMS[kind]; if (!make) return;
-  animOn = name;
-  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const run = () => {
-    const steps = make(arg), end = steps[steps.length - 1][0];
-    if (still) { steps.forEach(([, fn]) => fn()); return; }   // senza animazioni: stato finale
-    steps.forEach(([ms, fn]) => animTs.push(setTimeout(() => animOn === name && fn(), ms)));
-    if (loop) animTs.push(setTimeout(() => { if (animOn === name) { clearFx(); run(); } }, end + 1800));
-  };
-  requestAnimationFrame(run);
-}
-// ===== Spiegazione guidata: frase per frase, con tastiera e pentagramma che mostrano, e voce =====
-let tour = null;
+// ===== Tutorial a schermo intero: prima si spiega (disegno grande, animato), poi si suona =====
+let animTs = [], animKey = null, tour = null;
 const later = (ms, fn) => animTs.push(setTimeout(fn, ms));
-const nm = pc => NAMES[pc];
-const TOUR_FX = {
-  groups:[() => { for (let m = 48; m <= 72; m++) if (SHARP[m % 12]) lit(m, 'lit2'); },
-    () => { [49, 51, 61, 63].forEach(m => lit(m)); tag(50, t('tag2'), 'big'); tag(62, t('tag2'), 'big'); },
-    () => { [54, 56, 58, 66, 68, 70].forEach(m => lit(m)); tag(56, t('tag3'), 'big'); tag(68, t('tag3'), 'big'); },
-    () => { [49, 51, 61, 63].forEach(m => lit(m, 'lit2')); [54, 56, 58, 66, 68, 70].forEach(m => lit(m)); }],
-  lowhigh:[() => { [48, 50, 52].forEach(m => lit(m)); tag(48, t('low'), 'big'); beep(48, 0.6, 0, 0.18); },
-    () => { [67, 69, 71, 72].forEach(m => lit(m)); tag(72, t('high'), 'big'); beep(72, 0.6, 0, 0.18); },
-    () => [48, 52, 55, 60, 64, 67, 72].forEach((m, i) => later(i * 260, () => { lit(m); beep(m, 0.35, 0, 0.15); }))],
-  'find:C':[() => { lit(60); tag(60, nm(0), 'big'); },
-    () => { lit(60); [61, 63].forEach(m => lit(m, 'lit2')); tag(62, t('tag2')); },
-    () => { [61, 63].forEach(m => lit(m, 'lit2')); later(900, () => { lit(60); tag(60, nm(0), 'big'); }); },
-    () => [48, 60, 72].forEach((m, i) => later(i * 450, () => { lit(m); tag(m, nm(0) + ' ' + ORD(1 + (m - 36) / 12)); })),
-    () => { lit(60); tag(60, t('midC'), 'big'); document.querySelector('.mk[data-m="60"]')?.classList.add('pulse'); }],
-  seven:[() => { lit(60); tag(60, nm(0), 'big'); },
-    () => WK.forEach((pc, i) => later(i * 420, () => { lit(60 + pc); tag(60 + pc, nm(pc)); })),
-    () => { WK.forEach(pc => lit(60 + pc, 'lit2')); lit(72); tag(72, nm(0), 'big'); }],
-  'find:F':[() => { lit(65); tag(65, nm(5), 'big'); },
-    () => { lit(65); [66, 68, 70].forEach(m => lit(m, 'lit2')); tag(68, t('tag3')); },
-    () => { lit(60); lit(65); tag(60, nm(0), 'big'); tag(65, nm(5), 'big'); }],
-  middleC:[() => { lit(60); tag(60, t('midC'), 'big'); },
-    () => { [48, 60, 72].forEach(m => tag(m, nm(0) + ' ' + ORD(1 + (m - 36) / 12), m === 60 ? 'big' : 'soft')); lit(60); document.querySelector('.mk[data-m="60"]')?.classList.add('pulse'); },
-    () => { lit(60); tag(60, '1', 'fing'); }],
-  fingers:[() => { lit(60); tag(60, '1', 'fing'); },
-    () => { lit(60); tag(60, '1', 'fing'); [62, 64, 65, 67].forEach((m, i) => later(i * 450, () => { lit(m); tag(m, String(i + 2), 'fing'); })); },
-    () => [60, 62, 64, 65, 67].forEach((m, i) => { lit(m); tag(m, String(i + 1), 'fing'); })],
-  staff:[() => demo([]),
-    () => { lit(60); tag(60, nm(0), 'big'); demo([{ m:60, x:300, l:nm(0) }]); },
-    () => { const acc = [{ m:60, x:300, l:nm(0) }]; lit(60); demo(acc);
-      [62, 64, 65, 67].forEach((m, i) => later(i * 650, () => { lit(m); tag(m, nm(m % 12)); acc.push({ m, x:430 + i * 130, l:nm(m % 12) }); demo(acc); })); }],
-  bass:[() => demo([]),
-    () => { lit(48); tag(48, nm(0), 'big'); demo([{ m:48, x:300, l:nm(0) }]); },
-    () => { const acc = [{ m:48, x:300, l:nm(0) }]; lit(48); demo(acc);
-      [50, 52, 53, 55].forEach((m, i) => later(i * 650, () => { lit(m); tag(m, nm(m % 12)); acc.push({ m, x:430 + i * 130, l:nm(m % 12) }); demo(acc); })); }],
-  intervals:[() => demo([]),
-    () => { lit(60); lit(62); tag(62, t('iv2'), 'big'); demo([{ m:60, x:330 }, { m:62, x:480, l:t('iv2') }]); },
-    () => { lit(60); lit(64); tag(63, t('skip'), 'soft'); tag(64, t('iv3'), 'big'); demo([{ m:60, x:330 }, { m:64, x:480, l:t('iv3') }]); },
-    () => { lit(60); lit(65); tag(65, t('iv4'), 'big'); demo([{ m:60, x:330 }, { m:65, x:480, l:t('iv4') }]);
-      later(1800, () => { clearFx(); lit(60); lit(67); tag(67, t('iv5'), 'big'); demo([{ m:60, x:330 }, { m:67, x:480, l:t('iv5') }]); }); }],
-  sharp:[() => { lit(65); tag(65, nm(5), 'big'); }, () => { lit(65, 'lit2'); lit(66); tag(66, t('upOne'), 'big'); }, () => { lit(66); tag(66, nm(6), 'big'); }],
-  flat:[() => { lit(71); tag(71, nm(11), 'big'); }, () => { lit(71, 'lit2'); lit(70); tag(70, t('downOne'), 'big'); }, () => { lit(70); tag(70, FLATN[10], 'big'); }],
-  chord:[() => {}, () => { lit(60); tag(60, nm(0), 'big'); },
-    () => { lit(60); tag(62, t('skip'), 'soft'); lit(64); tag(64, nm(4), 'big'); },
-    () => { lit(60); lit(64); tag(65, t('skip'), 'soft'); lit(67); tag(67, nm(7), 'big'); },
-    () => { [60, 64, 67].forEach(m => { lit(m); keyEl(m)?.classList.add('together'); }); }],
-};
+function stopAnim() { animTs.forEach(clearTimeout); animTs = []; }
+const nm = pc => NAMES[pc], WK = [0, 2, 4, 5, 7, 9, 11];
 const ORD = n => I18N[LANG].ord ? I18N[LANG].ord(n) : n + '°';
+// tastiera disegnata: Do3–Do5 (15 tasti bianchi), tasti da y=150, etichette sopra
+const TK = { lo:48, hi:72, W:1000 / 15, top:150, wh:230, bh:140 };
+const tWhites = () => { const w = []; for (let m = TK.lo; m <= TK.hi; m++) if (!SHARP[m % 12]) w.push(m); return w; };
+const tX = m => { const w = tWhites(), i = w.filter(x => x < m).length; return SHARP[m % 12] ? i * TK.W : i * TK.W + TK.W / 2; };   // centro del tasto
+function tutKeyboard() {
+  let h = '';
+  tWhites().forEach((m, i) => h += `<rect class="twk" data-m="${m}" x="${i * TK.W + 2}" y="${TK.top}" width="${TK.W - 4}" height="${TK.wh}" rx="6"/>`);
+  for (let m = TK.lo; m <= TK.hi; m++) if (SHARP[m % 12]) h += `<rect class="tbk" data-m="${m}" x="${tX(m) - TK.W * 0.3}" y="${TK.top}" width="${TK.W * 0.6}" height="${TK.bh}" rx="5"/>`;
+  h += `<circle cx="${tX(60)}" cy="${TK.top + TK.wh - 22}" r="6" class="tdot"/>`;
+  return h;
+}
+const tKey = m => $(`#tutKb [data-m="${m}"]`);
+function tOn(m, cls = 'on', delay = 0) { later(delay, () => tKey(m)?.classList.add(cls)); }
+function tFx(html) { $('#tfx').insertAdjacentHTML('beforeend', html); }
+// etichetta sopra il tasto, collegata da una linea che si disegna
+function tPill(m, text, { row = 0, big = false, delay = 0 } = {}) {
+  const x = tX(m), y = 100 - row * 54, w = Math.max(64, text.length * (big ? 17 : 14) + 34), cx = Math.max(w / 2 + 4, Math.min(1000 - w / 2 - 4, x));
+  tFx(`<g class="pill ${big ? 'big' : ''}" style="animation-delay:${delay}ms"><line x1="${x}" x2="${x}" y1="${y + 20}" y2="${TK.top - 4}" class="lead" style="animation-delay:${delay}ms"/>
+    <rect x="${cx - w / 2}" y="${y - 22}" width="${w}" height="${big ? 48 : 42}" rx="21"/><text x="${cx}" y="${y + (big ? 10 : 7)}">${esc(text)}</text></g>`);
+}
+// parentesi che si disegna sopra un gruppo di tasti
+function tBracket(ms, text, delay = 0) {
+  const x1 = tX(ms[0]) - TK.W * 0.32, x2 = tX(ms[ms.length - 1]) + TK.W * 0.32, y = TK.top - 18;
+  tFx(`<g style="animation-delay:${delay}ms" class="brk"><path d="M${x1} ${y + 12} V${y} H${x2} V${y + 12}" class="draw" style="animation-delay:${delay}ms"/><text x="${(x1 + x2) / 2}" y="${y - 12}">${esc(text)}</text></g>`);
+}
+// freccia curva da un tasto all'altro
+function tArrow(m1, m2, delay = 0) {
+  const x1 = tX(m1), x2 = tX(m2), y = TK.top - 6, top = y - Math.max(40, Math.abs(x2 - x1) * 0.9);
+  tFx(`<path d="M${x1} ${y} C ${x1} ${top}, ${x2} ${top}, ${x2} ${y - 6}" class="draw arrow" marker-end="url(#ahead)" style="animation-delay:${delay}ms"/>`);
+}
+// pentagramma del tutorial: note che cadono al loro posto
+const tStaffY = m => m >= 60 ? 176 - (dia(m) - 30) * 9 : 176 - (dia(m) - 18) * 9;   // linea in basso: Mi4 (violino) / Sol2 (basso)
+function tStaff(bass) {
+  let h = '';
+  for (let i = 0; i < 5; i++) h += `<line x1="40" x2="960" y1="${104 + i * 18}" y2="${104 + i * 18}" class="tsl draw" style="animation-delay:${i * 80}ms"/>`;
+  h += bass ? `<text x="60" y="160" class="tclefb">𝄢</text>` : `<text x="56" y="180" class="tclef">𝄞</text>`;
+  $('#tutStaff').innerHTML = h + '<g id="tnotes"></g>';
+}
+function tNote(m, x, label, delay = 0) {
+  const y = tStaffY(m), led = m === 60 ? `<line x1="${x - 26}" x2="${x + 26}" y1="${y}" y2="${y}" class="tsl"/>` : '';
+  $('#tnotes').insertAdjacentHTML('beforeend', `<g class="tnote" style="animation-delay:${delay}ms">${led}<ellipse cx="${x}" cy="${y}" rx="15" ry="11" transform="rotate(-20 ${x} ${y})"/>${label ? `<text x="${x}" y="${y - 26}">${esc(label)}</text>` : ''}</g>`);
+}
+const STAFF_TOURS = { staff:false, bass:true, intervals:false };
+const TUT = {
+  groups:[() => { for (let m = TK.lo; m <= TK.hi; m++) if (SHARP[m % 12]) tOn(m, 'soft', (m - TK.lo) * 30); },
+    () => { [[49, 51], [61, 63]].forEach((g, i) => { g.forEach(m => tOn(m, 'on', i * 300)); tBracket(g, '2', i * 300); }); },
+    () => { [[54, 56, 58], [66, 68, 70]].forEach((g, i) => { g.forEach(m => tOn(m, 'on', i * 300)); tBracket(g, '3', i * 300); }); },
+    () => { [[49, 51], [54, 56, 58], [61, 63], [66, 68, 70]].forEach((g, i) => { g.forEach(m => tOn(m, 'on', i * 250)); tBracket(g, String(g.length), i * 250); }); }],
+  lowhigh:[() => { [48, 50, 52].forEach((m, i) => tOn(m, 'on', i * 120)); tPill(48, t('low'), { big:true }); },
+    () => { [72, 71, 69].forEach((m, i) => tOn(m, 'on', i * 120)); tPill(72, t('high'), { big:true }); },
+    () => { tWhites().forEach((m, i) => tOn(m, i < 7 ? 'soft' : 'on', i * 110)); tPill(48, t('low')); tPill(72, t('high'), { delay:1500 }); }],
+  'find:C':[() => { tOn(60); tPill(60, nm(0), { big:true }); },
+    () => { [61, 63].forEach(m => tOn(m, 'soft')); tBracket([61, 63], '2'); tArrow(61, 60, 500); tOn(60, 'on', 900); },
+    () => { [61, 63].forEach(m => tOn(m, 'soft')); tBracket([61, 63], '2'); tArrow(61, 60, 300); tOn(60, 'on', 800); tPill(60, nm(0), { delay:900 }); },
+    () => [48, 60, 72].forEach((m, i) => { tOn(m, 'on', i * 400); [m + 1, m + 3].forEach(b => b <= TK.hi && tOn(b, 'soft', i * 400)); tPill(m, nm(0) + ' ' + ORD(1 + (m - 36) / 12), { delay:i * 400 }); }),
+    () => { tOn(60); [48, 72].forEach(m => tOn(m, 'soft')); tPill(60, t('midC'), { big:true }); }],
+  seven:[() => { tOn(60); tPill(60, nm(0), { big:true }); },
+    () => WK.forEach((pc, i) => { tOn(60 + pc, 'on', i * 380); tPill(60 + pc, nm(pc), { delay:i * 380, row:i % 2 }); }),
+    () => { WK.forEach(pc => tOn(60 + pc, 'soft')); tOn(72, 'on', 200); tPill(72, nm(0), { big:true, delay:200 }); tArrow(71, 72, 0); }],
+  'find:F':[() => { tOn(65); tPill(65, nm(5), { big:true }); },
+    () => { [66, 68, 70].forEach(m => tOn(m, 'soft')); tBracket([66, 68, 70], '3'); tArrow(66, 65, 500); tOn(65, 'on', 900); },
+    () => { tOn(60); tOn(65, 'on', 300); tPill(60, nm(0), { big:true }); tPill(65, nm(5), { big:true, delay:300 }); }],
+  middleC:[() => { tOn(60); tPill(60, t('midC'), { big:true }); },
+    () => [48, 60, 72].forEach((m, i) => { tOn(m, m === 60 ? 'on' : 'soft', i * 350); tPill(m, nm(0) + ' ' + ORD(1 + (m - 36) / 12), { big:m === 60, delay:i * 350 }); }),
+    () => { tOn(60); tFx(`<g class="pill fing"><circle cx="${tX(60)}" cy="${TK.top + 150}" r="26"/><text x="${tX(60)}" y="${TK.top + 159}">1</text></g>`); tPill(60, t('midC'), { big:true }); }],
+  fingers:[() => { tOn(60); tFing(60, 1, 0); },
+    () => [60, 62, 64, 65, 67].forEach((m, i) => { tOn(m, 'on', i * 350); tFing(m, i + 1, i * 350); }),
+    () => [60, 62, 64, 65, 67].forEach((m, i) => { tOn(m); tFing(m, i + 1, 0); tPill(m, nm(m % 12), { delay:200 + i * 120, row:i % 2 }); })],
+  staff:[() => tStaff(false),
+    () => { tStaff(false); tNote(60, 200, nm(0)); tOn(60, 'on', 300); },
+    () => { tStaff(false); [60, 62, 64, 65, 67].forEach((m, i) => { tNote(m, 200 + i * 160, nm(m % 12), i * 450); tOn(m, 'on', i * 450); }); }],
+  bass:[() => tStaff(true),
+    () => { tStaff(true); tNote(48, 200, nm(0)); tOn(48, 'on', 300); },
+    () => { tStaff(true); [48, 50, 52, 53, 55].forEach((m, i) => { tNote(m, 200 + i * 160, nm(m % 12), i * 450); tOn(m, 'on', i * 450); }); }],
+  intervals:[() => tStaff(false),
+    () => { tStaff(false); tNote(60, 300); tNote(62, 520, t('iv2'), 400); tOn(60); tOn(62, 'on', 400); tArrow(60, 62, 400); },
+    () => { tStaff(false); tNote(60, 300); tNote(64, 520, t('iv3'), 400); tOn(60); tOn(62, 'soft', 200); tOn(64, 'on', 400); tArrow(60, 64, 400); },
+    () => { tStaff(false); tNote(60, 260); tNote(65, 460, t('iv4'), 300); tNote(67, 700, t('iv5'), 1100); tOn(60); tOn(65, 'on', 300); tOn(67, 'on', 1100); tArrow(60, 65, 300); tArrow(60, 67, 1100); }],
+  sharp:[() => { tOn(65); tPill(65, nm(5), { big:true }); },
+    () => { tOn(65, 'soft'); tArrow(65, 66, 200); tOn(66, 'on', 700); tPill(66, t('upOne'), { delay:700 }); },
+    () => { tOn(65, 'soft'); tOn(66); tPill(66, nm(6), { big:true }); }],
+  flat:[() => { tOn(71); tPill(71, nm(11), { big:true }); },
+    () => { tOn(71, 'soft'); tArrow(71, 70, 200); tOn(70, 'on', 700); tPill(70, t('downOne'), { delay:700 }); },
+    () => { tOn(71, 'soft'); tOn(70); tPill(70, FLATN[10], { big:true }); }],
+  chord:[() => { [60, 64, 67].forEach((m, i) => tOn(m, 'soft', i * 200)); },
+    () => { tOn(60); tPill(60, nm(0), { big:true }); },
+    () => { tOn(60); tPill(60, nm(0)); tPill(62, t('skip'), { row:1, delay:300 }); tOn(64, 'on', 700); tPill(64, nm(4), { big:true, delay:700 }); tArrow(60, 64, 300); },
+    () => { tOn(60); tOn(64); tPill(65, t('skip'), { row:1, delay:300 }); tOn(67, 'on', 700); tPill(67, nm(7), { big:true, delay:700 }); tArrow(64, 67, 300); },
+    () => { [60, 64, 67].forEach(m => tOn(m, 'glow')); tBracket([60, 64, 67], nm(0) + ' · ' + nm(4) + ' · ' + nm(7)); }],
+};
+function tFing(m, n, delay) { tFx(`<g class="pill fing" style="animation-delay:${delay}ms"><circle cx="${tX(m)}" cy="${TK.top + 150}" r="26"/><text x="${tX(m)}" y="${TK.top + 159}">${n}</text></g>`); }
 function tourText(name, i) {
   const v = { c:nm(0), d:nm(2), e:nm(4), f:nm(5), g:nm(7), a:nm(9), b:nm(11), fs:nm(6), bb:FLATN[10] };
   return (TOURS[name]?.[LANG] || TOURS[name]?.it || [])[i]?.replace(/\{(\w+)\}/g, (m, k) => v[k] ?? m) || '';
 }
-function speak(text, done) { later(1600 + text.length * 55, done); }   // niente voce: solo testo, il tempo per leggerlo
 function startTour(name, key) {
-  stopAnim(); endTour(true);
-  const n = (TOURS[name]?.it || []).length; if (!n) return;
-  tour = { name, key, i:0, n, t0:performance.now() }; $('#staff').classList.add('touring'); $('#kbd').classList.add('touring');
-  const cap = $('#tourcap'); cap.hidden = false;
-  cap.innerHTML = `<p id="tourtxt" aria-live="polite"></p><div class="tourbtns"><button id="tourSkip">${t('tSkip')} ${icon('arrow')}</button></div>`;
-  $('#tourSkip').onclick = () => endTour();
+  stopAnim();
+  const n = (TOURS[name]?.it || []).length; if (!n || !TUT[name]) return;
+  const card = cur.cards?.[cur.st[step]?.card];
+  tour = { name, key, i:0, n, t0:performance.now() };
+  const d = $('#tut'); d.hidden = false;
+  d.innerHTML = `<header class="tut-head on-colour"><button class="icon" id="tutClose" aria-label="${t('tSkip')}">${icon('back')}</button><h2>${esc(card?.h || cur.t)}</h2><span class="tut-dots">${Array.from({ length:n }, (_, i) => `<i data-i="${i}"></i>`).join('')}</span></header>
+    <div class="tut-art">${name in STAFF_TOURS ? '<svg id="tutStaff" viewBox="0 0 1000 230" aria-hidden="true"></svg>' : ''}
+      <svg id="tutKb" viewBox="0 0 1000 ${TK.top + TK.wh + 10}" role="img" aria-label="${esc(card?.h || '')}"><defs><marker id="ahead" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="ahead"/></marker></defs><g id="tkeys">${tutKeyboard()}</g><g id="tfx"></g></svg></div>
+    <div class="tut-foot"><p id="tutTxt" aria-live="polite"></p><div class="tut-btns"><button id="tutBack">${icon('back')} ${t('tutBack')}</button><button class="primary" id="tutNext"></button></div></div>`;
+  $('#tutClose').onclick = () => endTour();
+  $('#tutBack').onclick = () => { if (tour.i > 0) { tour.i--; tourStep(); } };
+  $('#tutNext').onclick = tutNext;
   tourStep();
 }
+function tutNext() { if (!tour) return; tour.t0 = performance.now(); tour.i < tour.n - 1 ? (tour.i++, tourStep()) : endTour(); }
 function tourStep() {
-  if (!tour) return;
-  const { name, i } = tour, my = tour;
-  clearFx(); animTs.forEach(clearTimeout); animTs = [];
-  requestAnimationFrame(() => { if (tour !== my) return; TOUR_FX[name]?.[i]?.(); });
-  const txt = tourText(name, i); $('#tourtxt').textContent = txt;
-  speak(txt, () => { if (tour !== my) return; later(450, () => { if (tour !== my) return; my.i++; my.i < my.n ? tourStep() : endTour(); }); });
+  stopAnim();
+  const { name, i, n } = tour;
+  document.querySelectorAll('#tutKb .on, #tutKb .soft, #tutKb .glow').forEach(k => k.classList.remove('on', 'soft', 'glow'));
+  $('#tfx').innerHTML = ''; if ($('#tutStaff')) $('#tutStaff').innerHTML = '';
+  TUT[name][i]();
+  const txt = $('#tutTxt'); txt.textContent = tourText(name, i); txt.classList.remove('in'); void txt.offsetWidth; txt.classList.add('in');
+  document.querySelectorAll('.tut-dots i').forEach((d, k) => d.classList.toggle('on', k <= i));
+  $('#tutBack').disabled = i === 0;
+  $('#tutNext').innerHTML = i < n - 1 ? `${t('next')} ${icon('arrow')}` : `${t('tutStart')} ${icon('arrow')}`;
+  $('#tutNext').focus();
 }
 function endTour(silent) {
   if (!tour) return;
-  const key = tour.key; tour = null; $('#staff').classList.remove('touring'); $('#kbd').classList.remove('touring');
-  animTs.forEach(clearTimeout); animTs = []; clearFx();
+  const key = tour.key; tour = null; stopAnim();
+  $('#tut').hidden = true;
   (cur.toured ||= new Set()).add(key);
-  if (silent) { $('#tourcap').hidden = true; return; }
-  $('#tourcap').innerHTML = `<p id="tourtxt">${t('tYourTurn')}</p>`;
-  later(1600, () => { if (!tour) $('#tourcap').hidden = true; });
-  render();
+  if (silent) return;
+  cur.st[step]?.next ? advance() : render();   // scheda solo teoria: dopo il tutorial si passa direttamente all'esercizio
 }
 function render() {
   const s = cur.st[step] || {}, card = cur.cards?.[s.card], names = showNames && !card?.hideNames && !cur.hideNames;
   clearTimeout(idleT);
   const ak = card?.anim && !timed ? cur.id + ':' + s.card : null;   // la scheda cambia: parte la sua animazione
-  if (ak !== animKey) { animKey = ak; if (tour && tour.key !== ak) endTour(true); if (ak && !cur.toured?.has(ak)) requestAnimationFrame(() => startTour(card.anim, ak)); else if (!tour) stopAnim(); }
+  if (ak !== animKey) { animKey = ak; if (tour && tour.key !== ak) endTour(true); if (ak && !cur.toured?.has(ak)) requestAnimationFrame(() => startTour(card.anim, ak)); }
   if (s.need && !timed && !$('#player').hidden) { const at = step; idleT = setTimeout(() => cur && step === at && hint(s, 'idle'), 9000); }
   // tastiera
   const targets = new Set((s.need || []).filter(m => !hit.has(m)).concat(s.any || []));
@@ -1115,7 +1135,7 @@ function render() {
   $('#card').hidden = !card;
   if (card) {
     $('#card').innerHTML = `<h2>${esc(card.h)}</h2><p>${esc(card.p)}</p>${card.anim ? `<button class="replay" id="replay">${icon('play')} ${t('tReplay')}</button>` : ''}${s.next ? `<button class="primary cont" id="cont">${t('next')} ${icon('arrow')}</button><p style="font-size:16px;color:var(--mute)">${t('anyKey')}</p>` : ''}`;
-    if (s.next) $('#cont').onclick = () => { endTour(true); $('#tourcap').hidden = true; advance(); };
+    if (s.next) $('#cont').onclick = () => advance();
     if ($('#replay')) $('#replay').onclick = () => startTour(card.anim, cur.id + ':' + s.card);
   }
   $('#staffwrap').hidden = !showStaff;
@@ -1402,7 +1422,7 @@ function showDone(r) {
   $('#next').focus();
   $('#home-btn').onclick = goHome;
 }
-function goHome() { stopTimed(); cancelHold(true); if (cur) endTour(true); $('#tourcap').hidden = true; stopAnim(); animKey = null; $('#lvl').hidden = true; calib = null; history.replaceState(null, '', location.pathname); clearTimeout(idleT); pending = null; cur = null; $('#player').hidden = true; $('#done').hidden = true; $('#home-view').hidden = false; renderHome(); }
+function goHome() { stopTimed(); cancelHold(true); if (cur) endTour(true); stopAnim(); animKey = null; $('#lvl').hidden = true; calib = null; history.replaceState(null, '', location.pathname); clearTimeout(idleT); pending = null; cur = null; $('#player').hidden = true; $('#done').hidden = true; $('#home-view').hidden = false; renderHome(); }
 $('#calib').innerHTML = icon('target'); $('#back').innerHTML = icon('back'); $('#listen').innerHTML = icon('play'); $('#restart').innerHTML = icon('restart');
 $('#back').onclick = () => { stopTimed(); calib = null; pending ? showDone(pending) : goHome(); };   // uscire dalla riparazione chiude comunque la lezione
 const baseLabel = () => { $('#base').innerHTML = icon('drum'); $('#base').setAttribute('aria-pressed', baseOn); $('#base').title = baseOn ? t('baseOn') : t('baseOff'); $('#base').classList.toggle('off', !baseOn); };
@@ -1577,7 +1597,7 @@ function noteOn(m, src) {
   if (P && cur && !$('#player').hidden) { if (lastAct) P.mins = { [today()]:minToday(P) + Math.min(10000, now - lastAct) / 60000 }; lastAct = now; }   // pause oltre 10 s non contano
   if (src === 'mic' && heard[m % 12] > performance.now()) return;   // è la base, non la pianola
   if (!$('#lvl').hidden) { if (performance.now() - lvlAt > 1200) $('#lvlGo')?.click(); return; }
-  if (tour) { if (performance.now() - tour.t0 > 1500) endTour(); return; }   // durante la spiegazione: una nota la chiude e si parte
+  if (tour) { if (performance.now() - tour.t0 > 700) tutNext(); return; }   // nel tutorial una nota della pianola = Avanti
   if (!$('#done').hidden) { if (performance.now() - doneAt > 1000) ($('#next') || $('#home-btn')).click(); return; }   // fine lezione: un tasto = avanti
   if (src === 'screen' || src === 'pc') beep(m);   // la pianola suona già da sola
   const k = $(`.key[data-m="${m}"]`);
