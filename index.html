@@ -61,7 +61,68 @@
   .poster { aspect-ratio:4/3; background:var(--c); color:var(--ci); position:relative; overflow:hidden; display:flex; align-items:flex-end; padding:10px 16px; }
   .poster b { font-size:150px; font-weight:900; line-height:.75; letter-spacing:-.04em; position:relative; }
   .poster .mark { width:44%; position:relative; fill:var(--ci); stroke:var(--ci); stroke-width:5; }
-  .poster.locked b { color:transparent; -webkit-text-stroke:3px var(--ci); }
+  .poster.locked b { opacity:.3; }
+  .poster .lk { position:absolute; left:12px; top:12px; width:28px; height:28px; stroke:var(--ci); }
+  .sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); }
+  .me { all:unset; cursor:pointer; display:flex; align-items:center; gap:10px; font-weight:800; min-height:48px; padding-right:6px; }
+  .me:focus-visible { outline:3px solid var(--ink); outline-offset:3px; }
+  .me i { width:42px; height:42px; background:var(--pc); color:var(--pci); display:grid; place-items:center; font-style:normal; font-weight:900; font-size:22px; }
+  .me small { display:block; font-weight:600; font-size:13px; color:var(--mute); }
+  .stats { display:grid; grid-template-columns:auto 1fr 1fr; gap:32px; align-items:end; margin-bottom:28px; }
+  .stat b { font-size:44px; font-weight:900; letter-spacing:-.03em; line-height:1; display:flex; align-items:center; gap:8px; }
+  .stat b small { font-size:18px; font-weight:700; }
+  .stat b svg.i { width:36px; height:36px; }
+  .stat > span { display:block; font-size:14px; font-weight:700; color:var(--mute); margin-top:6px; }
+  .meter { height:12px; border:2px solid var(--ink); margin-top:8px; } .meter i { display:block; height:100%; background:var(--ink); }
+  .row2 { display:grid; grid-template-columns:1fr 1fr; gap:32px; margin-top:32px; align-items:start; }
+  .drill { all:unset; box-sizing:border-box; cursor:pointer; background:var(--ink); color:var(--paper); padding:28px; min-height:240px; display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden; width:100%; }
+  .drill:focus-visible { outline:3px solid var(--ink); outline-offset:4px; }
+  .drill h2 { font-size:clamp(36px,4.6vw,56px); font-weight:900; letter-spacing:-.04em; line-height:.9; position:relative; }
+  .drill p { position:relative; font-size:18px; max-width:30ch; }
+  .drill[aria-disabled="true"] { opacity:.5; cursor:not-allowed; }
+  .board { border-top:3px solid var(--ink); }
+  .board h2 { font-size:28px; font-weight:900; letter-spacing:-.02em; margin:12px 0 4px; }
+  .board ol { list-style:none; padding:0; }
+  .board li { display:grid; grid-template-columns:44px 1fr auto; align-items:center; gap:14px; min-height:64px; border-bottom:1px solid var(--line); }
+  .board .pos { font-size:34px; font-weight:900; }
+  .board .nm { font-weight:800; font-size:20px; } .board small { display:block; color:var(--mute); font-weight:600; font-size:14px; }
+  .board .xp { font-size:24px; font-weight:900; }
+  .board .pos, .board .xp, .stat b { font-variant-numeric:tabular-nums; }
+  .board .tu { font-style:normal; font-size:13px; font-weight:800; background:var(--ink); color:var(--paper); padding:1px 6px; vertical-align:middle; }
+  .hint { color:var(--mute); font-size:15px; margin-top:10px; }
+  .seg { display:flex; } .seg button { flex:1; font-size:15px; } .seg button + button { border-left:0; }
+  .seg button[aria-pressed="true"] { background:var(--ink); color:var(--paper); }
+  .lib { grid-column:1/-1; display:grid; grid-template-columns:minmax(220px,300px) 1fr; gap:32px; align-items:start; }
+  .libr { border-top:3px solid var(--ink); padding-top:14px; }
+  .libr .import { flex-direction:row; flex-wrap:wrap; margin:0 0 8px; } .libr .seg { min-width:min(420px,100%); }
+  .song { border-bottom:1px solid var(--line); padding:12px 0; }
+  .song h3 { font-size:17px; font-weight:800; display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .song h3 button { border:0; min-height:44px; width:44px; padding:0; justify-content:center; color:var(--mute); }
+  .parts { display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; }
+  .parts button { min-height:44px; padding:0 12px; font-size:15px; border-width:2px; }
+  .parts .stars svg { width:14px; height:14px; }
+  .msg { font-size:15px; font-weight:600; }
+  .lessons .goal { font-weight:800; }
+  .lessons .goal span:first-child { display:inline-flex; align-items:center; gap:8px; }
+  .who { position:fixed; inset:0; background:var(--paper); z-index:20; display:grid; place-items:center; padding:24px; overflow:auto; }
+  .who h1 { font-size:clamp(56px,10vw,120px); font-weight:900; letter-spacing:-.04em; line-height:.9; margin-bottom:28px; }
+  .players { display:flex; flex-wrap:wrap; gap:16px; }
+  .player { all:unset; box-sizing:border-box; cursor:pointer; width:220px; aspect-ratio:1; background:var(--c); color:var(--ci); padding:16px; display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden; }
+  .player:focus-visible { outline:3px solid var(--ink); outline-offset:4px; }
+  .player b { font-size:120px; font-weight:900; line-height:.8; position:relative; }
+  .player span { font-weight:800; font-size:22px; position:relative; }
+  .player small { font-weight:600; font-size:14px; }
+  .newp { display:flex; flex-wrap:wrap; gap:10px; margin-top:28px; align-items:end; }
+  .newp label { display:flex; flex-direction:column; gap:6px; font-weight:700; }
+  .newp input { font:inherit; font-size:20px; min-height:52px; border:2px solid var(--ink); background:#fff; padding:0 14px; border-radius:0; width:min(320px,80vw); }
+  .combo { font-size:18px; font-weight:900; min-height:22px; }
+  .tip { text-align:center; color:var(--mute); font-size:17px; font-weight:600; }
+  .xpf { position:absolute; left:50%; bottom:46%; font-weight:900; font-size:22px; background:var(--ink); color:var(--paper); padding:2px 8px; pointer-events:none; z-index:6; white-space:nowrap; animation:float .9s var(--ease) forwards; }
+  @keyframes float { from { opacity:1; transform:translate(-50%,0); } to { opacity:0; transform:translate(-50%,-70px); } }
+  #done .gain { display:flex; gap:36px; justify-content:center; margin-top:20px; }
+  #done .gain b { display:block; font-size:48px; font-weight:900; line-height:1; font-variant-numeric:tabular-nums; }
+  #done .gain span { font-weight:700; font-size:15px; }
+  #done .lvup { margin:20px auto 0; font-size:24px; font-weight:900; border:3px solid var(--on-lv); display:inline-block; padding:10px 18px; }
   .lessons { list-style:none; padding:0; border-top:2px solid var(--ink); }
   .lessons button { width:100%; border:0; border-bottom:1px solid var(--line); justify-content:space-between; padding:0 2px; min-height:52px; font-weight:600; text-align:left; }
   .lessons button:hover:not(:disabled) { background:var(--c); color:var(--ci); }
@@ -88,6 +149,7 @@
   .band .tools { display:flex; gap:8px; }
   .band button { border-color:var(--on-lv); }
   .band button:hover { background:var(--on-lv); color:var(--lv); }
+  .band button.off { opacity:.45; }
   .bar { background:color-mix(in srgb,var(--lv) 28%,var(--paper)); } .bar i { display:block; height:100%; width:0; background:var(--ink); transition:width .35s var(--ease); }
   .stage { display:grid; grid-template-columns:1fr; align-items:center; padding:0 clamp(20px,3vw,40px); min-height:0; gap:28px; overflow:auto; }
   .stage.with-card { grid-template-columns:minmax(300px,0.9fr) 1.2fr; }
@@ -148,14 +210,15 @@
   #done button { border-color:var(--on-lv); } #done button.primary { background:var(--on-lv); color:var(--lv); }
   #done button:hover { background:var(--on-lv); color:var(--lv); }
   @keyframes rise { from { clip-path:circle(0 at 50% 50%); } to { clip-path:circle(150% at 50% 50%); } }
-  @media (prefers-reduced-motion:reduce) { .ring, .burst, .pulse { display:none; } #done { animation:none; } * { transition:none !important; } }
-  @media (max-width:760px) { .next .arcs { display:none; } .stage { padding-block:16px; align-items:start; } .stage.with-card { grid-template-columns:1fr; } .band { grid-template-columns:auto 1fr; } .band .meta { grid-column:1/-1; flex-direction:row; justify-content:space-between; align-items:center; } }
+  @media (prefers-reduced-motion:reduce) { .ring, .burst, .pulse, .xpf { display:none; } #done { animation:none; } * { transition:none !important; } }
+  @media (max-width:760px) { .lib { grid-template-columns:1fr; } .stats, .row2 { grid-template-columns:1fr; } .next .arcs { display:none; } .stage { padding-block:16px; align-items:start; } .stage.with-card { grid-template-columns:1fr; } .band { grid-template-columns:auto 1fr; } .band .meta { grid-column:1/-1; flex-direction:row; justify-content:space-between; align-items:center; } }
 </style>
 </head>
 <body>
 <div id="home-view">
   <header class="topbar">
     <span class="wordmark">Piano da zero</span>
+    <button class="me" id="me"></button>
     <span class="chip" id="status"></span>
     <button id="mic"></button>
     <label class="switch"><input type="checkbox" id="names"> Nomi delle note</label>
@@ -170,7 +233,9 @@
     <div><h1 id="title"></h1><p class="sub" id="sub"></p></div>
     <div class="meta">
       <div class="count" id="count"></div>
+      <div class="combo" id="combo" aria-live="polite"></div>
       <div class="tools">
+        <button class="icon" id="base" aria-label="Base musicale"></button>
         <button class="icon" id="listen" aria-label="Ascolta la lezione"></button>
         <button class="icon" id="restart" aria-label="Ricomincia"></button>
       </div>
@@ -182,11 +247,13 @@
     <div class="staffwrap" id="staffwrap">
       <svg id="staff" viewBox="0 0 1000 300" role="img" aria-label="Pentagramma"></svg>
       <p class="say" id="say"></p>
+      <p class="tip" id="tip"></p>
     </div>
   </div>
   <div id="mapbar"><span>Alesis Melody 61</span><div id="map" aria-hidden="true"></div></div>
   <div id="kbd"></div>
 </section>
+<div id="who" class="who" hidden role="dialog" aria-modal="true" aria-label="Chi suona?"></div>
 <div id="done" class="on-colour" hidden role="dialog" aria-modal="true" aria-labelledby="done-h"></div>
 
 <script>
@@ -204,6 +271,10 @@ const I = {
   back:'<path d="M15 5l-7 7 7 7"/>', play:'<path d="M7 4l13 8-13 8z"/>', restart:'<path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v5h5"/>',
   mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>', midi:'<rect x="3" y="6" width="18" height="12"/><path d="M8 6v7M12 6v7M16 6v7"/>',
   lock:'<rect x="5" y="11" width="14" height="10"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>', arrow:'<path d="M4 12h15M13 6l6 6-6 6"/>',
+  flame:'<path d="M12 2.5c1 4.2 5.5 5.6 5.5 10.5a5.5 5.5 0 0 1-11 0c0-3.2 2-4.3 2.2-7.3 1.6 1.1 2.6 2.6 3 4.3 1-1.9.3-5.3.3-7.5z"/>',
+  bolt:'<path d="M13 2L5 14h6l-1 8 8-12h-6z"/>', trophy:'<path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3M12 14v4M8 21h8"/>',
+  drum:'<ellipse cx="12" cy="8" rx="8" ry="3"/><path d="M4 8v8c0 1.7 3.6 3 8 3s8-1.3 8-3V8"/>', plus:'<path d="M12 5v14M5 12h14"/>',
+  trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
   upload:'<path d="M12 16V4M6 10l6-6 6 6M4 20h16"/>', star:'<path d="M12 2.8l2.8 6 6.5.7-4.9 4.4 1.4 6.4L12 17l-5.8 3.3 1.4-6.4-4.9-4.4 6.5-.7z"/>',
 };
 const icon = (n, cls = 'i') => `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${I[n]}</svg>`;
@@ -245,7 +316,10 @@ const LEVELS = [
     { t:'Fa e Sol', pos:'R', tip:'Anulare sul Fa, mignolo sul Sol.', n:'E4 F4 G4 F4 E4 G4 F4 E4 C4 G4' },
     { t:'Su e giù', pos:'R', tip:'Senza guardare le mani.', n:'C4 D4 E4 F4 G4 G4 F4 E4 D4 C4' },
     { t:'Inno alla gioia', pos:'R', tip:'Beethoven, tutto in posizione Do.', n:ODE },
-    { t:'Una pecorella', pos:'R', tip:'Mary had a little lamb.', n:'E4 D4 C4 D4 E4 E4 E4 D4 D4 D4 E4 G4 G4 E4 D4 C4 D4 E4 E4 E4 E4 D4 D4 E4 D4 C4' } ]},
+    { t:'Una pecorella', pos:'R', tip:'Mary had a little lamb.', n:'E4 D4 C4 D4 E4 E4 E4 D4 D4 D4 E4 G4 G4 E4 D4 C4 D4 E4 E4 E4 E4 D4 D4 E4 D4 C4' },
+    { t:'Prima luce', goal:true, pos:'R', bpm:88, tip:'Brano originale con la base: la musica parte ogni volta che suoni la nota giusta.',
+      n:'E4 E4 G4 E4 D4 E4 D4 C4 E4 F4 G4 E4 D4 C4 D4 D4 G4 G4 F4 E4 F4 F4 E4 D4 E4 E4 D4 C4 D4 E4 C4 C4',
+      acc:'C . . . G . . . Am . . . F . . . C . . . G . . . Am . . . G . C .' } ]},
   { title:'Mano sinistra', d:'La chiave di basso e le prime note con la sinistra.', c:'#1f9d6b', ci:'#111', lessons:[
     { t:'La chiave di basso', cards:[
       { h:'Il pentagramma di sotto', p:'La mano sinistra legge sul pentagramma in basso, in chiave di basso. Il Do un\'ottava sotto il centrale sta nel secondo spazio dal basso.', staff:true },
@@ -257,7 +331,10 @@ const LEVELS = [
     { t:'Brilla brilla stellina', pos:'R', tip:'Il salto Do→Sol: apri la mano.', n:'C4 C4 G4 G4 A4 A4 G4 F4 F4 E4 E4 D4 D4 C4 G4 G4 F4 F4 E4 E4 D4 G4 G4 F4 F4 E4 E4 D4 C4 C4 G4 G4 A4 A4 G4 F4 F4 E4 E4 D4 D4 C4' },
     { t:'Fra Martino', pos:'R', tip:'Alla fine scende al Sol sotto il Do.', n:'C4 D4 E4 C4 C4 D4 E4 C4 E4 F4 G4 E4 F4 G4 G4 A4 G4 F4 E4 C4 G4 A4 G4 F4 E4 C4 C4 G3 C4 C4 G3 C4' },
     { t:'Jingle Bells', pos:'R', tip:'Il ritornello completo.', n:'E4 E4 E4 E4 E4 E4 E4 G4 C4 D4 E4 F4 F4 F4 F4 F4 E4 E4 E4 E4 D4 D4 E4 D4 G4 E4 E4 E4 E4 E4 E4 E4 G4 C4 D4 E4 F4 F4 F4 F4 F4 E4 E4 E4 G4 G4 F4 D4 C4' },
-    { t:'Tanti auguri', tip:'Salti d\'ottava: sposta tutta la mano.', n:'G4 G4 A4 G4 C5 B4 G4 G4 A4 G4 D5 C5 G4 G4 G5 E5 C5 B4 A4 F5 F5 E5 C5 D5 C5' } ]},
+    { t:'Tanti auguri', tip:'Salti d\'ottava: sposta tutta la mano.', n:'G4 G4 A4 G4 C5 B4 G4 G4 A4 G4 D5 C5 G4 G4 G5 E5 C5 B4 A4 F5 F5 E5 C5 D5 C5' },
+    { t:'Città di notte', goal:true, bpm:84, tip:'Brano originale pop in La minore: La minore, Fa, Do, Sol.',
+      n:'A4 A4 G4 E4 F4 F4 E4 C4 E4 E4 D4 C4 D4 D4 E4 G4 A4 C5 B4 A4 G4 A4 F4 E4 C4 D4 E4 G4 G4 F4 E4 D4 C4',
+      acc:'Am . . . F . . . C . . . G . . . Am . . . F . . . C . . . G . . . C' } ]},
   { title:'Tasti neri', d:'Il diesis e la prima tonalità con un tasto nero.', c:'#ff7a1a', ci:'#111', lessons:[
     { t:'Il diesis', cards:[
       { h:'♯ vuol dire: un tasto più su', p:'Il diesis alza la nota al tasto subito a destra, di solito un nero. Fa♯ è il nero a destra del Fa.', mark:'*F#' },
@@ -274,7 +351,10 @@ const LEVELS = [
     { t:'Accordi alternati', tip:'Due volte ciascuno.', n:'C3+E3+G3 C3+E3+G3 C3+F3+A3 C3+F3+A3 B2+D3+G3 B2+D3+G3 C3+E3+G3' } ]},
   { title:'Due mani', d:'La sinistra fa il basso, la destra la melodia.', c:'#00a3c4', ci:'#111', lessons:[
     { t:'Inno alla gioia a due mani', tip:'La sinistra entra all\'inizio di ogni battuta.', n:'C3+E4 E4 F4 G4 G3+G4 F4 E4 D4 C3+C4 C4 D4 E4 G3+E4 D4 D4 C3+E4 E4 F4 G4 G3+G4 F4 E4 D4 C3+C4 C4 D4 E4 G3+D4 C4 C4' },
-    { t:'Stellina con accordi', tip:'Accordo a sinistra, melodia a destra.', n:'C3+E3+G3+C4 C4 G4 G4 C3+F3+A3+A4 A4 C3+E3+G3+G4 B2+D3+G3+F4 F4 C3+E3+G3+E4 E4 B2+D3+G3+D4 D4 C3+E3+G3+C4' } ]},
+    { t:'Stellina con accordi', tip:'Accordo a sinistra, melodia a destra.', n:'C3+E3+G3+C4 C4 G4 G4 C3+F3+A3+A4 A4 C3+E3+G3+G4 B2+D3+G3+F4 F4 C3+E3+G3+E4 E4 B2+D3+G3+D4 D4 C3+E3+G3+C4' },
+    { t:'Quattro accordi', goal:true, bpm:80, tip:'Brano originale: basso con la sinistra, melodia con la destra, la base fa il resto.',
+      n:'C3+E4 G4 G4 E4 G2+D4 G4 G4 D4 A2+C4 E4 E4 C4 F2+C4 A4 G4 F4 C3+E4 G4 G4 E4 G2+D4 G4 B4 D5 A2+C5 B4 A4 E4 F2+F4 E4 D4 C4',
+      acc:'C . . . G . . . Am . . . F . . . C . . . G . . . Am . . . F . . .' } ]},
   { title:'Scale', d:'Il passaggio del pollice per suonare oltre 5 note.', c:'#c8102e', ci:'#fff', lessons:[
     { t:'Scala di Do a destra', tip:'Dopo il Mi, il pollice passa sotto per il Fa.', n:'C4 D4 E4 F4 G4 A4 B4 C5 B4 A4 G4 F4 E4 D4 C4', f:'1 2 3 1 2 3 4 5 4 3 2 1 3 2 1' },
     { t:'Scala di Do a sinistra', tip:'Dopo il Sol, il medio scavalca sul La.', n:'C3 D3 E3 F3 G3 A3 B3 C4 B3 A3 G3 F3 E3 D3 C3', f:'5 4 3 2 1 3 2 1 2 3 1 2 3 4 5' },
@@ -289,7 +369,8 @@ const LEVELS = [
     { t:'Pop a due mani', tip:'Basso a sinistra e accordo a destra.', n:'C3+C4+E4+G4 G2+B3+D4+G4 A2+A3+C4+E4 F2+A3+C4+F4 C3+C4+E4+G4 G2+B3+D4+G4 A2+A3+C4+E4 F2+A3+C4+F4' },
     { t:'Ritmo pop', tip:'Basso e accordo, poi l\'accordo altre 3 volte.', n:['C3+C4+E4+G4','G2+B3+D4+G4','A2+A3+C4+E4','F2+A3+C4+F4'].map(c => [c, ...Array(3).fill(c.replace(/^\w\d\+/, ''))].join(' ')).join(' ') } ]},
 ];
-const SONGS_LEVEL = { title:'Le tue canzoni', d:'Importa il file MIDI (.mid) di una canzone e imparala con lo stesso metodo.', c:'#111', ci:'#f3f3ef' };
+const SONGS_LEVEL = { title:'Le tue canzoni', d:'Il tuo catalogo: aggiungi i file MIDI (.mid) di qualsiasi canzone, italiana o straniera. Restano solo su questo dispositivo.', c:'#111', ci:'#f3f3ef' };
+const DRILL_LEVEL = { title:'Allenamento', c:'#111', ci:'#f3f3ef' };
 const AUTO_F = { R:{60:1,62:2,64:3,65:4,67:5}, L:{48:5,50:4,52:3,53:2,55:1} };
 
 function token(t) {
@@ -304,22 +385,59 @@ function compile(x) {
     s.finger = fs[i] || (x.pos && s.need?.length === 1 ? AUTO_F[x.pos][s.need[0]] : undefined);
     steps.push(s); }); };
   if (x.cards) x.cards.forEach((c, ci) => c.play ? add(c.play, c.f, { card:ci }) : steps.push({ card:ci, next:true }));
+  else if (x.song) {
+    const all = songSteps(x.song, songDiff), a = x.part < 0 ? 0 : x.part * PART, b = x.part < 0 ? all.length : a + PART;
+    all.slice(a, b).forEach((g, i) => steps.push({ need:g.need, tick:g.tick, end:all[a + i + 1]?.tick ?? g.tick + x.song.div }));
+  }
   else if (x.steps) x.steps.forEach(g => steps.push({ need:g }));
   else add(x.n, x.f, {});
+  words(x.acc).forEach((a, i) => steps[i] && (steps[i].acc = a));
   return steps;
 }
 
-// ===== Stato salvato =====
+// ===== Stato salvato: giocatori, punti, classifica =====
 const store = { get:(k,d) => JSON.parse(localStorage.getItem(k) ?? 'null') ?? d, set:(k,v) => localStorage.setItem(k, JSON.stringify(v)) };
-let progress = store.get('progress', {}), songs = store.get('songs', []), showNames = store.get('names', true), micOn = false;
+const PCOL = [['#2747d6','#fff'], ['#e0367a','#111'], ['#1f9d6b','#111'], ['#ff7a1a','#111'], ['#6a3fd1','#fff'], ['#f2b705','#111']];
+const PART = 24;   // una "parte" di canzone = 24 passi
+let profiles = store.get('profiles', []), P = null, songs = store.get('songs', []), showNames = store.get('names', true), micOn = false;
+let baseOn = store.get('base', true), songDiff = store.get('songDiff', 'facile');
+const saveP = () => store.set('profiles', profiles);
+const ymd = d => d.toLocaleDateString('sv');
+const today = () => ymd(new Date());
+const weekKey = () => { const d = new Date(); d.setDate(d.getDate() - (d.getDay() + 6) % 7); return ymd(d); };
+const TITLES = ['Principiante', 'Apprendista', 'Esploratore', 'Musicista', 'Solista', 'Virtuoso', 'Maestro', 'Leggenda'];
+const lvOf = xp => Math.floor(Math.sqrt(xp / 100)) + 1;         // Lv2 a 100 XP, Lv3 a 400, Lv4 a 900…
+const xpFor = lv => 100 * (lv - 1) ** 2;
+const titleOf = lv => TITLES[Math.min(TITLES.length - 1, Math.floor((lv - 1) / 2))];
+const dayXp = p => p.daily?.[today()] || 0;
+const weekXp = p => p.week?.[weekKey()] || 0;
+const DAILY = 60;   // circa 3 lezioni
+function streakOf(p) {
+  const set = new Set(p.days), d = new Date(); let n = 0;
+  if (!set.has(today())) d.setDate(d.getDate() - 1);
+  while (set.has(ymd(d))) { n++; d.setDate(d.getDate() - 1); }
+  return n;
+}
+function addXp(n) {
+  P.xp += n; P.daily = { [today()]: dayXp(P) + n }; P.week = { [weekKey()]: weekXp(P) + n };
+  if (!P.days.includes(today())) P.days = [...P.days, today()].slice(-400);
+  saveP();
+}
+// vecchie canzoni salvate come soli passi
+songs = songs.map(s => s.mel ? s : { ...s, div:480, tempo:500000, acc:[], mel:s.steps.flatMap((g, i) => g.map(m => [i * 480, m])) });
 
 function allLessons() {
   const out = [];
   LEVELS.forEach((L, li) => L.lessons.forEach((x, i) => out.push({ ...x, id:`v2-${li}-${i}`, level:li, L })));
-  songs.forEach(s => out.push({ t:s.t, tip:'Brano importato.', id:s.id, level:LEVELS.length, L:SONGS_LEVEL, steps:s.steps, imported:true }));
+  songs.forEach(s => {
+    const n = songSteps(s, songDiff).length, parts = Math.ceil(n / PART);
+    const mk = p => ({ t:s.t, part:p, sub:p < 0 ? 'Tutta' : `Parte ${p + 1}`, tip:'La base parte ogni volta che suoni la nota giusta.', id:`${s.id}-${songDiff}-${p}`, level:LEVELS.length, L:SONGS_LEVEL, song:s, imported:true });
+    if (parts > 1) for (let p = 0; p < parts; p++) out.push(mk(p));
+    out.push(mk(-1));
+  });
   return out;
 }
-const unlocked = (list, i) => list[i].imported || i === 0 || progress[list[i-1].id] > 0;
+const unlocked = (list, i) => list[i].imported || i === 0 || P.prog[list[i-1].id] > 0;
 const setLevel = L => { document.documentElement.style.setProperty('--lv', L.c); document.documentElement.style.setProperty('--on-lv', L.ci); };
 
 function arcs(size, n, sw, at, inner = 8) {
@@ -327,109 +445,190 @@ function arcs(size, n, sw, at, inner = 8) {
     Array.from({length:n}, (_, i) => `<circle cx="50" cy="50" r="${48 - i * ((48 - inner) / n)}" stroke-width="${sw}"/>`).join('')}</svg>`;
 }
 
+// ===== Chi suona? =====
+function showWho() {
+  const w = $('#who'); w.hidden = false;
+  w.innerHTML = `<div><h1>Chi suona?</h1><div class="players">${profiles.map((p, i) => `<button class="player" data-i="${i}" style="--c:${p.c};--ci:${p.ci}">${arcs(200, 3, 4, 'right:-60px;top:-60px')}<b>${esc(p.name[0].toUpperCase())}</b><span>${esc(p.name)}<br><small>Lv ${lvOf(p.xp)} · ${p.xp} XP</small></span></button>`).join('')}</div>
+    <form class="newp" id="newp"><label>${profiles.length ? 'Nuovo giocatore' : 'Come ti chiami?'}<input id="pname" maxlength="16" required autocomplete="off"></label><button class="primary">${icon('plus')} ${profiles.length ? 'Aggiungi' : 'Inizia'}</button></form></div>`;
+  w.querySelectorAll('.player').forEach(b => b.onclick = () => pick(+b.dataset.i));
+  $('#newp').onsubmit = e => {
+    e.preventDefault();
+    const name = $('#pname').value.trim(); if (!name) return;
+    const [c, ci] = PCOL[profiles.length % PCOL.length];
+    profiles.push({ id:'p' + Date.now(), name, c, ci, xp:0, prog:profiles.length ? {} : store.get('progress', {}), days:[], daily:{}, week:{}, best:0 });
+    saveP(); pick(profiles.length - 1);
+  };
+  (w.querySelector('.player') || $('#pname')).focus();
+}
+function pick(i) { P = profiles[i]; store.set('current', P.id); $('#who').hidden = true; goHome(); }
+
 // ===== Home =====
+function drillPool() {   // le note singole delle lezioni già superate
+  const pool = new Set();
+  allLessons().forEach(x => { if (!x.imported && P.prog[x.id] > 0) compile(x).forEach(s => s.need?.length === 1 && pool.add(s.need[0])); });
+  return [...pool];
+}
 function renderHome() {
   const list = allLessons(), home = $('#home');
-  const ni = Math.max(0, list.findIndex((x, i) => unlocked(list, i) && !(progress[x.id] > 0)));
+  const ni = Math.max(0, list.findIndex((x, i) => !x.imported && unlocked(list, i) && !(P.prog[x.id] > 0)));
   const nx = list[ni] || list[0];
   setLevel(nx.L);
-  home.innerHTML = `<button class="next on-colour" id="continue">
+  const lv = lvOf(P.xp), st = streakOf(P), dx = dayXp(P), into = P.xp - xpFor(lv), need = xpFor(lv + 1) - xpFor(lv);
+  const me = $('#me'); me.style.setProperty('--pc', P.c); me.style.setProperty('--pci', P.ci);
+  me.innerHTML = `<i>${esc(P.name[0].toUpperCase())}</i><span>${esc(P.name)}<small>Lv ${lv} · ${titleOf(lv)} · cambia</small></span>`;
+  me.onclick = showWho;
+  const pool = drillPool(), ranked = [...profiles].sort((a, b) => weekXp(b) - weekXp(a) || b.xp - a.xp);
+  home.innerHTML = `<div class="stats">
+      <div class="stat"><b>${icon('flame')}${st}</b><span>${st === 1 ? 'giorno' : 'giorni'} di fila</span></div>
+      <div class="stat"><b>${Math.min(dx, DAILY)}<small>/${DAILY} XP</small></b><span>${dx >= DAILY ? 'Obiettivo di oggi raggiunto' : 'Obiettivo di oggi'}</span><div class="meter"><i style="width:${Math.min(100, dx / DAILY * 100)}%"></i></div></div>
+      <div class="stat"><b>Lv ${lv}<small>${titleOf(lv)}</small></b><span>${into}/${need} XP al livello ${lv + 1}</span><div class="meter"><i style="width:${into / need * 100}%"></i></div></div>
+    </div>
+    <button class="next on-colour" id="continue">
       ${arcs(620, 4, 3.2, 'right:-240px;top:-300px')}
-      <div><h1>${esc(nx.t)}</h1><p>${nx.imported ? 'Le tue canzoni' : `Livello ${nx.level} · ${esc(nx.L.title)}`}</p></div>
-      <span class="go">${ni === 0 && !progress[nx.id] ? 'Inizia' : 'Continua'} ${icon('arrow')}</span>
-    </button><div class="levels" id="levels"></div>`;
+      <div><h1>${esc(nx.t)}</h1><p>${nx.goal ? 'Obiettivo del livello · ' : ''}Livello ${nx.level} · ${esc(nx.L.title)}</p></div>
+      <span class="go">${ni === 0 && !P.prog[nx.id] ? 'Inizia' : 'Continua'} ${icon('arrow')}</span>
+    </button>
+    <div class="row2">
+      <button class="drill" id="drill" aria-disabled="${pool.length < 3}">${arcs(300, 3, 3, 'right:-90px;bottom:-120px')}
+        <h2>Allenamento lampo</h2><p>${pool.length < 3 ? 'Si sblocca dopo le prime lezioni del Livello 0.' : `20 note a caso tra quelle che conosci. Fai combo per punti doppi e tripli.`}</p></button>
+      <section class="board"><h2>Classifica della settimana</h2><ol>${ranked.map((p, i) => `<li class="${p === P ? 'you' : ''}"><span class="pos">${i + 1}</span><span class="nm">${esc(p.name)}${p === P ? ' <em class="tu">tu</em>' : ''}<small>Lv ${lvOf(p.xp)} · ${streakOf(p)} giorni di fila · ${p.xp} XP totali</small></span><span class="xp">${weekXp(p)} XP</span></li>`).join('')}</ol>
+        ${profiles.length < 2 ? '<p class="hint">Per sfidare qualcuno tocca il tuo nome in alto e aggiungi un giocatore.</p>' : ''}</section>
+    </div>
+    <div class="levels" id="levels"></div>`;
   $('#continue').onclick = () => start(ni);
-  [...LEVELS, SONGS_LEVEL].forEach((L, li) => {
+  $('#drill').onclick = () => pool.length >= 3 && start('drill');
+  LEVELS.forEach((L, li) => {
     const own = list.map((x, i) => [x, i]).filter(([x]) => x.level === li);
-    const open = li === LEVELS.length || own.some(([, i]) => unlocked(list, i));
+    const open = own.some(([, i]) => unlocked(list, i));
     const sec = document.createElement('section');
     sec.className = 'level';
     sec.style.setProperty('--c', L.c); sec.style.setProperty('--ci', L.ci);
-    sec.innerHTML = `<div class="poster ${open ? '' : 'locked'}">${arcs(220, 3, 4, 'right:-50px;top:-60px')}${li === LEVELS.length ? '<svg class="mark" viewBox="0 0 60 60" aria-hidden="true"><path d="M16 10h36v32"/><path d="M16 10v38"/><ellipse cx="10" cy="48" rx="8" ry="6"/><ellipse cx="46" cy="42" rx="8" ry="6"/><path d="M16 10h36v8H16z"/></svg>' : `<b>${li}</b>`}</div>
+    sec.innerHTML = `<div class="poster ${open ? '' : 'locked'}">${arcs(220, 3, 4, 'right:-50px;top:-60px')}${open ? '' : icon('lock', 'i lk')}<b>${li}</b></div>
       <h2>${esc(L.title)}</h2><p>${esc(L.d)}</p><ul class="lessons"></ul>`;
     own.forEach(([x, i]) => {
-      const ok = unlocked(list, i), st = progress[x.id] || 0, li2 = document.createElement('li'), b = document.createElement('button');
-      b.disabled = !ok;
-      b.innerHTML = `<span>${esc(x.t)}</span>${ok ? `<span class="stars" aria-label="${st} stelle su 3">${stars(st)}</span>` : icon('lock')}`;
+      const ok = unlocked(list, i), st = P.prog[x.id] || 0, li2 = document.createElement('li'), b = document.createElement('button');
+      b.disabled = !ok; if (x.goal) b.className = 'goal';
+      b.innerHTML = `<span>${x.goal ? icon('trophy') : ''}${esc(x.t)}</span>${ok ? `<span class="stars" aria-label="${st} stelle su 3">${stars(st)}</span>` : icon('lock')}`;
       b.onclick = () => start(i);
       li2.append(b); sec.querySelector('.lessons').append(li2);
     });
-    if (li === LEVELS.length) sec.append(importUI());
     $('#levels').append(sec);
   });
+  // catalogo canzoni
+  const sec = document.createElement('section');
+  sec.className = 'level lib'; sec.style.setProperty('--c', SONGS_LEVEL.c); sec.style.setProperty('--ci', SONGS_LEVEL.ci);
+  sec.innerHTML = `<div><div class="poster">${arcs(220, 3, 4, 'right:-50px;top:-60px')}<svg class="mark" viewBox="0 0 60 60" aria-hidden="true"><path d="M16 10h36v32"/><path d="M16 10v38"/><ellipse cx="10" cy="48" rx="8" ry="6"/><ellipse cx="46" cy="42" rx="8" ry="6"/><path d="M16 10h36v8H16z"/></svg></div>
+    <h2>${esc(SONGS_LEVEL.title)}</h2><p>${esc(SONGS_LEVEL.d)}</p></div><div class="libr"></div>`;
+  const libr = sec.querySelector('.libr');
+  libr.append(importUI());
+  if (!songs.length) libr.insertAdjacentHTML('beforeend', '<p class="hint">Ancora nessuna canzone. Cerca su internet "titolo canzone midi", scarica il file .mid e aggiungilo qui: lo trovi diviso in parti, con la base.</p>');
+  songs.forEach(so => {
+    const d = document.createElement('div'); d.className = 'song';
+    d.innerHTML = `<h3><span>${esc(so.t)}</span><button aria-label="Elimina ${esc(so.t)}">${icon('trash')}</button></h3><div class="parts"></div>`;
+    d.querySelector('h3 button').onclick = () => { if (confirm(`Eliminare "${so.t}" dal catalogo? Non si può annullare.`)) { songs = songs.filter(x => x !== so); store.set('songs', songs); renderHome(); } };
+    list.forEach((x, i) => { if (x.song !== so) return;
+      const b = document.createElement('button'), st = P.prog[x.id] || 0;
+      b.innerHTML = `${x.sub} <span class="stars" aria-label="${st} stelle su 3">${stars(st)}</span>`; b.onclick = () => start(i);
+      d.querySelector('.parts').append(b); });
+    libr.append(d);
+  });
+  $('#levels').append(sec);
 }
 
 function importUI() {
   const w = document.createElement('div');
   w.className = 'import';
-  w.innerHTML = `<label class="btn">${icon('upload')} Importa un file MIDI<input type="file" accept=".mid,.midi,audio/midi" hidden></label><div class="tracks"></div>`;
+  w.innerHTML = `<div class="seg" role="group" aria-label="Difficoltà delle canzoni">${[['facile', 'Facile: melodia'], ['normale', 'Normale: con accordi']].map(([d, l]) => `<button aria-pressed="${songDiff === d}" data-d="${d}">${l}</button>`).join('')}</div>
+    <label class="btn">${icon('upload')} Aggiungi canzoni (.mid)<input type="file" accept=".mid,.midi,audio/midi" multiple hidden></label><p class="msg" role="status"></p>`;
+  w.querySelectorAll('.seg button').forEach(b => b.onclick = () => { songDiff = b.dataset.d; store.set('songDiff', songDiff); renderHome(); });
   w.querySelector('input').onchange = async e => {
-    const f = e.target.files[0]; if (!f) return;
-    const box = w.querySelector('.tracks');
-    let tracks;
-    try { tracks = parseMidi(await f.arrayBuffer()); } catch (err) { box.textContent = `Questo file non si legge come MIDI (${err.message}). Prova un altro .mid.`; return; }
-    if (!tracks.length) { box.textContent = 'Il file non contiene note. Prova un altro .mid.'; return; }
-    box.innerHTML = `<select aria-label="Traccia da imparare">${tracks.map((t, i) => `<option value="${i}">${esc(t.name)} · ${t.notes.length} note</option>`).join('')}</select>
-      <label class="check"><input type="checkbox" checked> Solo la melodia (la nota più alta)</label><button class="primary">Aggiungi la canzone</button>`;
-    box.querySelector('button').onclick = () => {
-      const t = tracks[box.querySelector('select').value];
-      songs.push({ id:'song-' + Date.now(), t:f.name.replace(/\.midi?$/i, ''), steps:toSteps(t.notes, box.querySelector('input').checked) });
-      store.set('songs', songs); renderHome();
-    };
+    const ok = [], bad = [];
+    for (const f of e.target.files) {
+      try { songs.push(makeSong(f.name.replace(/\.midi?$/i, ''), parseMidi(await f.arrayBuffer()))); ok.push(f.name); }
+      catch (err) { bad.push(`${f.name} (${err.message})`); }
+    }
+    try { store.set('songs', songs); }
+    catch { songs.splice(songs.length - ok.length); w.querySelector('.msg').textContent = 'Memoria piena: elimina qualche canzone e riprova.'; return; }
+    if (ok.length) renderHome();
+    const msg = document.querySelector('.import .msg');
+    if (msg) msg.textContent = [ok.length ? `Aggiunte ${ok.length} canzoni.` : '', bad.length ? `Non lette: ${bad.join(', ')}.` : ''].join(' ');
   };
   return w;
 }
 
-// ===== Parser MIDI minimo (note-on per traccia, batteria esclusa) =====
+// ===== Parser MIDI minimo: note-on per traccia e canale, tempo, divisione =====
 function parseMidi(buf) {
   const d = new DataView(buf); let p = 0;
   const str = n => { let s = ''; for (let i = 0; i < n; i++) s += String.fromCharCode(d.getUint8(p++)); return s; };
   const u32 = () => (p += 4, d.getUint32(p - 4)), u16 = () => (p += 2, d.getUint16(p - 2));
   const vl = () => { let v = 0, b; do { b = d.getUint8(p++); v = (v << 7) | (b & 127); } while (b & 128); return v; };
-  if (str(4) !== 'MThd') throw Error('intestazione mancante');
-  const hl = u32(); u16(); const nt = u16(); p += hl - 4;
-  const tracks = [];
+  if (str(4) !== 'MThd') throw Error('non è un file MIDI');
+  const hl = u32(); u16(); const nt = u16(), div = u16(); p += hl - 6;
+  if (div & 0x8000) throw Error('formato SMPTE non supportato');
+  let tempo = 0; const tracks = new Map();
   for (let t = 0; t < nt && p < d.byteLength; t++) {
     const id = str(4), end = u32() + p;
     if (id !== 'MTrk') { p = end; continue; }
-    let tick = 0, rs = 0, name = '', notes = [];
+    let tick = 0, rs = 0, name = '';
     while (p < end) {
       tick += vl();
       let s = d.getUint8(p);
       if (s & 128) p++; else s = rs;
-      if (s === 0xff) { const type = d.getUint8(p++), l = vl(); if (type === 3) name = str(l); else p += l; }
+      if (s === 0xff) { const type = d.getUint8(p++), l = vl();
+        if (type === 3) name = str(l);
+        else { if (type === 0x51 && !tempo) tempo = (d.getUint8(p) << 16) | (d.getUint8(p + 1) << 8) | d.getUint8(p + 2); p += l; } }
       else if (s === 0xf0 || s === 0xf7) p += vl();
       else {
         rs = s;
-        const hi = s & 0xf0, a = d.getUint8(p++), v = (hi === 0xc0 || hi === 0xd0) ? 0 : d.getUint8(p++);
-        if (hi === 0x90 && v > 0 && (s & 15) !== 9) notes.push({ tick, m:a });
+        const hi = s & 0xf0, ch = s & 15, a = d.getUint8(p++), v = (hi === 0xc0 || hi === 0xd0) ? 0 : d.getUint8(p++);
+        if (hi === 0x90 && v > 0) { const k = `${t}-${ch}`; if (!tracks.has(k)) tracks.set(k, { name:name.trim() || `Traccia ${t + 1}`, ch, notes:[] }); tracks.get(k).notes.push([tick, a]); }
       }
     }
     p = end;
-    if (notes.length) tracks.push({ name:name.trim() || `Traccia ${t+1}`, notes });
   }
-  return tracks;
+  return { div, tempo:tempo || 500000, tracks:[...tracks.values()] };
 }
-function toSteps(notes, melodyOnly) {   // note che partono insieme (±10 tick) = un passo
-  const out = []; let g, t0 = -1e9;
-  for (const n of [...notes].sort((a, b) => a.tick - b.tick)) {
-    if (n.tick - t0 > 10) { g = []; out.push(g); t0 = n.tick; }
-    if (!g.includes(n.m)) g.push(n.m);
+function makeSong(t, mid) {
+  const pitched = mid.tracks.filter(x => x.ch !== 9 && x.notes.length >= 16);
+  if (!pitched.length) throw Error('nessuna melodia trovata');
+  const avg = x => x.notes.reduce((a, n) => a + n[1], 0) / x.notes.length;
+  const mel = pitched.reduce((a, b) => avg(b) > avg(a) ? b : a);   // ponytail: melodia = traccia più acuta; scelta manuale se sbaglia spesso
+  const byTick = (a, b) => a[0] - b[0];
+  return { id:'song-' + Date.now() + Math.random().toString(36).slice(2, 6), t, div:mid.div, tempo:mid.tempo,
+    mel:mel.notes.slice().sort(byTick),
+    acc:mid.tracks.filter(x => x !== mel).flatMap(x => x.notes.map(n => [n[0], n[1], x.ch === 9 ? 1 : 0])).sort(byTick) };
+}
+// passi della canzone: note che partono insieme (±10 tick); "facile" = solo la nota più alta, spostata all'ottava comoda
+function songSteps(so, diff) {
+  if (so._st?.[diff]) return so._st[diff];
+  const groups = []; let g, t0 = -1e9;
+  for (const [tick, m] of so.mel) { if (tick - t0 > 10) { g = { tick, need:[] }; groups.push(g); t0 = tick; } if (!g.need.includes(m)) g.need.push(m); }
+  if (diff === 'facile') {
+    groups.forEach(g => g.need = [Math.max(...g.need)]);
+    const ms = groups.map(g => g.need[0]).sort((a, b) => a - b), sh = Math.round((67 - (ms[ms.length >> 1] ?? 67)) / 12) * 12;
+    groups.forEach(g => g.need = [g.need[0] + sh]);
   }
-  return melodyOnly ? out.map(g => [Math.max(...g)]) : out;
+  Object.defineProperty(so, '_st', { value:{ ...so._st, [diff]:groups }, enumerable:false, configurable:true });
+  return groups;
 }
 
 // ===== Lezione =====
-let cur = null, idx = -1, step = 0, hit = new Set(), errors = 0, wrongKeys = new Set(), burst = -1;
+let cur = null, idx = -1, step = 0, hit = new Set(), errors = 0, wrongKeys = new Set(), burst = -1, combo = 0, bestCombo = 0, lessonXp = 0;
+const multOf = c => c >= 20 ? 3 : c >= 8 ? 2 : 1;
 function start(i) {
-  idx = i; cur = allLessons()[i]; cur.st = compile(cur);
-  history.replaceState(null, '', `#lezione-${i}`);
-  step = 0; hit.clear(); wrongKeys.clear(); errors = 0; burst = -1;
+  idx = i;
+  if (i === 'drill') { const pool = drillPool(); if (pool.length < 3) return goHome(); cur = { t:'Allenamento lampo', id:'drill', level:'', L:DRILL_LEVEL, tip:'Leggi la nota e suonala. Più combo fai, più punti prendi.', steps:Array.from({ length:20 }, () => [pool[Math.floor(Math.random() * pool.length)]]) }; }
+  else cur = allLessons()[i];
+  cur.st = compile(cur);
+  history.replaceState(null, '', i === 'drill' ? '#allenamento' : `#lezione-${i}`);
+  step = 0; hit.clear(); wrongKeys.clear(); errors = 0; burst = -1; combo = 0; bestCombo = 0; lessonXp = 0;
+  $('#base').hidden = !(cur.song || cur.acc); baseLabel();
   setLevel(cur.L);
   $('#home-view').hidden = true; $('#player').hidden = false; $('#done').hidden = true;
   $('#band-arcs').innerHTML = arcs(460, 4, 3, 'right:-170px;top:-270px');
   $('#title').textContent = cur.t;
-  $('#sub').textContent = cur.imported ? 'Le tue canzoni' : `Livello ${cur.level} · ${cur.L.title}`;
+  $('#sub').textContent = cur.imported ? `${cur.sub} · ${songDiff === 'facile' ? 'Facile' : 'Normale'}` : cur.id === 'drill' ? 'Allenamento' : `${cur.goal ? 'Obiettivo · ' : ''}Livello ${cur.level} · ${cur.L.title}`;
+  $('#tip').textContent = cur.cards ? '' : cur.tip || '';
   buildKeys(); render();
 }
 function buildKeys() {
@@ -480,6 +679,7 @@ function render() {
   // testa
   const total = cur.st.length, practice = cur.st.filter(x => !x.next).length, done = cur.st.slice(0, step).filter(x => !x.next).length;
   $('#count').innerHTML = practice ? `${done}<small>/${practice}</small>` : '';
+  $('#combo').textContent = combo >= 3 ? `Combo ${combo}${multOf(combo) > 1 ? ` · punti ×${multOf(combo)}` : ''}` : '';
   $('#bar').style.width = 100 * step / total + '%';
   // scena: scheda di teoria e/o pentagramma
   const showStaff = !card || card.staff;
@@ -487,7 +687,7 @@ function render() {
   $('#card').hidden = !card;
   if (card) {
     $('#card').innerHTML = `<h2>${esc(card.h)}</h2><p>${esc(card.p)}</p>${s.next ? `<button class="primary cont" id="cont">Avanti ${icon('arrow')}</button><p style="font-size:16px;color:var(--mute)">oppure premi un tasto qualsiasi</p>` : ''}`;
-    if (s.next) $('#cont').onclick = advance;
+    if (s.next) $('#cont').onclick = () => advance();
   }
   $('#staffwrap').hidden = !showStaff;
   if (showStaff) drawStaff(names);
@@ -550,7 +750,19 @@ function ring(m) {
   const r = document.createElement('span'); r.className = 'ring';
   k.append(r); r.addEventListener('animationend', () => r.remove());
 }
-function advance() {
+function floatXp(m, txt) {
+  const k = $(`.key[data-m="${m}"]`); if (!k) return;
+  const f = document.createElement('span'); f.className = 'xpf'; f.textContent = txt;
+  k.append(f); f.addEventListener('animationend', () => f.remove());
+}
+function advance(m) {
+  const s = cur.st[step];
+  if (!s.next) {
+    combo++; bestCombo = Math.max(bestCombo, combo);
+    const g = multOf(combo); lessonXp += g;   // 1 XP a nota, ×2 da 8 di combo, ×3 da 20
+    if (m !== undefined) floatXp(m, multOf(combo) > 1 ? `+${g} ×${multOf(combo)}` : `+${g}`);
+    backing(s, step);
+  }
   burst = step; step++; hit.clear(); wrongKeys.clear();
   if (step >= cur.st.length) return finish();
   render();
@@ -562,35 +774,42 @@ function handle(m) {
   if (s.next) return advance();
   const octaveOk = n => micOn && n % 12 === m % 12;   // ponytail: col microfono accetto errori d'ottava (armoniche)
   if (s.any) {
-    if (s.any.includes(m) || s.any.some(octaveOk)) { ring(m); return advance(); }
+    if (s.any.includes(m) || s.any.some(octaveOk)) { ring(m); return advance(m); }
   } else {
     let t = s.need.includes(m) ? m : s.need.find(n => octaveOk(n) && !hit.has(n));
     if (t !== undefined) {
       ring(t); hit.add(t);
-      if (s.need.every(n => hit.has(n))) return advance();
+      if (s.need.every(n => hit.has(n))) return advance(t);
       return render();
     }
   }
-  errors++; wrongKeys.add(m); render();   // il tasto sbagliato resta segnato finché non suoni quello giusto
+  errors++; combo = 0; wrongKeys.add(m); render();   // il tasto sbagliato resta segnato finché non suoni quello giusto
 }
 function finish() {
   const n = cur.st.length, st = errors <= 1 ? 3 : errors <= Math.max(3, n * 0.15) ? 2 : 1;
-  progress[cur.id] = Math.max(progress[cur.id] || 0, st); store.set('progress', progress);
-  const list = allLessons(), hasNext = idx + 1 < list.length;
+  const first = cur.id !== 'drill' && !(P.prog[cur.id] > 0);
+  const total = lessonXp + st * 5 + (first ? 20 : 0), before = lvOf(P.xp);
+  if (cur.id !== 'drill') P.prog[cur.id] = Math.max(P.prog[cur.id] || 0, st);
+  P.best = Math.max(P.best || 0, bestCombo);
+  addXp(total);
+  const after = lvOf(P.xp), list = allLessons(), hasNext = cur.id === 'drill' || idx + 1 < list.length;
   const d = $('#done');
   d.innerHTML = `${arcs(1400, 4, 1.6, 'left:50%;top:50%;transform:translate(-50%,-50%)', 33)}<div class="inner">
-    <h2 id="done-h">Fatto.</h2><div class="big" aria-label="${st} stelle su 3">${stars(st)}</div>
-    <p>${errors === 0 ? 'Nessun errore.' : errors === 1 ? '1 errore.' : `${errors} errori.`} ${st < 3 ? 'Riprova per 3 stelle.' : ''}</p>
-    <div class="acts">${hasNext ? `<button class="primary" id="next">Prossima lezione ${icon('arrow')}</button>` : ''}
-      <button id="again">${icon('restart')} Riprova</button><button id="home-btn">Tutti i livelli</button></div></div>`;
+    <h2 id="done-h">${st === 3 ? 'Perfetto.' : 'Fatto.'}</h2><div class="big" aria-label="${st} stelle su 3">${stars(st)}</div>
+    <div class="gain"><div><b>+${total}</b><span>XP${first ? ' (+20 prima volta)' : ''}</span></div><div><b>${bestCombo}</b><span>combo migliore</span></div><div><b>${errors}</b><span>${errors === 1 ? 'errore' : 'errori'}</span></div><div><b>${streakOf(P)}</b><span>giorni di fila</span></div></div>
+    ${after > before ? `<p class="lvup">Livello ${after} raggiunto · ${titleOf(after)}</p>` : ''}
+    <div class="acts">${hasNext ? `<button class="primary" id="next">${cur.id === 'drill' ? 'Ancora' : 'Prossima lezione'} ${icon('arrow')}</button>` : ''}
+      <button id="again">${icon('restart')} Riprova</button><button id="home-btn">Home</button></div></div>`;
   d.hidden = false;
   $('#again').onclick = () => start(idx);
-  if (hasNext) { $('#next').onclick = () => start(idx + 1); $('#next').focus(); } else $('#home-btn').focus();
+  if (hasNext) { $('#next').onclick = () => start(cur.id === 'drill' ? 'drill' : idx + 1); $('#next').focus(); } else $('#home-btn').focus();
   $('#home-btn').onclick = goHome;
 }
 function goHome() { history.replaceState(null, '', location.pathname); cur = null; $('#player').hidden = true; $('#done').hidden = true; $('#home-view').hidden = false; renderHome(); }
 $('#back').innerHTML = icon('back'); $('#listen').innerHTML = icon('play'); $('#restart').innerHTML = icon('restart');
 $('#back').onclick = goHome;
+const baseLabel = () => { $('#base').innerHTML = icon('drum'); $('#base').setAttribute('aria-pressed', baseOn); $('#base').title = baseOn ? 'Base accesa' : 'Base spenta'; $('#base').classList.toggle('off', !baseOn); };
+$('#base').onclick = () => { baseOn = !baseOn; store.set('base', baseOn); baseLabel(); };
 $('#restart').onclick = () => start(idx);
 $('#listen').onclick = () => cur.st.forEach((s, i) => (s.need || []).forEach(m => beep(m, 0.45, i * 0.5)));
 addEventListener('keydown', e => { if (e.key === 'Escape' && cur) goHome(); });
@@ -599,13 +818,54 @@ addEventListener('resize', () => { if (cur && !$('#player').hidden) { buildKeys(
 // ===== Audio + input =====
 let ac;
 const audio = () => ac || (ac = new (window.AudioContext || window.webkitAudioContext)());
-function beep(m, dur = 0.5, when = 0) {
+const heard = new Array(12).fill(0);   // note suonate dall'app: il microfono le ignora
+function beep(m, dur = 0.5, when = 0, vol = 0.3) {
   const a = audio(), t = a.currentTime + when, o = a.createOscillator(), g = a.createGain();
   o.type = 'triangle'; o.frequency.value = 440 * 2 ** ((m - 69) / 12);
-  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.3, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
   o.connect(g).connect(a.destination); o.start(t); o.stop(t + dur);
+  heard[m % 12] = Math.max(heard[m % 12], performance.now() + (when + dur) * 1000 + 150);
+}
+let noiseBuf;
+function drum(m, when = 0) {
+  const a = audio(), t = a.currentTime + when, g = a.createGain();
+  g.connect(a.destination);
+  if (m === 35 || m === 36) {   // cassa
+    const o = a.createOscillator(); o.frequency.setValueAtTime(150, t); o.frequency.exponentialRampToValueAtTime(45, t + 0.12);
+    g.gain.setValueAtTime(0.6, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.25); o.connect(g); o.start(t); o.stop(t + 0.25); return;
+  }
+  if (!noiseBuf) { noiseBuf = a.createBuffer(1, a.sampleRate * 0.3, a.sampleRate); const ch = noiseBuf.getChannelData(0); for (let i = 0; i < ch.length; i++) ch[i] = Math.random() * 2 - 1; }
+  const n = a.createBufferSource(), f = a.createBiquadFilter(), snare = m === 38 || m === 40, len = snare ? 0.14 : 0.05;
+  n.buffer = noiseBuf; f.type = snare ? 'bandpass' : 'highpass'; f.frequency.value = snare ? 1800 : 7000;
+  g.gain.setValueAtTime(snare ? 0.35 : 0.12, t); g.gain.exponentialRampToValueAtTime(0.001, t + len);
+  n.connect(f).connect(g); n.start(t); n.stop(t + len);
+}
+const CH = { C:[48,52,55], G:[47,50,55], Am:[45,48,52], F:[45,48,53], Dm:[50,53,57], Em:[47,52,55] };
+const ROOT = { C:36, G:43, Am:45, F:41, Dm:38, Em:40 };
+// la base segue chi suona: parte quando completi il passo, poi aspetta il prossimo
+function backing(s, i) {
+  if (!baseOn) return;
+  if (cur.song) {
+    const so = cur.song, spt = so.tempo / 1e6 / so.div, span = (s.end - s.tick) * spt;
+    for (const [tk, m, dr] of so.acc) {
+      if (tk < s.tick) continue; if (tk >= s.end) break;
+      const w = (tk - s.tick) * spt; if (w > 4) break;
+      if (dr) drum(m, w);
+      else if (!micOn || m < 48) beep(m, Math.min(1.2, Math.max(0.25, span - w)), w, micOn ? 0.1 : 0.07);   // col microfono solo il basso
+    }
+    return;
+  }
+  if (!cur.acc) return;
+  const beat = 60 / (cur.bpm || 90), b = i % 4, accs = cur.st.map(x => x.acc);
+  drum(b % 2 ? 38 : 36); drum(42, beat / 2); drum(42);
+  if (s.acc && s.acc !== '.') {
+    let len = 1; while (accs[i + len] === '.') len++;
+    beep(ROOT[s.acc], micOn ? 0.5 : len * beat, 0, 0.22);
+    if (!micOn) CH[s.acc].forEach(m => beep(m + 12, len * beat, 0.02, 0.06));
+  }
 }
 function noteOn(m, src) {
+  if (src === 'mic' && heard[m % 12] > performance.now()) return;   // è la base, non la pianola
   if (src === 'screen' || src === 'pc') beep(m);   // la pianola suona già da sola
   const k = $(`.key[data-m="${m}"]`);
   if (k) { k.classList.add('on'); setTimeout(() => k.classList.remove('on'), 160); }
@@ -650,7 +910,7 @@ $('#mic').onclick = async () => {
   if (micOn) return;
   if (!navigator.mediaDevices?.getUserMedia) { alert('Il microfono funziona solo da un indirizzo https:// o da localhost.'); return; }
   try {
-    const s = await navigator.mediaDevices.getUserMedia({ audio:{ echoCancellation:false, noiseSuppression:false, autoGainControl:false } });
+    const s = await navigator.mediaDevices.getUserMedia({ audio:{ echoCancellation:true, noiseSuppression:false, autoGainControl:false } });
     const a = audio(); await a.resume();
     const an = a.createAnalyser(); an.fftSize = 2048;
     a.createMediaStreamSource(s).connect(an);
@@ -673,13 +933,19 @@ $('#names').onchange = e => { showNames = e.target.checked; store.set('names', s
 
 // self-check
 console.assert(note('C4') === 60 && note('F#4') === 66 && note('Bb3') === 58, 'note()');
-console.assert(JSON.stringify(toSteps([{tick:0,m:60},{tick:5,m:64},{tick:480,m:62}], false)) === '[[60,64],[62]]', 'toSteps');
+console.assert(JSON.stringify(songSteps({ mel:[[0,60],[5,64],[480,62]] }, 'normale').map(g => g.need)) === '[[60,64],[62]]', 'songSteps');
+console.assert(LEVELS.every(L => L.lessons.every(x => !x.acc || words(x.acc).length === compile(x).length)), 'base allineata');
+console.assert(lvOf(0) === 1 && lvOf(100) === 2 && lvOf(399) === 2 && lvOf(400) === 3, 'livelli');
 console.assert(token('*F#').any.every(m => m % 12 === 6) && token('*#').any.every(m => SHARP[m % 12]), 'token any');
 console.assert(LEVELS.every(L => L.lessons.every(x => compile(x).every(s => s.next || (s.need || s.any).every(Number.isInteger)))), 'curriculum');
 console.assert(compile(LEVELS[1].lessons[0])[1].finger === 2, 'dita automatiche');
-renderHome();
-const deep = location.hash.match(/^#lezione-(\d+)$/);   // link diretto a una lezione
-if (deep && allLessons()[+deep[1]]) start(+deep[1]);
+P = profiles.find(p => p.id === store.get('current'));
+if (!P) showWho();
+else {
+  renderHome();
+  const deep = location.hash.match(/^#lezione-(\d+)$/);   // link diretto a una lezione
+  if (deep && allLessons()[+deep[1]]) start(+deep[1]);
+}
 </script>
 </body>
 </html>
