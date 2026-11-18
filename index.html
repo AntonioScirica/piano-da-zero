@@ -368,15 +368,15 @@
 
 <script>
 // aggiornamenti: se online c'è una versione più nuova, ricarica subito quella (l'iPad tiene in memoria la pagina vecchia)
-const APP_V = '202611181811';
+const APP_V = '202611181816';
 fetch('version.json?' + Date.now(), { cache:'no-store' }).then(r => r.json()).then(j => {
   if (j.v && j.v !== APP_V && !location.search.includes('v=' + j.v)) location.replace(location.pathname + '?v=' + j.v + location.hash);
 }).catch(() => {});
 </script>
-<script src="i18n.js?v=202611181811"></script>
-<script src="curriculum.en.js?v=202611181811"></script>
-<script src="curriculum.uk.js?v=202611181811"></script>
-<script src="curriculum.js?v=202611181811"></script>
+<script src="i18n.js?v=202611181816"></script>
+<script src="curriculum.en.js?v=202611181816"></script>
+<script src="curriculum.uk.js?v=202611181816"></script>
+<script src="curriculum.js?v=202611181816"></script>
 <script>
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -1002,8 +1002,7 @@ function playAnim(name, loop) {
   requestAnimationFrame(run);
 }
 // ===== Spiegazione guidata: frase per frase, con tastiera e pentagramma che mostrano, e voce =====
-const VOICE_LANG = { it:'it-IT', en:'en-US', uk:'uk-UA' };
-let tour = null, voiceOn = store.get('voice', true), speechReady = false;
+let tour = null;
 const later = (ms, fn) => animTs.push(setTimeout(fn, ms));
 const nm = pc => NAMES[pc];
 const TOUR_FX = {
@@ -1056,24 +1055,14 @@ function tourText(name, i) {
   const v = { c:nm(0), d:nm(2), e:nm(4), f:nm(5), g:nm(7), a:nm(9), b:nm(11), fs:nm(6), bb:FLATN[10] };
   return (TOURS[name]?.[LANG] || TOURS[name]?.it || [])[i]?.replace(/\{(\w+)\}/g, (m, k) => v[k] ?? m) || '';
 }
-function speak(text, done) {
-  let fired = false; const fin = () => { if (!fired) { fired = true; done(); } };
-  if (voiceOn && 'speechSynthesis' in window) {
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text); u.lang = VOICE_LANG[LANG]; u.rate = 0.95;
-    const vs = speechSynthesis.getVoices().filter(x => x.lang?.toLowerCase().startsWith(LANG)); if (vs.length) u.voice = vs.find(x => x.localService) || vs[0];
-    u.onend = fin; u.onerror = fin; speechSynthesis.speak(u);
-    later(2500 + text.length * 110, fin);   // se la voce non risponde, si va avanti comunque
-  } else later(1400 + text.length * 60, fin);
-}
+function speak(text, done) { later(1600 + text.length * 55, done); }   // niente voce: solo testo, il tempo per leggerlo
 function startTour(name, key) {
   stopAnim(); endTour(true);
   const n = (TOURS[name]?.it || []).length; if (!n) return;
-  tour = { name, key, i:0, n }; $('#staff').classList.add('touring'); $('#kbd').classList.add('touring');
+  tour = { name, key, i:0, n, t0:performance.now() }; $('#staff').classList.add('touring'); $('#kbd').classList.add('touring');
   const cap = $('#tourcap'); cap.hidden = false;
-  cap.innerHTML = `<p id="tourtxt" aria-live="polite"></p><div class="tourbtns"><button id="tourVoice" aria-pressed="${voiceOn}">${icon('mic')} ${t('tVoice')}</button><button id="tourSkip">${t('tSkip')} ${icon('arrow')}</button></div>`;
+  cap.innerHTML = `<p id="tourtxt" aria-live="polite"></p><div class="tourbtns"><button id="tourSkip">${t('tSkip')} ${icon('arrow')}</button></div>`;
   $('#tourSkip').onclick = () => endTour();
-  $('#tourVoice').onclick = () => { voiceOn = !voiceOn; store.set('voice', voiceOn); $('#tourVoice').setAttribute('aria-pressed', voiceOn); if (!voiceOn) speechSynthesis?.cancel(); };
   tourStep();
 }
 function tourStep() {
@@ -1087,7 +1076,6 @@ function tourStep() {
 function endTour(silent) {
   if (!tour) return;
   const key = tour.key; tour = null; $('#staff').classList.remove('touring'); $('#kbd').classList.remove('touring');
-  try { speechSynthesis.cancel(); } catch {}
   animTs.forEach(clearTimeout); animTs = []; clearFx();
   (cur.toured ||= new Set()).add(key);
   if (silent) { $('#tourcap').hidden = true; return; }
@@ -1589,7 +1577,7 @@ function noteOn(m, src) {
   if (P && cur && !$('#player').hidden) { if (lastAct) P.mins = { [today()]:minToday(P) + Math.min(10000, now - lastAct) / 60000 }; lastAct = now; }   // pause oltre 10 s non contano
   if (src === 'mic' && heard[m % 12] > performance.now()) return;   // è la base, non la pianola
   if (!$('#lvl').hidden) { if (performance.now() - lvlAt > 1200) $('#lvlGo')?.click(); return; }
-  if (tour) return;   // durante la spiegazione: la voce e le note non contano
+  if (tour) { if (performance.now() - tour.t0 > 1500) endTour(); return; }   // durante la spiegazione: una nota la chiude e si parte
   if (!$('#done').hidden) { if (performance.now() - doneAt > 1000) ($('#next') || $('#home-btn')).click(); return; }   // fine lezione: un tasto = avanti
   if (src === 'screen' || src === 'pc') beep(m);   // la pianola suona già da sola
   const k = $(`.key[data-m="${m}"]`);
@@ -1660,7 +1648,6 @@ $('#mic').onclick = startMic;
 // microfono acceso da solo al primo tocco (i browser non lo permettono prima); non serve se la pianola è collegata col cavo
 let micTried = false;
 let pendingTap = null;   // il tocco che ha fatto partire la richiesta del microfono
-addEventListener('pointerdown', () => { if (!speechReady && 'speechSynthesis' in window) { speechReady = true; try { speechSynthesis.speak(new SpeechSynthesisUtterance(' ')); } catch {} } }, true);   // iPad: la voce va sbloccata con un tocco
 addEventListener('pointerdown', e => {
   if (micOn || micTried || midiCount) return;
   micTried = true; pendingTap = e.target.closest('button, a, label');

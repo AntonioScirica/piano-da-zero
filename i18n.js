@@ -256,7 +256,7 @@ function trLesson(x, id) {
 // selettore della lingua: salva e ricarica; dalla home si rientra nello stesso profilo
 const langSel = id => `<label class="lang">${t('lang')} <select id="${id}">${Object.entries(LANGS).map(([k, v]) => `<option value="${k}" lang="${k}"${k === LANG ? ' selected' : ''}>${v}</option>`).join('')}</select></label>`;
 
-// ===== Spiegazioni guidate (frasi lette ad alta voce, sincronizzate con la tastiera) =====
+// ===== Spiegazioni guidate (frasi a schermo, sincronizzate con la tastiera) =====
 // segnaposto: {c} {d} {e} {f} {g} {a} {b} = nomi delle note bianche, {fs} = Fa♯, {bb} = Si♭
 const TOURS = {
   groups:{
