@@ -205,13 +205,13 @@
   .bar { background:color-mix(in srgb,var(--lv) 28%,var(--paper)); } .bar i { display:block; height:100%; width:0; background:var(--ink); transition:width .35s var(--ease); }
   .stage { display:grid; grid-template-columns:1fr; align-items:start; padding:clamp(10px,2.5vh,28px) clamp(20px,3vw,40px) 0; min-height:0; gap:28px; overflow:auto; }
   .stage.card-only { align-items:center; }
-  .stage.with-card { grid-template-columns:minmax(300px,0.9fr) 1.2fr; }
+  .stage.with-card { grid-template-columns:minmax(220px,0.55fr) 1.45fr; }
   .stage.card-only { grid-template-columns:minmax(0,880px); justify-content:center; }
-  .card h2 { font-size:clamp(34px,6.4vh,64px); font-weight:900; line-height:.95; letter-spacing:-.03em; text-wrap:balance; }
-  .card p { font-size:clamp(20px,3.1vh,27px); margin-top:16px; max-width:38ch; text-wrap:pretty; }
+  .card h2 { font-size:clamp(24px,4vh,38px); font-weight:900; line-height:.95; letter-spacing:-.03em; text-wrap:balance; }
+  .card p { font-size:clamp(16px,2.3vh,20px); margin-top:10px; max-width:34ch; text-wrap:pretty; }
   .card .cont { margin-top:22px; }
   .staffwrap { display:flex; flex-direction:column; gap:6px; min-height:0; }
-  #staff { width:100%; height:auto; max-height:31vh; }
+  #staff { width:100%; height:auto; max-height:40vh; }
   .sl { stroke:var(--ink); stroke-width:1.5; }
   .clef, .clefb, .acc { font-family:'Noto Music',serif; fill:var(--ink); } .clef { font-size:56px; } .clefb { font-size:56px; }
   .stem { stroke:var(--ink); stroke-width:1.9; }
@@ -229,7 +229,7 @@
   .acc { font-size:46px; } .acc.past { fill:#bdbbb4; }
   .fnum { font-size:20px; font-weight:800; text-anchor:middle; fill:var(--ink); }
   .burst { fill:none; stroke:var(--lv); stroke-width:6; transform-box:fill-box; transform-origin:center; animation:burst .7s var(--ease) forwards; }
-  .say { font-size:clamp(22px,3.6vh,34px); font-weight:800; letter-spacing:-.01em; text-align:center; line-height:1.2; min-height:2.4em; }
+  .say { font-size:clamp(19px,2.9vh,28px); font-weight:800; letter-spacing:-.01em; text-align:center; line-height:1.2; min-height:2.4em; }
   .say em { font-style:normal; background:var(--lv); color:var(--on-lv); padding:0 8px; }
 
   #mapbar { display:grid; grid-template-columns:auto 1fr; align-items:stretch; background:var(--ink); color:var(--paper); border-top:3px solid var(--ink); }
@@ -263,12 +263,18 @@
   @keyframes burst { from { transform:scale(.6); opacity:1; } to { transform:scale(2.4); opacity:0; } }
 
   /* ===== Fine lezione ===== */
+  .tourcap { grid-column:1/-1; align-self:end; display:flex; align-items:center; gap:16px; background:var(--ink); color:var(--paper); padding:14px 18px; margin-bottom:10px; animation:slidein .35s var(--ease) both; }
+  .tourcap p { flex:1; font-size:clamp(19px,2.8vh,26px); font-weight:800; line-height:1.25; }
+  .tourbtns { display:flex; gap:8px; } .tourbtns button { border-color:var(--paper); color:var(--paper); min-height:44px; font-size:15px; }
+  .tourbtns button:hover { background:var(--paper); color:var(--ink); } .tourbtns button[aria-pressed="false"] { opacity:.5; }
+  .replay { margin:12px 12px 0 0; min-height:40px; font-size:14px; padding:0 12px; }
+  #staff.touring #rollin, #staff.touring #head { opacity:.08; transition:opacity .3s; }
   #fx { position:absolute; inset:0; pointer-events:none; z-index:8; }
-  .ftag { position:absolute; transform:translateX(-50%); background:var(--ink); color:var(--paper); font-weight:800; font-size:clamp(13px,1.6vw,17px); padding:3px 9px; white-space:nowrap; animation:pop .35s var(--ease) both; }
-  .ftag.big { font-size:clamp(16px,2.2vw,22px); background:var(--lv); color:var(--on-lv); border:2px solid var(--ink); }
+  .ftag { position:absolute; transform:translateX(-50%); background:var(--ink); color:var(--paper); font-weight:800; font-size:clamp(15px,1.9vw,20px); padding:4px 10px; white-space:nowrap; animation:pop .35s var(--ease) both; }
+  .ftag.big { font-size:clamp(18px,2.6vw,26px); background:var(--lv); color:var(--on-lv); border:2px solid var(--ink); }
   .ftag.fing { width:clamp(34px,4.4vh,44px); height:clamp(34px,4.4vh,44px); border-radius:50%; display:grid; place-items:center; padding:0; font-size:clamp(18px,2.6vh,24px); }
   .ftag.soft { background:var(--paper); color:var(--ink); border:2px dashed var(--ink); }
-  .key.lit { background:var(--lv) !important; color:var(--on-lv); transition:background .25s; }
+  .key.lit { background:var(--lv) !important; color:var(--on-lv); transition:background .25s, transform .25s; transform:translateY(4px); box-shadow:inset 0 0 0 4px var(--ink); }
   .key.lit2.white { background:color-mix(in srgb,var(--lv) 30%,#fff) !important; }
   .key.lit2.black, .key.lit.black { box-shadow:inset 0 0 0 4px var(--lv), inset 0 -40px 0 var(--lv); }
   .key.together { animation:together .6s var(--ease) 3 alternate; }
@@ -349,6 +355,7 @@
       <p class="say" id="say"></p>
       <p class="tip" id="tip"></p>
     </div>
+    <div class="tourcap" id="tourcap" hidden></div>
   </div>
   <div id="mapbar"><span>Melody 61<br><small data-t="mapSub">Do contati da sinistra</small></span><div id="map" aria-hidden="true"></div></div>
   <div id="kbd"></div>
@@ -358,10 +365,10 @@
 <div id="lvl" class="on-colour" hidden role="dialog" aria-modal="true"></div>
 <div id="done" class="on-colour" hidden role="dialog" aria-modal="true" aria-labelledby="done-h"></div>
 
-<script src="i18n.js?v=202611181743"></script>
-<script src="curriculum.en.js?v=202611181743"></script>
-<script src="curriculum.uk.js?v=202611181743"></script>
-<script src="curriculum.js?v=202611181743"></script>
+<script src="i18n.js?v=202611181801"></script>
+<script src="curriculum.en.js?v=202611181801"></script>
+<script src="curriculum.uk.js?v=202611181801"></script>
+<script src="curriculum.js?v=202611181801"></script>
 <script>
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -876,7 +883,7 @@ function start(i) {
   else cur = allLessons()[i];
   cur.st = cur.st0 ? cur.st0.map(x => ({ ...x })) : compile(cur);
   if (!cur.repair) { pending = null; history.replaceState(null, '', i === 'drill' ? '#allenamento' : `#lezione-${i}`); }
-  stopTimed(); cancelHold(true); stopAnim(); animKey = null; lastTx = null; lastHead = null; viewOff = null; lastAct = 0; step = 0; hit = new Set(); wrongKeys.clear(); errors = 0; burst = -1; combo = 0; bestCombo = 0; lessonXp = 0; errSteps.clear(); stepErr = 0;
+  stopTimed(); cancelHold(true); endTour(true); stopAnim(); animKey = null; if ($('#tourcap')) $('#tourcap').hidden = true; lastTx = null; lastHead = null; viewOff = null; lastAct = 0; step = 0; hit = new Set(); wrongKeys.clear(); errors = 0; burst = -1; combo = 0; bestCombo = 0; lessonXp = 0; errSteps.clear(); stepErr = 0;
   $('#base').hidden = !(cur.song || cur.acc); baseLabel();
   setLevel(cur.L);
   $('#home-view').hidden = true; $('#player').hidden = false; $('#done').hidden = true;
@@ -985,11 +992,105 @@ function playAnim(name, loop) {
   };
   requestAnimationFrame(run);
 }
+// ===== Spiegazione guidata: frase per frase, con tastiera e pentagramma che mostrano, e voce =====
+const VOICE_LANG = { it:'it-IT', en:'en-US', uk:'uk-UA' };
+let tour = null, voiceOn = store.get('voice', true), speechReady = false;
+const later = (ms, fn) => animTs.push(setTimeout(fn, ms));
+const nm = pc => NAMES[pc];
+const TOUR_FX = {
+  groups:[() => { for (let m = 48; m <= 72; m++) if (SHARP[m % 12]) lit(m, 'lit2'); },
+    () => { [49, 51, 61, 63].forEach(m => lit(m)); tag(50, t('tag2'), 'big'); tag(62, t('tag2'), 'big'); },
+    () => { [54, 56, 58, 66, 68, 70].forEach(m => lit(m)); tag(56, t('tag3'), 'big'); tag(68, t('tag3'), 'big'); },
+    () => { [49, 51, 61, 63].forEach(m => lit(m, 'lit2')); [54, 56, 58, 66, 68, 70].forEach(m => lit(m)); }],
+  lowhigh:[() => { [48, 50, 52].forEach(m => lit(m)); tag(48, t('low'), 'big'); beep(48, 0.6, 0, 0.18); },
+    () => { [67, 69, 71, 72].forEach(m => lit(m)); tag(72, t('high'), 'big'); beep(72, 0.6, 0, 0.18); },
+    () => [48, 52, 55, 60, 64, 67, 72].forEach((m, i) => later(i * 260, () => { lit(m); beep(m, 0.35, 0, 0.15); }))],
+  'find:C':[() => { lit(60); tag(60, nm(0), 'big'); },
+    () => { lit(60); [61, 63].forEach(m => lit(m, 'lit2')); tag(62, t('tag2')); },
+    () => { [61, 63].forEach(m => lit(m, 'lit2')); later(900, () => { lit(60); tag(60, nm(0), 'big'); }); },
+    () => [48, 60, 72].forEach((m, i) => later(i * 450, () => { lit(m); tag(m, nm(0) + ' ' + ORD(1 + (m - 36) / 12)); })),
+    () => { lit(60); tag(60, t('midC'), 'big'); document.querySelector('.mk[data-m="60"]')?.classList.add('pulse'); }],
+  seven:[() => { lit(60); tag(60, nm(0), 'big'); },
+    () => WK.forEach((pc, i) => later(i * 420, () => { lit(60 + pc); tag(60 + pc, nm(pc)); })),
+    () => { WK.forEach(pc => lit(60 + pc, 'lit2')); lit(72); tag(72, nm(0), 'big'); }],
+  'find:F':[() => { lit(65); tag(65, nm(5), 'big'); },
+    () => { lit(65); [66, 68, 70].forEach(m => lit(m, 'lit2')); tag(68, t('tag3')); },
+    () => { lit(60); lit(65); tag(60, nm(0), 'big'); tag(65, nm(5), 'big'); }],
+  middleC:[() => { lit(60); tag(60, t('midC'), 'big'); },
+    () => { [48, 60, 72].forEach(m => tag(m, nm(0) + ' ' + ORD(1 + (m - 36) / 12), m === 60 ? 'big' : 'soft')); lit(60); document.querySelector('.mk[data-m="60"]')?.classList.add('pulse'); },
+    () => { lit(60); tag(60, '1', 'fing'); }],
+  fingers:[() => { lit(60); tag(60, '1', 'fing'); },
+    () => { lit(60); tag(60, '1', 'fing'); [62, 64, 65, 67].forEach((m, i) => later(i * 450, () => { lit(m); tag(m, String(i + 2), 'fing'); })); },
+    () => [60, 62, 64, 65, 67].forEach((m, i) => { lit(m); tag(m, String(i + 1), 'fing'); })],
+  staff:[() => demo([]),
+    () => { lit(60); tag(60, nm(0), 'big'); demo([{ m:60, x:300, l:nm(0) }]); },
+    () => { const acc = [{ m:60, x:300, l:nm(0) }]; lit(60); demo(acc);
+      [62, 64, 65, 67].forEach((m, i) => later(i * 650, () => { lit(m); tag(m, nm(m % 12)); acc.push({ m, x:430 + i * 130, l:nm(m % 12) }); demo(acc); })); }],
+  bass:[() => demo([]),
+    () => { lit(48); tag(48, nm(0), 'big'); demo([{ m:48, x:300, l:nm(0) }]); },
+    () => { const acc = [{ m:48, x:300, l:nm(0) }]; lit(48); demo(acc);
+      [50, 52, 53, 55].forEach((m, i) => later(i * 650, () => { lit(m); tag(m, nm(m % 12)); acc.push({ m, x:430 + i * 130, l:nm(m % 12) }); demo(acc); })); }],
+  intervals:[() => demo([]),
+    () => { lit(60); lit(62); tag(62, t('iv2'), 'big'); demo([{ m:60, x:330 }, { m:62, x:480, l:t('iv2') }]); },
+    () => { lit(60); lit(64); tag(63, t('skip'), 'soft'); tag(64, t('iv3'), 'big'); demo([{ m:60, x:330 }, { m:64, x:480, l:t('iv3') }]); },
+    () => { lit(60); lit(65); tag(65, t('iv4'), 'big'); demo([{ m:60, x:330 }, { m:65, x:480, l:t('iv4') }]);
+      later(1800, () => { clearFx(); lit(60); lit(67); tag(67, t('iv5'), 'big'); demo([{ m:60, x:330 }, { m:67, x:480, l:t('iv5') }]); }); }],
+  sharp:[() => { lit(65); tag(65, nm(5), 'big'); }, () => { lit(65, 'lit2'); lit(66); tag(66, t('upOne'), 'big'); }, () => { lit(66); tag(66, nm(6), 'big'); }],
+  flat:[() => { lit(71); tag(71, nm(11), 'big'); }, () => { lit(71, 'lit2'); lit(70); tag(70, t('downOne'), 'big'); }, () => { lit(70); tag(70, FLATN[10], 'big'); }],
+  chord:[() => {}, () => { lit(60); tag(60, nm(0), 'big'); },
+    () => { lit(60); tag(62, t('skip'), 'soft'); lit(64); tag(64, nm(4), 'big'); },
+    () => { lit(60); lit(64); tag(65, t('skip'), 'soft'); lit(67); tag(67, nm(7), 'big'); },
+    () => { [60, 64, 67].forEach(m => { lit(m); keyEl(m)?.classList.add('together'); }); }],
+};
+const ORD = n => I18N[LANG].ord ? I18N[LANG].ord(n) : n + '°';
+function tourText(name, i) {
+  const v = { c:nm(0), d:nm(2), e:nm(4), f:nm(5), g:nm(7), a:nm(9), b:nm(11), fs:nm(6), bb:FLATN[10] };
+  return (TOURS[name]?.[LANG] || TOURS[name]?.it || [])[i]?.replace(/\{(\w+)\}/g, (m, k) => v[k] ?? m) || '';
+}
+function speak(text, done) {
+  let fired = false; const fin = () => { if (!fired) { fired = true; done(); } };
+  if (voiceOn && 'speechSynthesis' in window) {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text); u.lang = VOICE_LANG[LANG]; u.rate = 0.95;
+    const vs = speechSynthesis.getVoices().filter(x => x.lang?.toLowerCase().startsWith(LANG)); if (vs.length) u.voice = vs.find(x => x.localService) || vs[0];
+    u.onend = fin; u.onerror = fin; speechSynthesis.speak(u);
+    later(2500 + text.length * 110, fin);   // se la voce non risponde, si va avanti comunque
+  } else later(1400 + text.length * 60, fin);
+}
+function startTour(name, key) {
+  stopAnim(); endTour(true);
+  const n = (TOURS[name]?.it || []).length; if (!n) return;
+  tour = { name, key, i:0, n }; $('#staff').classList.add('touring');
+  const cap = $('#tourcap'); cap.hidden = false;
+  cap.innerHTML = `<p id="tourtxt" aria-live="polite"></p><div class="tourbtns"><button id="tourVoice" aria-pressed="${voiceOn}">${icon('mic')} ${t('tVoice')}</button><button id="tourSkip">${t('tSkip')} ${icon('arrow')}</button></div>`;
+  $('#tourSkip').onclick = () => endTour();
+  $('#tourVoice').onclick = () => { voiceOn = !voiceOn; store.set('voice', voiceOn); $('#tourVoice').setAttribute('aria-pressed', voiceOn); if (!voiceOn) speechSynthesis?.cancel(); };
+  tourStep();
+}
+function tourStep() {
+  if (!tour) return;
+  const { name, i } = tour, my = tour;
+  clearFx(); animTs.forEach(clearTimeout); animTs = [];
+  requestAnimationFrame(() => { if (tour !== my) return; TOUR_FX[name]?.[i]?.(); });
+  const txt = tourText(name, i); $('#tourtxt').textContent = txt;
+  speak(txt, () => { if (tour !== my) return; later(450, () => { if (tour !== my) return; my.i++; my.i < my.n ? tourStep() : endTour(); }); });
+}
+function endTour(silent) {
+  if (!tour) return;
+  const key = tour.key; tour = null; $('#staff').classList.remove('touring');
+  try { speechSynthesis.cancel(); } catch {}
+  animTs.forEach(clearTimeout); animTs = []; clearFx();
+  (cur.toured ||= new Set()).add(key);
+  if (silent) { $('#tourcap').hidden = true; return; }
+  $('#tourcap').innerHTML = `<p id="tourtxt">${t('tYourTurn')}</p>`;
+  later(1600, () => { if (!tour) $('#tourcap').hidden = true; });
+  render();
+}
 function render() {
   const s = cur.st[step] || {}, card = cur.cards?.[s.card], names = showNames && !card?.hideNames && !cur.hideNames;
   clearTimeout(idleT);
   const ak = card?.anim && !timed ? cur.id + ':' + s.card : null;   // la scheda cambia: parte la sua animazione
-  if (ak !== animKey) { animKey = ak; ak ? playAnim(card.anim, !!s.next) : stopAnim(); }
+  if (ak !== animKey) { animKey = ak; if (tour && tour.key !== ak) endTour(true); if (ak && !cur.toured?.has(ak)) requestAnimationFrame(() => startTour(card.anim, ak)); else if (!tour) stopAnim(); }
   if (s.need && !timed && !$('#player').hidden) { const at = step; idleT = setTimeout(() => cur && step === at && hint(s, 'idle'), 9000); }
   // tastiera
   const targets = new Set((s.need || []).filter(m => !hit.has(m)).concat(s.any || []));
@@ -1016,8 +1117,9 @@ function render() {
   $('#stage').className = 'stage ' + (card ? (showStaff ? 'with-card' : 'card-only') : '');
   $('#card').hidden = !card;
   if (card) {
-    $('#card').innerHTML = `<h2>${esc(card.h)}</h2><p>${esc(card.p)}</p>${s.next ? `<button class="primary cont" id="cont">${t('next')} ${icon('arrow')}</button><p style="font-size:16px;color:var(--mute)">${t('anyKey')}</p>` : ''}`;
-    if (s.next) $('#cont').onclick = () => advance();
+    $('#card').innerHTML = `<h2>${esc(card.h)}</h2><p>${esc(card.p)}</p>${card.anim ? `<button class="replay" id="replay">${icon('play')} ${t('tReplay')}</button>` : ''}${s.next ? `<button class="primary cont" id="cont">${t('next')} ${icon('arrow')}</button><p style="font-size:16px;color:var(--mute)">${t('anyKey')}</p>` : ''}`;
+    if (s.next) $('#cont').onclick = () => { endTour(true); $('#tourcap').hidden = true; advance(); };
+    if ($('#replay')) $('#replay').onclick = () => startTour(card.anim, cur.id + ':' + s.card);
   }
   $('#staffwrap').hidden = !showStaff;
   if (showStaff) drawStaff(names);
@@ -1304,7 +1406,7 @@ function showDone(r) {
   ($('#snext') || $('#next') || $('#home-btn')).focus();
   $('#home-btn').onclick = goHome;
 }
-function goHome() { stopTimed(); cancelHold(true); stopAnim(); animKey = null; $('#lvl').hidden = true; calib = null; history.replaceState(null, '', location.pathname); clearTimeout(idleT); pending = null; cur = null; $('#player').hidden = true; $('#done').hidden = true; $('#home-view').hidden = false; renderHome(); }
+function goHome() { stopTimed(); cancelHold(true); if (cur) endTour(true); $('#tourcap').hidden = true; stopAnim(); animKey = null; $('#lvl').hidden = true; calib = null; history.replaceState(null, '', location.pathname); clearTimeout(idleT); pending = null; cur = null; $('#player').hidden = true; $('#done').hidden = true; $('#home-view').hidden = false; renderHome(); }
 $('#calib').innerHTML = icon('target'); $('#back').innerHTML = icon('back'); $('#listen').innerHTML = icon('play'); $('#restart').innerHTML = icon('restart');
 $('#back').onclick = () => { stopTimed(); calib = null; pending ? showDone(pending) : goHome(); };   // uscire dalla riparazione chiude comunque la lezione
 const baseLabel = () => { $('#base').innerHTML = icon('drum'); $('#base').setAttribute('aria-pressed', baseOn); $('#base').title = baseOn ? t('baseOn') : t('baseOff'); $('#base').classList.toggle('off', !baseOn); };
@@ -1479,6 +1581,7 @@ function noteOn(m, src) {
   if (P && cur && !$('#player').hidden) { if (lastAct) P.mins = { [today()]:minToday(P) + Math.min(10000, now - lastAct) / 60000 }; lastAct = now; }   // pause oltre 10 s non contano
   if (src === 'mic' && heard[m % 12] > performance.now()) return;   // è la base, non la pianola
   if (!$('#lvl').hidden) { if (performance.now() - lvlAt > 1200) $('#lvlGo')?.click(); return; }
+  if (tour) return;   // durante la spiegazione: la voce e le note non contano
   if (!$('#done').hidden) { if (performance.now() - doneAt > 1000) ($('#snext') || $('#next') || $('#home-btn')).click(); return; }   // fine lezione: un tasto = avanti
   if (src === 'screen' || src === 'pc') beep(m);   // la pianola suona già da sola
   const k = $(`.key[data-m="${m}"]`);
@@ -1549,6 +1652,7 @@ $('#mic').onclick = startMic;
 // microfono acceso da solo al primo tocco (i browser non lo permettono prima); non serve se la pianola è collegata col cavo
 let micTried = false;
 let pendingTap = null;   // il tocco che ha fatto partire la richiesta del microfono
+addEventListener('pointerdown', () => { if (!speechReady && 'speechSynthesis' in window) { speechReady = true; try { speechSynthesis.speak(new SpeechSynthesisUtterance(' ')); } catch {} } }, true);   // iPad: la voce va sbloccata con un tocco
 addEventListener('pointerdown', e => {
   if (micOn || micTried || midiCount) return;
   micTried = true; pendingTap = e.target.closest('button, a, label');

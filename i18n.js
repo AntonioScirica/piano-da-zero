@@ -255,3 +255,64 @@ function trLesson(x, id) {
 }
 // selettore della lingua: salva e ricarica; dalla home si rientra nello stesso profilo
 const langSel = id => `<label class="lang">${t('lang')} <select id="${id}">${Object.entries(LANGS).map(([k, v]) => `<option value="${k}" lang="${k}"${k === LANG ? ' selected' : ''}>${v}</option>`).join('')}</select></label>`;
+
+// ===== Spiegazioni guidate (frasi lette ad alta voce, sincronizzate con la tastiera) =====
+// segnaposto: {c} {d} {e} {f} {g} {a} {b} = nomi delle note bianche, {fs} = Fa♯, {bb} = Si♭
+const TOURS = {
+  groups:{
+    it:['Questa è la tastiera: tasti bianchi e tasti neri.', 'Guarda i tasti neri: sono a gruppi di due…', '…e a gruppi di tre.', 'Due, tre, due, tre: lo schema si ripete per tutta la tastiera. È la tua mappa.'],
+    en:['This is the keyboard: white keys and black keys.', 'Look at the black keys: they come in groups of two…', '…and in groups of three.', 'Two, three, two, three: the pattern repeats across the whole keyboard. It’s your map.'],
+    uk:['Це клавіатура: білі й чорні клавіші.', 'Подивись на чорні клавіші: вони йдуть групами по дві…', '…і групами по три.', 'Дві, три, дві, три: цей візерунок повторюється по всій клавіатурі. Це твоя карта.'] },
+  lowhigh:{
+    it:['A sinistra i suoni sono gravi, bassi.', 'Andando verso destra diventano sempre più acuti.', 'Ascolta: dal grave all’acuto.'],
+    en:['On the left the sounds are low and deep.', 'Moving to the right they get higher and higher.', 'Listen: from low to high.'],
+    uk:['Ліворуч звуки низькі, глибокі.', 'Що правіше, то вищими вони стають.', 'Послухай: від низьких до високих.'] },
+  'find:C':{
+    it:['Questo è il {c}.', 'Si trova subito a sinistra dei due tasti neri.', 'Lo riconosci così: cerca i due tasti neri e scendi al tasto bianco alla loro sinistra.', 'Ce n’è uno per ogni gruppo da due: eccoli tutti.', 'Noi useremo quello in mezzo, il più vicino a te: il {c} centrale.'],
+    en:['This is {c}.', 'It sits just left of the two black keys.', 'Here’s how to spot it: find the two black keys and step down to the white key on their left.', 'There’s one for every group of two: here they all are.', 'We’ll use the one in the middle, closest to you: middle {c}.'],
+    uk:['Це {c}.', 'Воно одразу ліворуч від двох чорних клавіш.', 'Ось як його впізнати: знайди дві чорні клавіші й спустися на білу ліворуч від них.', 'Таке є біля кожної групи з двох: ось вони всі.', 'Ми будемо грати те, що посередині, найближче до тебе: середнє {c}.'] },
+  seven:{
+    it:['Partendo dal {c}, i tasti bianchi hanno sette nomi.', '{c}, {d}, {e}, {f}, {g}, {a}, {b}.', 'Dopo il {b} ricomincia un altro {c}: i nomi si ripetono sempre uguali.'],
+    en:['Starting from {c}, the white keys have seven names.', '{c}, {d}, {e}, {f}, {g}, {a}, {b}.', 'After {b} a new {c} begins: the names always repeat the same way.'],
+    uk:['Починаючи з {c}, білі клавіші мають сім назв.', '{c}, {d}, {e}, {f}, {g}, {a}, {b}.', 'Після {b} починається нове {c}: назви завжди повторюються.'] },
+  'find:F':{
+    it:['Questo è il {f}.', 'Si trova subito a sinistra dei tre tasti neri.', '{c} e {f} sono i tuoi punti di riferimento: da loro trovi tutte le altre note.'],
+    en:['This is {f}.', 'It sits just left of the three black keys.', '{c} and {f} are your landmarks: from them you can find every other note.'],
+    uk:['Це {f}.', 'Воно одразу ліворуч від трьох чорних клавіш.', '{c} і {f} — твої орієнтири: від них знайдеш усі інші ноти.'] },
+  middleC:{
+    it:['Questo è il {c} centrale, a metà della tastiera.', 'Sulla tua Melody 61 è il terzo {c} contando da sinistra.', 'Tutte le prime lezioni partono da qui: appoggia il pollice destro su questo tasto.'],
+    en:['This is middle {c}, halfway along the keyboard.', 'On your Melody 61 it’s the third {c} counting from the left.', 'All the first lessons start here: rest your right thumb on this key.'],
+    uk:['Це середнє {c}, посередині клавіатури.', 'На твоїй Melody 61 це третє {c}, якщо рахувати зліва.', 'Усі перші уроки починаються тут: поклади правий великий палець на цю клавішу.'] },
+  fingers:{
+    it:['Ogni dito ha un numero. Il pollice è 1.', 'Poi indice 2, medio 3, anulare 4 e mignolo 5.', 'Vale per tutte e due le mani. Con la destra sul {c} centrale: pollice sul {c}, mignolo sul {g}.'],
+    en:['Every finger has a number. Your thumb is 1.', 'Then index 2, middle 3, ring 4 and little finger 5.', 'It’s the same for both hands. With your right hand on middle {c}: thumb on {c}, little finger on {g}.'],
+    uk:['Кожен палець має номер. Великий — це 1.', 'Далі вказівний 2, середній 3, безіменний 4 і мізинець 5.', 'Так для обох рук. Права рука на середньому {c}: великий на {c}, мізинець на {g}.'] },
+  staff:{
+    it:['Le note si scrivono sul pentagramma: cinque linee.', 'Il {c} centrale sta su una piccola linea tutta sua, sotto le cinque.', 'Ogni nota più alta sale di un gradino: {d} nello spazio, {e} sulla linea, poi {f} e {g}.'],
+    en:['Notes are written on the staff: five lines.', 'Middle {c} sits on its own little line, below the five.', 'Each higher note climbs one step: {d} in the space, {e} on the line, then {f} and {g}.'],
+    uk:['Ноти записують на нотному стані: п’ять ліній.', 'Середнє {c} стоїть на власній маленькій лінії, під п’ятьма.', 'Кожна вища нота піднімається на сходинку: {d} у проміжку, {e} на лінії, далі {f} і {g}.'] },
+  bass:{
+    it:['La mano sinistra legge sul pentagramma di sotto, in chiave di basso.', 'Qui il {c} sotto il centrale sta nel secondo spazio dal basso.', 'Da lì salgono {d}, {e}, {f} e {g}: mignolo sinistro sul {c}.'],
+    en:['Your left hand reads the lower staff, the bass clef.', 'Here the {c} below middle {c} sits in the second space from the bottom.', 'From there come {d}, {e}, {f} and {g}: left little finger on {c}.'],
+    uk:['Ліва рука читає нижній нотний стан — басовий ключ.', 'Тут {c} під середнім стоїть у другому проміжку знизу.', 'Звідти йдуть {d}, {e}, {f} і {g}: лівий мізинець на {c}.'] },
+  intervals:{
+    it:['Per leggere più in fretta, guarda la distanza tra le note.', 'Dal {c} al {d}: il tasto accanto. È una seconda.', 'Dal {c} al {e}: salti un tasto. È una terza: da linea a linea.', 'Poi la quarta e la quinta: salti due e tre tasti.'],
+    en:['To read faster, look at the distance between notes.', 'From {c} to {d}: the next key. That’s a second.', 'From {c} to {e}: skip one key. That’s a third: line to line.', 'Then the fourth and the fifth: skip two and three keys.'],
+    uk:['Щоб читати швидше, дивись на відстань між нотами.', 'Від {c} до {d}: сусідня клавіша. Це секунда.', 'Від {c} до {e}: пропусти одну клавішу. Це терція: з лінії на лінію.', 'Далі кварта й квінта: пропусти дві й три клавіші.'] },
+  sharp:{
+    it:['Questo è il {f}.', 'Il diesis lo alza di un tasto: il nero subito a destra.', 'Si chiama {fs}.'],
+    en:['This is {f}.', 'A sharp raises it by one key: the black key just to the right.', 'It’s called {fs}.'],
+    uk:['Це {f}.', 'Дієз підвищує її на одну клавішу: чорну одразу праворуч.', 'Вона називається {fs}.'] },
+  flat:{
+    it:['Questo è il {b}.', 'Il bemolle lo abbassa di un tasto: il nero subito a sinistra.', 'Si chiama {bb}.'],
+    en:['This is {b}.', 'A flat lowers it by one key: the black key just to the left.', 'It’s called {bb}.'],
+    uk:['Це {b}.', 'Бемоль знижує її на одну клавішу: чорну одразу ліворуч.', 'Вона називається {bb}.'] },
+  chord:{
+    it:['Un accordo sono più note suonate insieme.', 'Il {c} maggiore: parti dal {c}…', '…salti un tasto e prendi il {e}…', '…salti ancora e prendi il {g}.', 'Ora tutte e tre insieme: {c}, {e}, {g}.'],
+    en:['A chord is several notes played together.', '{c} major: start from {c}…', '…skip a key and take {e}…', '…skip again and take {g}.', 'Now all three together: {c}, {e}, {g}.'],
+    uk:['Акорд — це кілька нот, зіграних разом.', '{c} мажор: почни з {c}…', '…пропусти клавішу й візьми {e}…', '…пропусти ще одну й візьми {g}.', 'А тепер усі три разом: {c}, {e}, {g}.'] },
+};
+STR.tSkip = ['Salta', 'Skip', 'Пропустити'];
+STR.tReplay = ['Rivedi la spiegazione', 'Watch the explanation again', 'Переглянути пояснення'];
+STR.tVoice = ['Voce', 'Voice', 'Голос'];
+STR.tYourTurn = ['Ora tocca a te.', 'Now it’s your turn.', 'Тепер твоя черга.'];
