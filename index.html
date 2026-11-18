@@ -354,6 +354,7 @@
   .arrow { stroke:var(--lv); stroke-width:5; } .ahead { fill:var(--lv); }
   .tsl { stroke:var(--ink); stroke-width:2; } .fadein { animation:fadein .5s ease-out both; } @keyframes fadein { from { opacity:0; } to { opacity:1; } }
   .tclef, .tclefb { font-family:'Noto Music',serif; fill:var(--ink); font-size:84px; } .tclefb { font-size:64px; }
+  .thl { stroke:var(--lv); stroke-width:7; stroke-linecap:round; } .thl.sp { fill:color-mix(in srgb,var(--lv) 55%,transparent); stroke:none; } .thl.band { fill:color-mix(in srgb,var(--lv) 14%,transparent); stroke:none; } .tstx { font-size:24px; font-weight:800; fill:var(--ink); paint-order:stroke; stroke:var(--paper); stroke-width:6px; }
   .tnote { animation:drop .7s cubic-bezier(.2,1.3,.4,1) both; } .tnote ellipse { fill:var(--ink); } .tnote text { font-size:24px; font-weight:800; text-anchor:middle; fill:var(--ink); }
   .tut-foot { display:grid; grid-template-columns:1fr auto; gap:24px; align-items:center; padding:2vh clamp(20px,4vw,60px) 3vh; border-top:3px solid var(--ink); }
   #tutTxt { font-size:clamp(20px,3.2vh,32px); font-weight:800; line-height:1.2; letter-spacing:-.01em; max-width:46ch; height:2.4em; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; align-self:center; }   /* sempre 2 righe di spazio: niente salti */
@@ -428,15 +429,15 @@
 
 <script>
 // aggiornamenti: se online c'è una versione più nuova, ricarica subito quella (l'iPad tiene in memoria la pagina vecchia)
-const APP_V = '202611181841';
+const APP_V = '1795024691';
 fetch('version.json?' + Date.now(), { cache:'no-store' }).then(r => r.json()).then(j => {
   if (j.v && j.v !== APP_V && !location.search.includes('v=' + j.v)) location.replace(location.pathname + '?v=' + j.v + location.hash);
 }).catch(() => {});
 </script>
-<script src="i18n.js?v=202611181841"></script>
-<script src="curriculum.en.js?v=202611181841"></script>
-<script src="curriculum.uk.js?v=202611181841"></script>
-<script src="curriculum.js?v=202611181841"></script>
+<script src="i18n.js?v=1795024691"></script>
+<script src="curriculum.en.js?v=1795024691"></script>
+<script src="curriculum.uk.js?v=1795024691"></script>
+<script src="curriculum.js?v=1795024691"></script>
 <script>
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -1064,6 +1065,17 @@ function tNote(m, x, label, delay = 0) {
   const acc = SHARP[m % 12] ? `<text x="${x - 30}" y="${y + 10}" class="tacc">${fl ? '♭' : '♯'}</text>` : '';
   $('#tnotes').insertAdjacentHTML('beforeend', `<g class="tnote" style="animation-delay:${delay}ms">${led}${acc}<ellipse cx="${x}" cy="${y}" rx="15" ry="11" transform="rotate(-20 ${x} ${y})"/><text x="${x}" y="${y - 22}">${esc(label ?? (fl ? FLATN[m % 12] : nm(m % 12)))}</text></g>`);
 }
+// evidenzia una linea o uno spazio del pentagramma (sotto le note)
+function tHL(m, delay = 0, x1 = 60, x2 = 990) {
+  const d = tour?.name === 'flat' && SHARP[m % 12] ? dia(m + 1) : dia(m), y = tStaffY(m, d), line = d % 2 === (m >= 60 ? 0 : 1);   // violino: linee pari (Mi4=30), basso: dispari (Sol2=25)
+  $('#tnotes')?.insertAdjacentHTML('beforebegin', line
+    ? `<line class="thl fadein" x1="${x1}" x2="${x2}" y1="${y}" y2="${y}" style="animation-delay:${delay}ms"/>`
+    : `<rect class="thl sp fadein" x="${x1}" width="${x2 - x1}" y="${y - 8}" height="16" style="animation-delay:${delay}ms"/>`);
+}
+function tSText(x, y, text, delay = 0, anchor = 'start') { $('#tnotes')?.insertAdjacentHTML('beforebegin', `<text class="tstx fadein" x="${x}" y="${y}" text-anchor="${anchor}" style="animation-delay:${delay}ms">${esc(text)}</text>`); }
+// note in fila sul pentagramma, ognuna con la sua linea/spazio acceso (anche fuori dalla tastiera)
+function tSeq(ms, step = 420) { ms.forEach((m, i) => { const x = 260 + i * 150, d = i * step; tHL(m, d, x - 56, x + 56); tNote(m, x, nm(m % 12), d); }); }
+const tMid = () => { tOn(60); tHL(60, 300, tX(60) - 48, tX(60) + 48); tSText(tX(60) + 60, 158, t('lnMid'), 500); };
 const STAFF_TOURS = { staff:false, bass:true, intervals:false };
 const TUT = {
   groups:[() => { for (let m = TK.lo; m <= TK.hi; m++) if (SHARP[m % 12]) tOn(m, 'soft', (m - TK.lo) * 30); },
@@ -1077,16 +1089,23 @@ const TUT = {
     () => { [61, 63].forEach(m => tOn(m, 'soft')); tBracket([61, 63], '2'); tArrow(61, 60, 500); tOn(60, 'on', 900); },
     () => { [61, 63].forEach(m => tOn(m, 'soft')); tBracket([61, 63], '2'); tArrow(61, 60, 300); tOn(60, 'on', 800); tPill(60, nm(0), { delay:900 }); },
     () => [48, 60, 72].forEach((m, i) => { tOn(m, 'on', i * 400); [m + 1, m + 3].forEach(b => b <= TK.hi && tOn(b, 'soft', i * 400)); tPill(m, nm(0) + ' ' + ORD(1 + (m - 36) / 12), { delay:i * 400 }); }),
-    () => { tOn(60); [48, 72].forEach(m => tOn(m, 'soft')); tPill(60, t('midC'), { big:true }); }],
+    () => { tOn(60); [48, 72].forEach(m => tOn(m, 'soft')); tPill(60, t('midC'), { big:true }); },
+    tMid,
+    () => { tMid(); $('#tnotes').insertAdjacentHTML('beforebegin', `<rect class="thl band fadein" x="60" width="930" y="60" height="72"/><rect class="thl band fadein" x="60" width="930" y="200" height="72"/>`); }],
   seven:[() => { tOn(60); tPill(60, nm(0), { big:true }); },
     () => WK.forEach((pc, i) => { tOn(60 + pc, 'on', i * 380); tPill(60 + pc, nm(pc), { delay:i * 380, row:i % 2 }); }),
-    () => { WK.forEach(pc => tOn(60 + pc, 'soft')); tOn(72, 'on', 200); tPill(72, nm(0), { big:true, delay:200 }); tArrow(71, 72, 0); }],
+    () => { WK.forEach(pc => tOn(60 + pc, 'soft')); tOn(72, 'on', 200); tPill(72, nm(0), { big:true, delay:200 }); tArrow(71, 72, 0); },
+    () => WK.forEach((pc, i) => { tOn(60 + pc, 'on', i * 380); tHL(60 + pc, i * 380, tX(60 + pc) - 34, tX(60 + pc) + 34); }),
+    () => tSeq([64, 67, 71, 74, 77])],
   'find:F':[() => { tOn(65); tPill(65, nm(5), { big:true }); },
     () => { [66, 68, 70].forEach(m => tOn(m, 'soft')); tBracket([66, 68, 70], '3'); tArrow(66, 65, 500); tOn(65, 'on', 900); },
-    () => { tOn(60); tOn(65, 'on', 300); tPill(60, nm(0), { big:true }); tPill(65, nm(5), { big:true, delay:300 }); }],
+    () => { tOn(60); tOn(65, 'on', 300); tPill(60, nm(0), { big:true }); tPill(65, nm(5), { big:true, delay:300 }); },
+    () => { tHL(65, 200); tOn(65, 'on', 200); tSText(tX(65) - 40, 128, '1° ' + t('lnSpace'), 600, 'end'); },
+    () => tSeq([65, 69, 72, 76])],
   middleC:[() => { tOn(60); tPill(60, t('midC'), { big:true }); },
     () => [48, 60, 72].forEach((m, i) => { tOn(m, m === 60 ? 'on' : 'soft', i * 350); tPill(m, nm(0) + ' ' + ORD(1 + (m - 36) / 12), { big:m === 60, delay:i * 350 }); }),
-    () => { tOn(60); tFx(`<g class="pill fing"><circle cx="${tX(60)}" cy="${TK.top + 150}" r="26"/><text x="${tX(60)}" y="${TK.top + 159}">1</text></g>`); tPill(60, t('midC'), { big:true }); }],
+    () => { tOn(60); tFx(`<g class="pill fing"><circle cx="${tX(60)}" cy="${TK.top + 150}" r="26"/><text x="${tX(60)}" y="${TK.top + 159}">1</text></g>`); tPill(60, t('midC'), { big:true }); },
+    tMid],
   fingers:[() => { tOn(60); tFing(60, 1, 0); },
     () => [60, 62, 64, 65, 67].forEach((m, i) => { tOn(m, 'on', i * 350); tFing(m, i + 1, i * 350); }),
     () => [60, 62, 64, 65, 67].forEach((m, i) => { tOn(m); tFing(m, i + 1, 0); tPill(m, nm(m % 12), { delay:200 + i * 120, row:i % 2 }); })],
@@ -1095,22 +1114,26 @@ const TUT = {
     () => { [60, 62, 64, 65, 67].forEach((m, i) => tOn(m, 'on', i * 450)); }],
   bass:[() => mDo('wave'),
     () => { tOn(48, 'on', 300); },
-    () => { [48, 50, 52, 53, 55].forEach((m, i) => tOn(m, 'on', i * 450)); }],
+    () => { [48, 50, 52, 53, 55].forEach((m, i) => tOn(m, 'on', i * 450)); },
+    () => tSeq([43, 47, 50, 53, 57])],
   intervals:[() => mDo('wave'),
     () => { tOn(60); tOn(62, 'on', 400); tArrow(60, 62, 400); tPill(62, t('iv2'), { big:true, delay:500 }); },
     () => { tOn(60); tOn(62, 'soft', 200); tOn(64, 'on', 400); tArrow(60, 64, 400); tPill(64, t('iv3'), { big:true, delay:500 }); tPill(62, t('skip'), { row:1, delay:200 }); },
     () => { tOn(60); tOn(65, 'on', 300); tOn(67, 'on', 1100); tArrow(60, 65, 300); tArrow(60, 67, 1100); tPill(65, t('iv4'), { delay:400 }); tPill(67, t('iv5'), { big:true, row:1, delay:1200 }); }],
   sharp:[() => { tOn(65); tPill(65, nm(5), { big:true }); },
     () => { tOn(65, 'soft'); tArrow(65, 66, 200); tOn(66, 'on', 700); tPill(66, t('upOne'), { delay:700 }); },
-    () => { tOn(65, 'soft'); tOn(66); tPill(66, nm(6), { big:true }); }],
+    () => { tOn(65, 'soft'); tOn(66); tPill(66, nm(6), { big:true }); },
+    () => { tHL(66, 0, tX(66) - 60, tX(66) + 50); tOn(66, 'on', 200); }],
   flat:[() => { tOn(71); tPill(71, nm(11), { big:true }); },
     () => { tOn(71, 'soft'); tArrow(71, 70, 200); tOn(70, 'on', 700); tPill(70, t('downOne'), { delay:700 }); },
-    () => { tOn(71, 'soft'); tOn(70); tPill(70, FLATN[10], { big:true }); }],
+    () => { tOn(71, 'soft'); tOn(70); tPill(70, FLATN[10], { big:true }); },
+    () => { tHL(70, 0, tX(70) - 60, tX(70) + 50); tOn(70, 'on', 200); }],
   chord:[() => { [60, 64, 67].forEach((m, i) => tOn(m, 'soft', i * 200)); },
     () => { tOn(60); tPill(60, nm(0), { big:true }); },
     () => { tOn(60); tPill(60, nm(0)); tPill(62, t('skip'), { row:1, delay:300 }); tOn(64, 'on', 700); tPill(64, nm(4), { big:true, delay:700 }); tArrow(60, 64, 300); },
     () => { tOn(60); tOn(64); tPill(65, t('skip'), { row:1, delay:300 }); tOn(67, 'on', 700); tPill(67, nm(7), { big:true, delay:700 }); tArrow(64, 67, 300); },
-    () => { [60, 64, 67].forEach(m => tOn(m, 'glow')); tBracket([60, 64, 67], nm(0) + ' · ' + nm(4) + ' · ' + nm(7)); }],
+    () => { [60, 64, 67].forEach(m => tOn(m, 'glow')); tBracket([60, 64, 67], nm(0) + ' · ' + nm(4) + ' · ' + nm(7)); },
+    () => { [60, 64, 67].forEach((m, i) => { tOn(m, 'soft'); tNote(m, 400, '', i * 350); }); tSText(440, 128, nm(0) + ' · ' + nm(4) + ' · ' + nm(7), 1100); }],
 };
 function tFing(m, n, delay) { tFx(`<g class="pill fing" style="animation-delay:${delay}ms"><circle cx="${tX(m)}" cy="${TK.top + 150}" r="26"/><text x="${tX(m)}" y="${TK.top + 159}">${n}</text></g>`); }
 function tourText(name, i) {

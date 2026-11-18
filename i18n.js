@@ -318,3 +318,44 @@ STR.tSkip = ['Salta', 'Skip', 'Пропустити'];
 STR.tReplay = ['Rivedi la spiegazione', 'Watch the explanation again', 'Переглянути пояснення'];
 STR.tVoice = ['Voce', 'Voice', 'Голос'];
 STR.tYourTurn = ['Ora tocca a te.', 'Now it’s your turn.', 'Тепер твоя черга.'];
+
+// ===== Pentagramma e trucchi per ricordare (passi aggiunti in coda alle spiegazioni) =====
+const TOURS_MORE = {
+  'find:C':{
+    it:['Sul pentagramma il {c} centrale sta su una piccola linea tutta sua, a metà tra i due pentagrammi.', 'Come ricordarlo: è la nota «nel mezzo» tra violino e basso, come una cintura.'],
+    en:['On the staff, middle {c} sits on its own little line, halfway between the two staves.', 'How to remember it: the note “in the middle”, between treble and bass, like a belt.'],
+    uk:['На нотному стані середнє {c} стоїть на власній маленькій лінії, посередині між двома станами.', 'Як запам’ятати: нота «посередині» між скрипковим і басовим, наче пасок.'] },
+  middleC:{
+    it:['Sul pentagramma ha una piccola linea sua, a metà tra violino e basso: per questo è «centrale».'],
+    en:['On the staff it has its own little line, between treble and bass: that’s why it’s “middle”.'],
+    uk:['На стані в нього своя маленька лінія між скрипковим і басовим: тому воно середнє.'] },
+  'find:F':{
+    it:['Sul pentagramma il {f} centrale sta nel primo spazio, tra la prima e la seconda linea dal basso.', 'Trucco per gli spazi della chiave di violino, dal basso: {f}, {a}, {c}, {e}. Ripeti: «FA LA DO MI».'],
+    en:['On the staff, the middle {f} sits in the first space, between the first and second lines from the bottom.', 'A trick for the treble spaces, from the bottom: {f}, {a}, {c}, {e}. They spell FACE.'],
+    uk:['На нотному стані середнє {f} стоїть у першому проміжку, між першою і другою лініями знизу.', 'Підказка для проміжків скрипкового ключа знизу: {f}, {a}, {c}, {e}. Повтори: «Фа, Ля, До, Мі».'] },
+  seven:{
+    it:['Sul pentagramma le note salgono a scalini: linea, spazio, linea, spazio…', 'Trucco per le linee della chiave di violino, dal basso: {e}, {g}, {b}, {d}, {f}. Ripeti: «Mi Sol Si Re Fa».'],
+    en:['On the staff the notes climb like stairs: line, space, line, space…', 'A trick for the treble lines, from the bottom: {e}, {g}, {b}, {d}, {f}: “Every Good Boy Does Fine”.'],
+    uk:['На нотному стані ноти піднімаються сходинками: лінія, проміжок, лінія, проміжок…', 'Підказка для ліній скрипкового ключа знизу: {e}, {g}, {b}, {d}, {f}. Повтори: «Мі, Соль, Сі, Ре, Фа».'] },
+  bass:{
+    it:['Trucco per le linee della chiave di basso, dal basso: {g}, {b}, {d}, {f}, {a}. Ripeti: «Sol Si Re Fa La».'],
+    en:['A trick for the bass lines, from the bottom: {g}, {b}, {d}, {f}, {a}: “Good Boys Do Fine Always”.'],
+    uk:['Підказка для ліній басового ключа знизу: {g}, {b}, {d}, {f}, {a}. Повтори: «Соль, Сі, Ре, Фа, Ля».'] },
+  sharp:{
+    it:['Sul pentagramma il ♯ si scrive davanti alla nota, sulla sua stessa linea o spazio.'],
+    en:['On the staff the ♯ is written in front of the note, on the same line or space.'],
+    uk:['На нотному стані ♯ пишуть перед нотою, на тій самій лінії чи проміжку.'] },
+  flat:{
+    it:['Sul pentagramma il ♭ si scrive davanti alla nota, sulla sua stessa linea o spazio.'],
+    en:['On the staff the ♭ is written in front of the note, on the same line or space.'],
+    uk:['На нотному стані ♭ пишуть перед нотою, на тій самій лінії чи проміжку.'] },
+  chord:{
+    it:['Sul pentagramma {c}, {e} e {g} si scrivono una sopra l’altra: tre note impilate, come un pupazzo di neve.'],
+    en:['On the staff {c}, {e} and {g} are written on top of each other: three stacked notes, like a snowman.'],
+    uk:['На нотному стані {c}, {e} і {g} пишуть одна над одною: три ноти стовпчиком, наче сніговик.'] },
+};
+for (const [k, v] of Object.entries(TOURS_MORE)) for (const l of ['it', 'en', 'uk']) TOURS[k][l] = TOURS[k][l].concat(v[l]);
+STR.lnSpace = ['spazio', 'space', 'проміжок'];
+STR.lnLine = ['linea', 'line', 'лінія'];
+STR.lnMid = ['a metà', 'in the middle', 'посередині'];
+STR.lnChord = ['accordo', 'chord', 'акорд'];
