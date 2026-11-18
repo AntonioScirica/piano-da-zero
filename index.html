@@ -161,7 +161,7 @@
   .newp label { display:flex; flex-direction:column; gap:6px; font-weight:700; }
   .newp input { font:inherit; font-size:20px; min-height:52px; border:2px solid var(--ink); background:#fff; padding:0 14px; border-radius:0; width:min(320px,80vw); }
   .combo { font-size:18px; font-weight:900; min-height:22px; }
-  .tip { text-align:center; color:var(--mute); font-size:18px; font-weight:600; line-height:1.3; min-height:2.6em; }
+  .tip { text-align:center; color:var(--mute); font-size:17px; font-weight:600; line-height:1.3; height:2.6em; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
   .tip.hot { color:var(--ink); font-weight:800; }
   #done .anykey { font-weight:700; font-size:16px; margin-top:16px; opacity:.85; }
   #done .advice { max-width:46ch; margin:22px auto 0; font-size:18px; font-weight:600; }
@@ -229,7 +229,7 @@
   .acc { font-size:46px; } .acc.past { fill:#bdbbb4; }
   .fnum { font-size:20px; font-weight:800; text-anchor:middle; fill:var(--ink); }
   .burst { fill:none; stroke:var(--lv); stroke-width:6; transform-box:fill-box; transform-origin:center; animation:burst .7s var(--ease) forwards; }
-  .say { font-size:clamp(19px,2.9vh,28px); font-weight:800; letter-spacing:-.01em; text-align:center; line-height:1.2; min-height:2.4em; }
+  .say { font-size:clamp(19px,2.9vh,28px); font-weight:800; letter-spacing:-.01em; text-align:center; line-height:1.2; height:2.4em; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
   .say em { font-style:normal; background:var(--lv); color:var(--on-lv); padding:0 8px; }
 
   #mapbar { display:grid; grid-template-columns:auto 1fr; align-items:stretch; background:var(--ink); color:var(--paper); border-top:3px solid var(--ink); }
@@ -305,7 +305,7 @@
   /* tutorial a schermo intero */
   .tut { position:fixed; inset:0; z-index:11; background:var(--paper); display:grid; grid-template-rows:auto 1fr auto; }
   .tut-head { display:flex; align-items:center; gap:18px; background:var(--lv); color:var(--on-lv); padding:14px clamp(20px,3vw,40px); }
-  .tut-head h2 { font-size:clamp(26px,4.4vh,44px); font-weight:900; letter-spacing:-.03em; margin-right:auto; line-height:1; }
+  .tut-head h2 { font-size:clamp(26px,4.4vh,44px); font-weight:900; letter-spacing:-.03em; margin-right:auto; line-height:1.05; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
   .tut-head button { border-color:var(--on-lv); }
   .tut-dots { display:flex; gap:8px; } .tut-dots i { width:12px; height:12px; border:2px solid var(--on-lv); border-radius:50%; transition:background .3s; } .tut-dots i.on { background:var(--on-lv); }
   .tut-art { display:grid; align-content:center; justify-items:center; gap:1vh; padding:1vh clamp(16px,3vw,40px); min-height:0; }
@@ -356,7 +356,7 @@
   .tclef, .tclefb { font-family:'Noto Music',serif; fill:var(--ink); font-size:84px; } .tclefb { font-size:64px; }
   .tnote { animation:drop .7s cubic-bezier(.2,1.3,.4,1) both; } .tnote ellipse { fill:var(--ink); } .tnote text { font-size:24px; font-weight:800; text-anchor:middle; fill:var(--ink); }
   .tut-foot { display:grid; grid-template-columns:1fr auto; gap:24px; align-items:center; padding:2vh clamp(20px,4vw,60px) 3vh; border-top:3px solid var(--ink); }
-  #tutTxt { font-size:clamp(22px,3.6vh,36px); font-weight:800; line-height:1.2; letter-spacing:-.01em; max-width:42ch; }
+  #tutTxt { font-size:clamp(20px,3.2vh,32px); font-weight:800; line-height:1.2; letter-spacing:-.01em; max-width:46ch; height:2.4em; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; align-self:center; }   /* sempre 2 righe di spazio: niente salti */
   #tutTxt.in { animation:slidein .5s var(--ease) both; }
   .tut-btns { display:flex; gap:10px; } .tut-btns button { min-height:56px; font-size:18px; padding:0 24px; }
   @keyframes pillin { from { opacity:0; transform:translateY(16px) scale(.8); } to { opacity:1; transform:none; } }
@@ -429,15 +429,15 @@
 
 <script>
 // aggiornamenti: se online c'è una versione più nuova, ricarica subito quella (l'iPad tiene in memoria la pagina vecchia)
-const APP_V = '202611181838';
+const APP_V = '202611181839';
 fetch('version.json?' + Date.now(), { cache:'no-store' }).then(r => r.json()).then(j => {
   if (j.v && j.v !== APP_V && !location.search.includes('v=' + j.v)) location.replace(location.pathname + '?v=' + j.v + location.hash);
 }).catch(() => {});
 </script>
-<script src="i18n.js?v=202611181838"></script>
-<script src="curriculum.en.js?v=202611181838"></script>
-<script src="curriculum.uk.js?v=202611181838"></script>
-<script src="curriculum.js?v=202611181838"></script>
+<script src="i18n.js?v=202611181839"></script>
+<script src="curriculum.en.js?v=202611181839"></script>
+<script src="curriculum.uk.js?v=202611181839"></script>
+<script src="curriculum.js?v=202611181839"></script>
 <script>
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
