@@ -55,6 +55,16 @@
   .arcs { position:absolute; pointer-events:none; }
   .arcs circle { fill:none; stroke:currentColor; }
 
+  .session { cursor:default; }
+  .steps { list-style:none; padding:0; margin-top:20px; display:grid; gap:4px; max-width:640px; position:relative; }
+  .steps button { all:unset; box-sizing:border-box; cursor:pointer; display:flex; align-items:center; gap:14px; width:100%; min-height:46px; font-size:19px; font-weight:700; }
+  .steps button:focus-visible { outline:3px solid var(--on-lv); outline-offset:2px; }
+  .steps .num { width:32px; height:32px; flex:none; border:2px solid currentColor; display:grid; place-items:center; font-weight:900; font-size:16px; }
+  .steps small { margin-left:auto; font-weight:600; font-size:15px; }
+  .steps .done .num { background:var(--on-lv); color:var(--lv); }
+  .steps .done .l { text-decoration:line-through; text-decoration-thickness:2px; }
+  .next .go { all:unset; box-sizing:border-box; cursor:pointer; position:relative; justify-self:start; display:inline-flex; align-items:center; gap:12px; font-size:22px; font-weight:800; border:2px solid currentColor; padding:14px 22px; }
+  .next .go:hover, .next .go:focus-visible { background:var(--on-lv); color:var(--lv); }
   .levels { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:40px 28px; margin-top:56px; }
   .level h2 { font-size:22px; font-weight:800; letter-spacing:-.01em; margin:14px 0 2px; }
   .level > p { color:var(--mute); font-size:15px; margin-bottom:10px; }
@@ -424,7 +434,6 @@ const xpFor = lv => 100 * (lv - 1) ** 2;
 const titleOf = lv => TITLES[Math.min(TITLES.length - 1, Math.floor((lv - 1) / 2))];
 const dayXp = p => p.daily?.[today()] || 0;
 const weekXp = p => p.week?.[weekKey()] || 0;
-const DAILY = 60;   // circa 3 lezioni
 function streakOf(p) {
   const set = new Set(p.days), d = new Date(); let n = 0;
   if (!set.has(today())) d.setDate(d.getDate() - 1);
@@ -433,8 +442,49 @@ function streakOf(p) {
 }
 function addXp(n) {
   P.xp += n; P.daily = { [today()]: dayXp(P) + n }; P.week = { [weekKey()]: weekXp(P) + n };
-  if (!P.days.includes(today())) P.days = [...P.days, today()].slice(-400);
   saveP();
+}
+// la serie di giorni conta solo se oggi hai suonato davvero: sessione completata o 15 minuti
+const GOAL_MIN = 15;
+const minToday = p => p.mins?.[today()] || 0;
+function markDay() { if (!P.days.includes(today())) P.days = [...P.days, today()].slice(-400); }
+// ripasso a intervalli (Leitner): 3 stelle → la lezione torna dopo 1, 3, 7, 14, 30 giorni; un errore la riporta all'inizio
+const INTERVALS = [1, 3, 7, 14, 30];
+const addDays = n => { const d = new Date(); d.setDate(d.getDate() + n); return ymd(d); };
+function schedule(id, st) {
+  const box = st === 3 ? Math.min(INTERVALS.length, (P.srs[id]?.box || 0) + 1) : 1;
+  P.srs[id] = { box, due:addDays(st === 3 ? INTERVALS[box - 1] : 1) };
+}
+// riscaldamento: 5 dita (poi anche la sinistra, poi le scale) in base a dove sei arrivato
+function warmup() {
+  const lv = LEVELS.reduce((m, L, li) => L.lessons.some((x, i) => P.prog[`v2-${li}-${i}`] > 0) ? li : m, 0);
+  let n = 'C4 D4 E4 F4 G4 F4 E4 D4 C4 E4 G4 E4 C4', f = '1 2 3 4 5 4 3 2 1 3 5 3 1';
+  if (lv >= 3) { n += ' C3 D3 E3 F3 G3 F3 E3 D3 C3'; f += ' 5 4 3 2 1 2 3 4 5'; }
+  if (lv >= 8) { n = 'C4 D4 E4 F4 G4 A4 B4 C5 B4 A4 G4 F4 E4 D4 C4 C3 D3 E3 F3 G3 A3 B3 C4 B3 A3 G3 F3 E3 D3 C3'; f = '1 2 3 1 2 3 4 5 4 3 2 1 3 2 1 5 4 3 2 1 3 2 1 2 3 1 2 3 4 5'; }
+  return { t:'Riscaldamento', id:'warmup', practice:true, level:'', L:{ title:'Riscaldamento', c:'#111', ci:'#f3f3ef' }, tip:'Lento e uniforme: ogni nota con la stessa forza, dita curve.', n, f };
+}
+// la sessione di oggi: si decide una volta al giorno, poi si spunta
+function todayPlan() {
+  if (P.session?.date !== today()) {
+    const list = allLessons(), items = [{ ref:'warmup', label:'Riscaldamento', min:2 }];
+    list.filter(x => !x.imported && P.srs[x.id]?.due <= today()).sort((a, b) => P.srs[a.id].due.localeCompare(P.srs[b.id].due))
+      .slice(0, 2).forEach(x => items.push({ ref:x.id, label:`Ripasso · ${x.t}`, min:3 }));
+    const ni = list.findIndex((x, i) => !x.imported && unlocked(list, i) && !(P.prog[x.id] > 0));
+    const news = ni < 0 ? [] : list.slice(ni, ni + (items.length > 1 ? 1 : 2)).filter(x => !x.imported);   // senza ripassi: due lezioni nuove
+    news.forEach(nx => items.push({ ref:nx.id, label:`${nx.goal ? 'Obiettivo' : 'Nuova'} · ${nx.t}`, min:6 }));
+    if (drillPool().length >= 3) items.push({ ref:'drill', label:'Lettura · Allenamento lampo', min:2 });
+    const sp = list.filter(x => x.song && x.part >= 0).sort((a, b) => (P.prog[a.id] || 0) - (P.prog[b.id] || 0))[0];
+    if (sp) items.push({ ref:sp.id, label:`Premio · ${sp.t} (${sp.sub})`, min:4 });
+    P.session = { date:today(), items, done:[] }; saveP();
+  }
+  return P.session;
+}
+const sessionLeft = () => { const se = todayPlan(); return se.items.filter(it => !se.done.includes(it.ref)); };
+function runItem(it) {
+  if (it.ref === 'warmup') return start(warmup());
+  if (it.ref === 'drill') return start('drill');
+  const i = allLessons().findIndex(x => x.id === it.ref);
+  if (i >= 0) start(i); else { P.session.done.push(it.ref); saveP(); renderHome(); }   // canzone eliminata: si salta
 }
 // vecchie canzoni salvate come soli passi
 songs = songs.map(s => s.mel ? s : { ...s, div:480, tempo:500000, acc:[], mel:s.steps.flatMap((g, i) => g.map(m => [i * 480, m])) });
@@ -468,12 +518,12 @@ function showWho() {
     e.preventDefault();
     const name = $('#pname').value.trim(); if (!name) return;
     const [c, ci] = PCOL[profiles.length % PCOL.length];
-    profiles.push({ id:'p' + Date.now(), name, c, ci, xp:0, prog:profiles.length ? {} : store.get('progress', {}), days:[], daily:{}, week:{}, best:0, err:{} });
+    profiles.push({ id:'p' + Date.now(), name, c, ci, xp:0, prog:profiles.length ? {} : store.get('progress', {}), days:[], daily:{}, week:{}, best:0, err:{}, srs:{} });
     saveP(); pick(profiles.length - 1);
   };
   (w.querySelector('.player') || $('#pname')).focus();
 }
-function pick(i) { P = profiles[i]; P.err ||= {}; store.set('current', P.id); $('#who').hidden = true; goHome(); }
+function pick(i) { P = profiles[i]; P.err ||= {}; P.srs ||= {}; store.set('current', P.id); $('#who').hidden = true; goHome(); }
 
 // ===== Home =====
 function drillPool() {   // le note singole delle lezioni già superate
@@ -493,6 +543,7 @@ function renderHome() {
   const ni = Math.max(0, list.findIndex((x, i) => !x.imported && unlocked(list, i) && !(P.prog[x.id] > 0)));
   const nx = list[ni] || list[0];
   setLevel(nx.L);
+  const se = todayPlan(), left = sessionLeft(), mins = Math.floor(minToday(P));
   const lv = lvOf(P.xp), st = streakOf(P), dx = dayXp(P), into = P.xp - xpFor(lv), need = xpFor(lv + 1) - xpFor(lv);
   const me = $('#me'); me.style.setProperty('--pc', P.c); me.style.setProperty('--pci', P.ci);
   me.innerHTML = `<i>${esc(P.name[0].toUpperCase())}</i><span>${esc(P.name)}<small>Lv ${lv} · ${titleOf(lv)} · cambia</small></span>`;
@@ -500,14 +551,16 @@ function renderHome() {
   const pool = drillPool(), ranked = [...profiles].sort((a, b) => weekXp(b) - weekXp(a) || b.xp - a.xp);
   home.innerHTML = `<div class="stats">
       <div class="stat"><b>${icon('flame')}${st}</b><span>${st === 1 ? 'giorno' : 'giorni'} di fila</span></div>
-      <div class="stat"><b>${Math.min(dx, DAILY)}<small>/${DAILY} XP</small></b><span>${dx >= DAILY ? 'Obiettivo di oggi raggiunto' : 'Obiettivo di oggi'}</span><div class="meter"><i style="width:${Math.min(100, dx / DAILY * 100)}%"></i></div></div>
+      <div class="stat"><b>${mins}<small>/${GOAL_MIN} min</small></b><span>${mins >= GOAL_MIN ? 'Pratica di oggi fatta' : 'Pratica di oggi'} · ${dx} XP</span><div class="meter"><i style="width:${Math.min(100, mins / GOAL_MIN * 100)}%"></i></div></div>
       <div class="stat"><b>Lv ${lv}<small>${titleOf(lv)}</small></b><span>${into}/${need} XP al livello ${lv + 1}</span><div class="meter"><i style="width:${into / need * 100}%"></i></div></div>
     </div>
-    <button class="next on-colour" id="continue">
-      ${arcs(620, 4, 3.2, 'right:-240px;top:-300px')}
-      <div><h1>${esc(nx.t)}</h1><p>${nx.goal ? 'Obiettivo del livello · ' : ''}Livello ${nx.level} · ${esc(nx.L.title)}</p></div>
-      <span class="go">${ni === 0 && !P.prog[nx.id] ? 'Inizia' : 'Continua'} ${icon('arrow')}</span>
-    </button>
+    <section class="next on-colour session">
+      ${arcs(560, 4, 3.2, 'right:-260px;top:-330px')}
+      <div><h1>${left.length ? 'La sessione di oggi' : 'Sessione completata.'}</h1>
+        <p>${left.length ? `Circa ${se.items.reduce((a, it) => a + it.min, 0)} minuti · ${se.items.length - left.length} di ${se.items.length} fatti` : 'Ottimo lavoro. Domani una nuova sessione, intanto puoi andare avanti.'}</p>
+        <ol class="steps">${se.items.map((it, k) => `<li class="${se.done.includes(it.ref) ? 'done' : ''}"><button data-k="${k}"><span class="num">${se.done.includes(it.ref) ? '✓' : k + 1}</span><span class="l">${esc(it.label)}</span><small>${it.min} min</small></button></li>`).join('')}</ol></div>
+      <button class="go" id="continue">${left.length ? (left.length === se.items.length ? 'Inizia' : 'Continua') : `Prossima lezione: ${esc(nx.t)}`} ${icon('arrow')}</button>
+    </section>
     <div class="row2">
       <button class="drill" id="drill" aria-disabled="${pool.length < 3}">${arcs(300, 3, 3, 'right:-90px;bottom:-120px')}
         <h2>Allenamento lampo</h2><p>${pool.length < 3 ? 'Si sblocca dopo le prime lezioni del Livello 0.' : `20 note a caso tra quelle che conosci. Fai combo per punti doppi e tripli.`}</p></button>
@@ -515,7 +568,8 @@ function renderHome() {
         ${profiles.length < 2 ? '<p class="hint">Per sfidare qualcuno tocca il tuo nome in alto e aggiungi un giocatore.</p>' : ''}</section>
     </div>
     <div class="levels" id="levels"></div>`;
-  $('#continue').onclick = () => start(ni);
+  $('#continue').onclick = () => left.length ? runItem(left[0]) : start(ni);
+  home.querySelectorAll('.steps button').forEach(b => b.onclick = () => runItem(se.items[+b.dataset.k]));
   $('#drill').onclick = () => pool.length >= 3 && start('drill');
   LEVELS.forEach((L, li) => {
     const own = list.map((x, i) => [x, i]).filter(([x]) => x.level === li);
@@ -706,13 +760,13 @@ function start(i) {
   else cur = allLessons()[i];
   cur.st = cur.st0 ? cur.st0.map(x => ({ ...x })) : compile(cur);
   if (!cur.repair) { pending = null; history.replaceState(null, '', i === 'drill' ? '#allenamento' : `#lezione-${i}`); }
-  step = 0; hit.clear(); wrongKeys.clear(); errors = 0; burst = -1; combo = 0; bestCombo = 0; lessonXp = 0; errSteps.clear(); stepErr = 0;
+  lastAct = 0; step = 0; hit.clear(); wrongKeys.clear(); errors = 0; burst = -1; combo = 0; bestCombo = 0; lessonXp = 0; errSteps.clear(); stepErr = 0;
   $('#base').hidden = !(cur.song || cur.acc); baseLabel();
   setLevel(cur.L);
   $('#home-view').hidden = true; $('#player').hidden = false; $('#done').hidden = true;
   $('#band-arcs').innerHTML = arcs(460, 4, 3, 'right:-170px;top:-270px');
   $('#title').textContent = cur.t;
-  $('#sub').textContent = cur.repair ? cur.sub : cur.imported ? `${cur.sub} · ${songDiff === 'facile' ? 'Facile' : 'Normale'}` : cur.id === 'drill' ? 'Allenamento' : `${cur.goal ? 'Obiettivo · ' : ''}Livello ${cur.level} · ${cur.L.title}`;
+  $('#sub').textContent = cur.repair ? cur.sub : cur.practice ? 'Allenamento' : cur.imported ? `${cur.sub} · ${songDiff === 'facile' ? 'Facile' : 'Normale'}` : cur.id === 'drill' ? 'Allenamento' : `${cur.goal ? 'Obiettivo · ' : ''}Livello ${cur.level} · ${cur.L.title}`;
   setTip(cur.cards ? '' : cur.tip || '');
   buildKeys(); render();
 }
@@ -922,7 +976,7 @@ function finish() {
     return p.ci >= p.chunks.length ? showDone(p) : startRepair();
   }
   const res = { lesson:cur, idx, errors, bestCombo, lessonXp, n:cur.st.length, fixed:0, repairXp:0 };
-  const chunks = cur.id === 'drill' ? [] : makeChunks(cur.st, errSteps);
+  const chunks = cur.id === 'drill' || cur.practice ? [] : makeChunks(cur.st, errSteps);
   saveP();
   if (chunks.length) { pending = { ...res, chunks, ci:0, rep:0 }; return startRepair(); }
   showDone(res);
@@ -930,24 +984,33 @@ function finish() {
 function showDone(r) {
   pending = null; cur = r.lesson; idx = r.idx; setLevel(cur.L);
   const st = r.errors <= 1 ? 3 : r.errors <= Math.max(3, r.n * 0.15) ? 2 : 1;
-  const first = cur.id !== 'drill' && !(P.prog[cur.id] > 0);
+  const practice = cur.id === 'drill' || cur.practice;
+  const first = !practice && !(P.prog[cur.id] > 0);
   const total = r.lessonXp + st * 5 + (first ? 20 : 0) + r.repairXp, before = lvOf(P.xp);
-  if (cur.id !== 'drill') P.prog[cur.id] = Math.max(P.prog[cur.id] || 0, st);
+  if (!practice) { P.prog[cur.id] = Math.max(P.prog[cur.id] || 0, st); if (!cur.imported) schedule(cur.id, st); }
+  const se = todayPlan(), inSession = se.items.some(it => it.ref === cur.id) && !se.done.includes(cur.id);
+  if (inSession) se.done.push(cur.id);
+  const sessionDone = inSession && se.done.length === se.items.length;
+  if (sessionDone || minToday(P) >= GOAL_MIN) markDay();
+  const nextIt = sessionLeft()[0];
   P.best = Math.max(P.best || 0, r.bestCombo);
   addXp(total);
-  const after = lvOf(P.xp), list = allLessons(), hasNext = cur.id === 'drill' || idx + 1 < list.length;
+  const after = lvOf(P.xp), list = allLessons(), hasNext = practice || idx + 1 < list.length;
   const advice = r.errors > 4 ? 'Molti errori: rifalla più lenta. Tre volte giuste valgono più di trenta sbagliate.' : ADVICE[(P.xp + r.n) % ADVICE.length];
   const d = $('#done');
   d.innerHTML = `${arcs(1400, 4, 1.6, 'left:50%;top:50%;transform:translate(-50%,-50%)', 33)}<div class="inner">
     <h2 id="done-h">${st === 3 ? 'Perfetto.' : 'Fatto.'}</h2><div class="big" aria-label="${st} stelle su 3">${stars(st)}</div>
     <div class="gain"><div><b>+${total}</b><span>XP${first ? ' (+20 prima volta)' : ''}</span></div><div><b>${r.bestCombo}</b><span>combo migliore</span></div><div><b>${r.errors}</b><span>${r.errors === 1 ? 'errore' : 'errori'}</span></div>${r.fixed ? `<div><b>${r.fixed}</b><span>${r.fixed === 1 ? 'punto riparato' : 'punti riparati'}</span></div>` : ''}<div><b>${streakOf(P)}</b><span>giorni di fila</span></div></div>
     ${after > before ? `<p class="lvup">Livello ${after} raggiunto · ${titleOf(after)}</p>` : ''}
+    ${sessionDone ? `<p class="lvup">Sessione di oggi completata · ${streakOf(P)} ${streakOf(P) === 1 ? 'giorno' : 'giorni'} di fila</p>` : ''}
     <p class="advice">${esc(advice)}</p>
-    <div class="acts">${hasNext ? `<button class="primary" id="next">${cur.id === 'drill' ? 'Ancora' : 'Prossima lezione'} ${icon('arrow')}</button>` : ''}
+    <div class="acts">${inSession && nextIt ? `<button class="primary" id="snext">Avanti nella sessione ${icon('arrow')}</button>` : ''}${hasNext ? `<button class="${inSession && nextIt ? '' : 'primary'}" id="next">${cur.id === 'drill' ? 'Ancora' : practice ? 'Di nuovo' : 'Prossima lezione'} ${icon('arrow')}</button>` : ''}
       <button id="again">${icon('restart')} Riprova</button><button id="home-btn">Home</button></div></div>`;
   $('#player').hidden = false; d.hidden = false;
   $('#again').onclick = () => start(idx);
-  if (hasNext) { $('#next').onclick = () => start(cur.id === 'drill' ? 'drill' : idx + 1); $('#next').focus(); } else $('#home-btn').focus();
+  if (hasNext) $('#next').onclick = () => start(cur.id === 'drill' ? 'drill' : cur.practice ? warmup() : idx + 1);
+  if (inSession && nextIt) $('#snext').onclick = () => runItem(nextIt);
+  ($('#snext') || $('#next') || $('#home-btn')).focus();
   $('#home-btn').onclick = goHome;
 }
 function goHome() { history.replaceState(null, '', location.pathname); clearTimeout(idleT); pending = null; cur = null; $('#player').hidden = true; $('#done').hidden = true; $('#home-view').hidden = false; renderHome(); }
@@ -1009,7 +1072,10 @@ function backing(s, i) {
     if (!micOn) CH[s.acc].forEach(m => beep(m + 12, len * beat, 0.02, 0.06));
   }
 }
+let lastAct = 0;
 function noteOn(m, src) {
+  const now = performance.now();
+  if (P && cur && !$('#player').hidden) { if (lastAct) P.mins = { [today()]:minToday(P) + Math.min(10000, now - lastAct) / 60000 }; lastAct = now; }   // pause oltre 10 s non contano
   if (src === 'mic' && heard[m % 12] > performance.now()) return;   // è la base, non la pianola
   if (src === 'screen' || src === 'pc') beep(m);   // la pianola suona già da sola
   const k = $(`.key[data-m="${m}"]`);
@@ -1086,7 +1152,7 @@ console.assert(token('*F#').any.every(m => m % 12 === 6) && token('*#').any.ever
 console.assert(LEVELS.every(L => L.lessons.every(x => compile(x).every(s => s.next || (s.need || s.any).every(Number.isInteger)))), 'curriculum');
 console.assert(compile(LEVELS[1].lessons[0])[1].finger === 2, 'dita automatiche');
 P = profiles.find(p => p.id === store.get('current'));
-if (P) P.err ||= {};
+if (P) { P.err ||= {}; P.srs ||= {}; }
 if (!P) showWho();
 else {
   renderHome();
