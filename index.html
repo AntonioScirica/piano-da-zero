@@ -309,8 +309,10 @@
   .tut-head button { border-color:var(--on-lv); }
   .tut-dots { display:flex; gap:8px; } .tut-dots i { width:12px; height:12px; border:2px solid var(--on-lv); border-radius:50%; transition:background .3s; } .tut-dots i.on { background:var(--on-lv); }
   .tut-art { display:grid; align-content:center; justify-items:center; gap:1vh; padding:1vh clamp(16px,3vw,40px); min-height:0; }
-  .tut-art svg { width:min(100%, 1140px); height:auto; max-height:64vh; overflow:visible; }
-  #tutStaff { max-height:22vh; } .tut-art:has(#tutStaff) #tutKb { max-height:44vh; }
+  .tut-col { width:min(100%, 1140px, calc((100dvh - 200px) * 1.22)); display:grid; gap:1vh; }   /* pentagramma e tastiera larghi uguali: la nota sta sopra il suo tasto */
+  .tut-art svg { width:100%; height:auto; overflow:visible; display:block; }
+
+  .tacc { font-family:'Noto Music',serif; font-size:40px; fill:var(--ink); }
   .twk { fill:#fff; stroke:var(--ink); stroke-width:2.5; transition:fill .45s var(--ease), transform .45s var(--ease); transform-box:fill-box; transform-origin:top; }
   .tbk { fill:var(--ink); transition:fill .45s var(--ease), transform .45s var(--ease); transform-box:fill-box; transform-origin:top; }
   .twk.on, .tbk.on { fill:var(--lv); transform:scaleY(.985) translateY(4px); }
@@ -351,7 +353,7 @@
   .brk text { font-size:30px; font-weight:900; text-anchor:middle; fill:var(--ink); animation:pillin .5s .4s both; } .brk { animation:none; }
   .arrow { stroke:var(--lv); stroke-width:5; } .ahead { fill:var(--lv); }
   .tsl { stroke:var(--ink); stroke-width:2; } .fadein { animation:fadein .5s ease-out both; } @keyframes fadein { from { opacity:0; } to { opacity:1; } }
-  .tclef, .tclefb { font-family:'Noto Music',serif; fill:var(--ink); font-size:96px; } .tclefb { font-size:86px; }
+  .tclef, .tclefb { font-family:'Noto Music',serif; fill:var(--ink); font-size:84px; } .tclefb { font-size:64px; }
   .tnote { animation:drop .7s cubic-bezier(.2,1.3,.4,1) both; } .tnote ellipse { fill:var(--ink); } .tnote text { font-size:24px; font-weight:800; text-anchor:middle; fill:var(--ink); }
   .tut-foot { display:grid; grid-template-columns:1fr auto; gap:24px; align-items:center; padding:2vh clamp(20px,4vw,60px) 3vh; border-top:3px solid var(--ink); }
   #tutTxt { font-size:clamp(22px,3.6vh,36px); font-weight:800; line-height:1.2; letter-spacing:-.01em; max-width:42ch; }
@@ -427,15 +429,15 @@
 
 <script>
 // aggiornamenti: se online c'è una versione più nuova, ricarica subito quella (l'iPad tiene in memoria la pagina vecchia)
-const APP_V = '202611181833';
+const APP_V = '202611181838';
 fetch('version.json?' + Date.now(), { cache:'no-store' }).then(r => r.json()).then(j => {
   if (j.v && j.v !== APP_V && !location.search.includes('v=' + j.v)) location.replace(location.pathname + '?v=' + j.v + location.hash);
 }).catch(() => {});
 </script>
-<script src="i18n.js?v=202611181833"></script>
-<script src="curriculum.en.js?v=202611181833"></script>
-<script src="curriculum.uk.js?v=202611181833"></script>
-<script src="curriculum.js?v=202611181833"></script>
+<script src="i18n.js?v=202611181838"></script>
+<script src="curriculum.en.js?v=202611181838"></script>
+<script src="curriculum.uk.js?v=202611181838"></script>
+<script src="curriculum.js?v=202611181838"></script>
 <script>
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -1037,6 +1039,7 @@ function tOn(m, cls = 'on', delay = 0) {
     const k = tKey(m); if (!k) return;
     k.classList.remove('press'); k.getBoundingClientRect(); k.classList.add(cls, ...(cls === 'on' || cls === 'glow' ? ['press'] : []));
     if (cls === 'on') { mTo(m); later(380, () => tSpark(m)); }   // la mascotte ci salta sotto e lo "preme"
+    if ((cls === 'on' || cls === 'glow') && (!SHARP[m % 12] || ['sharp', 'flat'].includes(tour?.name))) tNote(m, tX(m));   // la stessa nota sul pentagramma, sopra il tasto
   });
 }
 function tFx(html) { $('#tfx').insertAdjacentHTML('beforeend', html); }
@@ -1057,16 +1060,20 @@ function tArrow(m1, m2, delay = 0) {
   tFx(`<path d="M${x1} ${y} C ${x1} ${top}, ${x2} ${top}, ${x2} ${y - 6}" class="draw arrow" marker-end="url(#ahead)" style="animation-delay:${delay}ms"/>`);
 }
 // pentagramma del tutorial: note che cadono al loro posto
-const tStaffY = m => m >= 60 ? 176 - (dia(m) - 30) * 9 : 176 - (dia(m) - 18) * 9;   // linea in basso: Mi4 (violino) / Sol2 (basso)
-function tStaff(bass) {
-  let h = '';
-  for (let i = 0; i < 5; i++) h += `<line x1="40" x2="960" y1="${104 + i * 18}" y2="${104 + i * 18}" class="tsl fadein" style="animation-delay:${i * 80}ms"/>`;
-  h += bass ? `<text x="60" y="160" class="tclefb">𝄢</text>` : `<text x="56" y="180" class="tclef">𝄞</text>`;
+// pentagramma doppio (violino sopra, basso sotto) largo come la tastiera: ogni nota compare proprio sopra il suo tasto
+const tStaffY = (m, d = dia(m)) => m >= 60 ? 132 - (d - 30) * 9 : 272 - (d - 18) * 9;   // linee in basso: Mi4 (violino) / Sol2 (basso)
+function tStaff() {
+  let h = `<line x1="16" x2="16" y1="60" y2="272" class="tsl" style="stroke-width:4"/>`;
+  for (let i = 0; i < 5; i++) h += `<line x1="16" x2="990" y1="${60 + i * 18}" y2="${60 + i * 18}" class="tsl"/><line x1="16" x2="990" y1="${200 + i * 18}" y2="${200 + i * 18}" class="tsl"/>`;
+  h += `<text x="22" y="138" class="tclef">𝄞</text><text x="26" y="250" class="tclefb">𝄢</text>`;
   $('#tutStaff').innerHTML = h + '<g id="tnotes"></g>';
 }
 function tNote(m, x, label, delay = 0) {
-  const y = tStaffY(m), led = m === 60 ? `<line x1="${x - 26}" x2="${x + 26}" y1="${y}" y2="${y}" class="tsl"/>` : '';
-  $('#tnotes').insertAdjacentHTML('beforeend', `<g class="tnote" style="animation-delay:${delay}ms">${led}<ellipse cx="${x}" cy="${y}" rx="15" ry="11" transform="rotate(-20 ${x} ${y})"/>${label ? `<text x="${x}" y="${y - 26}">${esc(label)}</text>` : ''}</g>`);
+  if (!$('#tnotes') || tour?.noted?.has(m)) return; tour?.noted?.add(m);
+  const fl = tour?.name === 'flat' && SHARP[m % 12], d = fl ? dia(m + 1) : dia(m), y = tStaffY(m, d);
+  const led = m === 60 ? `<line x1="${x - 26}" x2="${x + 26}" y1="${y}" y2="${y}" class="tsl"/>` : '';
+  const acc = SHARP[m % 12] ? `<text x="${x - 30}" y="${y + 10}" class="tacc">${fl ? '♭' : '♯'}</text>` : '';
+  $('#tnotes').insertAdjacentHTML('beforeend', `<g class="tnote" style="animation-delay:${delay}ms">${led}${acc}<ellipse cx="${x}" cy="${y}" rx="15" ry="11" transform="rotate(-20 ${x} ${y})"/><text x="${x}" y="${y - 22}">${esc(label ?? (fl ? FLATN[m % 12] : nm(m % 12)))}</text></g>`);
 }
 const STAFF_TOURS = { staff:false, bass:true, intervals:false };
 const TUT = {
@@ -1094,16 +1101,16 @@ const TUT = {
   fingers:[() => { tOn(60); tFing(60, 1, 0); },
     () => [60, 62, 64, 65, 67].forEach((m, i) => { tOn(m, 'on', i * 350); tFing(m, i + 1, i * 350); }),
     () => [60, 62, 64, 65, 67].forEach((m, i) => { tOn(m); tFing(m, i + 1, 0); tPill(m, nm(m % 12), { delay:200 + i * 120, row:i % 2 }); })],
-  staff:[() => tStaff(false),
-    () => { tStaff(false); tNote(60, 200, nm(0)); tOn(60, 'on', 300); },
-    () => { tStaff(false); [60, 62, 64, 65, 67].forEach((m, i) => { tNote(m, 200 + i * 160, nm(m % 12), i * 450); tOn(m, 'on', i * 450); }); }],
-  bass:[() => tStaff(true),
-    () => { tStaff(true); tNote(48, 200, nm(0)); tOn(48, 'on', 300); },
-    () => { tStaff(true); [48, 50, 52, 53, 55].forEach((m, i) => { tNote(m, 200 + i * 160, nm(m % 12), i * 450); tOn(m, 'on', i * 450); }); }],
-  intervals:[() => tStaff(false),
-    () => { tStaff(false); tNote(60, 300); tNote(62, 520, t('iv2'), 400); tOn(60); tOn(62, 'on', 400); tArrow(60, 62, 400); },
-    () => { tStaff(false); tNote(60, 300); tNote(64, 520, t('iv3'), 400); tOn(60); tOn(62, 'soft', 200); tOn(64, 'on', 400); tArrow(60, 64, 400); },
-    () => { tStaff(false); tNote(60, 260); tNote(65, 460, t('iv4'), 300); tNote(67, 700, t('iv5'), 1100); tOn(60); tOn(65, 'on', 300); tOn(67, 'on', 1100); tArrow(60, 65, 300); tArrow(60, 67, 1100); }],
+  staff:[() => mDo('wave'),
+    () => { tOn(60, 'on', 300); },
+    () => { [60, 62, 64, 65, 67].forEach((m, i) => tOn(m, 'on', i * 450)); }],
+  bass:[() => mDo('wave'),
+    () => { tOn(48, 'on', 300); },
+    () => { [48, 50, 52, 53, 55].forEach((m, i) => tOn(m, 'on', i * 450)); }],
+  intervals:[() => mDo('wave'),
+    () => { tOn(60); tOn(62, 'on', 400); tArrow(60, 62, 400); tPill(62, t('iv2'), { big:true, delay:500 }); },
+    () => { tOn(60); tOn(62, 'soft', 200); tOn(64, 'on', 400); tArrow(60, 64, 400); tPill(64, t('iv3'), { big:true, delay:500 }); tPill(62, t('skip'), { row:1, delay:200 }); },
+    () => { tOn(60); tOn(65, 'on', 300); tOn(67, 'on', 1100); tArrow(60, 65, 300); tArrow(60, 67, 1100); tPill(65, t('iv4'), { delay:400 }); tPill(67, t('iv5'), { big:true, row:1, delay:1200 }); }],
   sharp:[() => { tOn(65); tPill(65, nm(5), { big:true }); },
     () => { tOn(65, 'soft'); tArrow(65, 66, 200); tOn(66, 'on', 700); tPill(66, t('upOne'), { delay:700 }); },
     () => { tOn(65, 'soft'); tOn(66); tPill(66, nm(6), { big:true }); }],
@@ -1128,8 +1135,8 @@ function startTour(name, key) {
   tour = { name, key, i:0, n, t0:performance.now() };
   const d = $('#tut'); d.hidden = false;
   d.innerHTML = `<header class="tut-head on-colour"><button class="icon" id="tutClose" aria-label="${t('tSkip')}">${icon('back')}</button><h2>${esc(card?.h || cur.t)}</h2><span class="tut-dots">${Array.from({ length:n }, (_, i) => `<i data-i="${i}"></i>`).join('')}</span></header>
-    <div class="tut-art">${name in STAFF_TOURS ? '<svg id="tutStaff" viewBox="0 0 1000 230" aria-hidden="true"></svg>' : ''}
-      <svg id="tutKb" viewBox="0 -10 1000 ${TK.top + TK.wh + 145}" role="img" aria-label="${esc(card?.h || '')}"><defs><marker id="ahead" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="ahead"/></marker></defs><g id="tkeys">${tutKeyboard()}</g><g id="tfx"></g>${mascot(tX(60), MY()).replace('class="masc ', 'id="masc" class="masc ')}</svg></div>
+    <div class="tut-art"><div class="tut-col"><svg id="tutStaff" viewBox="0 30 1000 270" aria-hidden="true"></svg>
+      <svg id="tutKb" viewBox="0 -10 1000 ${TK.top + TK.wh + 145}" role="img" aria-label="${esc(card?.h || '')}"><defs><marker id="ahead" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="ahead"/></marker></defs><g id="tkeys">${tutKeyboard()}</g><g id="tfx"></g>${mascot(tX(60), MY()).replace('class="masc ', 'id="masc" class="masc ')}</svg></div></div>
     <div class="tut-foot"><p id="tutTxt" aria-live="polite"></p><div class="tut-btns"><button id="tutBack">${icon('back')} ${t('tutBack')}</button><button class="primary" id="tutNext"></button></div></div>`;
   $('#tutClose').onclick = () => endTour();
   $('#tutBack').onclick = () => { if (tour.i > 0) { tour.i--; tourStep(); } };
@@ -1141,7 +1148,7 @@ function tourStep() {
   stopAnim();
   const { name, i, n } = tour;
   document.querySelectorAll('#tutKb .on, #tutKb .soft, #tutKb .glow').forEach(k => k.classList.remove('on', 'soft', 'glow'));
-  $('#tfx').innerHTML = ''; if ($('#tutStaff')) $('#tutStaff').innerHTML = '';
+  $('#tfx').innerHTML = ''; tour.noted = new Set(); tStaff();
   TUT[name][i]();
   if (i === 0) { mDo('wave'); tWhites().forEach((m, k) => later(k * 35, () => { const e = tKey(m); e?.classList.remove('ripple'); e?.getBoundingClientRect(); e?.classList.add('ripple'); })); }
   if (i === n - 1) later(900, () => mDo('cheer', 1800));
@@ -1186,7 +1193,7 @@ function render() {
   $('#combo').textContent = combo >= 3 ? t('combo', { n:combo }) + (multOf(combo) > 1 ? t('comboX', { m:multOf(combo) }) : '') : '';
   $('#bar').style.width = 100 * step / total + '%';
   // scena: scheda di teoria e/o pentagramma
-  const showStaff = !card || card.staff;
+  const showStaff = true;   // il pentagramma si vede sempre
   $('#stage').className = 'stage ' + (card ? (showStaff ? 'with-card' : 'card-only') : '');
   $('#card').hidden = !card;
   if (card) {
@@ -1243,6 +1250,7 @@ function drawStaff(names) {
     const idxS = from + k, x = PLAY_X + s.beat * PXB, rel = idxS - step, past = rel < 0 ? 'past' : '';
     if (bars && s.beat % bpb === 0 && s.beat > 0) h += `<line x1="${x - 22}" x2="${x - 22}" y1="64" y2="246" class="sl bar"/>`;
     if (s.rest) { h += `<text x="${x}" y="${s.dur >= 2 ? 92 : 102}" class="rest ${past}">${RESTS[s.dur >= 4 ? 0 : s.dur >= 2 ? 1 : s.dur >= 1 ? 2 : s.dur >= .5 ? 3 : 4]}</text>`; return; }
+    if (!s.need && s.any && new Set(s.any.map(m => m % 12)).size === 1) { const r = s.any.find(m => m >= 60 && m < 72) ?? s.any[0]; s = { ...s, need:[r], flats:s.flat ? [r] : undefined }; }   // "uno qualsiasi": si mostra quello in mezzo
     if (!s.need) return;
     if ((cur.lead || cur.cards?.[s.card]?.lead) && s.acc && s.acc !== '.') h += `<text x="${x - 10}" y="26" class="sym ${past}">${esc(s.acc)}</text>`;
     const dot = [0.75, 1.5, 3].includes(s.dur), base = dot ? s.dur / 1.5 : s.dur;
