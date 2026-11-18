@@ -1283,7 +1283,7 @@ const MICS = {   // quanto filtrare la voce: leggero = riconosce di più, forte 
   leggero:{ classic:true },   // il riconoscimento originale: nota ferma per 3 letture
   medio:  { win:420, frames:3, spread:0.5, cents:32, clarity:0.62, ratio:1.4 },
   forte:  { win:300, frames:4, spread:0.3, cents:22, clarity:0.8, ratio:1.6 } };
-let micLevel = store.get('micLevel', 'medio'), MIC = MICS[micLevel] || MICS.medio;
+let micLevel = store.get('micMode', 'leggero'), MIC = MICS[micLevel] || MICS.leggero;   // nuova chiave: tutti ripartono dal riconoscimento originale
 function micPick(fr) {   // fr: semitoni stimati (decimali) dopo l'ultimo attacco
   if (fr.length < MIC.frames) return null;
   const r = fr.slice(-MIC.frames), avg = r.reduce((x, y) => x + y) / r.length, m = Math.round(avg);
@@ -1294,9 +1294,10 @@ const micLabel = () => $('#mic').innerHTML = icon('mic') + (micOn ? 'Microfono a
 micLabel();
 async function startMic() {
   if (micOn) return;
+  try { audio().resume(); } catch {}   // iPad: l'audio va acceso durante il tocco, prima di aspettare il permesso
   if (!navigator.mediaDevices?.getUserMedia) { alert('Il microfono funziona solo da un indirizzo https:// o da localhost.'); return; }
   try {
-    const s = await navigator.mediaDevices.getUserMedia({ audio:{ echoCancellation:false, noiseSuppression:false, autoGainControl:false }   /* l'eco-cancellazione di iOS tratta la musica come rumore */ });
+    const s = await navigator.mediaDevices.getUserMedia({ audio:{ echoCancellation:true, noiseSuppression:false, autoGainControl:false } });
     const a = audio(); await a.resume();
     const an = a.createAnalyser(); an.fftSize = 2048;
     a.createMediaStreamSource(s).connect(an);
@@ -1332,7 +1333,7 @@ let micTried = false;
 addEventListener('pointerdown', () => { if (!micOn && !micTried && !midiCount) { micTried = true; startMic(); } }, true);
 
 $('#sens').value = micLevel;
-$('#sens').onchange = e => { micLevel = e.target.value; MIC = MICS[micLevel]; store.set('micLevel', micLevel); };
+$('#sens').onchange = e => { micLevel = e.target.value; MIC = MICS[micLevel]; store.set('micMode', micLevel); };
 $('#names').checked = showNames;
 $('#names').onchange = e => { showNames = e.target.checked; store.set('names', showNames); };
 
