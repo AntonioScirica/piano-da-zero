@@ -115,6 +115,7 @@
   .results li span { font-weight:700; } .results small { display:block; color:var(--mute); font-weight:600; font-size:13px; }
   .results button { min-height:44px; font-size:15px; }
   .results .more { grid-template-columns:1fr; }
+  .search .ext { margin-top:12px; display:grid; gap:8px; justify-items:start; } .search .ext .btn { text-decoration:none; }
   .song { border-bottom:1px solid var(--line); padding:12px 0; }
   .song h3 { font-size:17px; font-weight:800; display:flex; justify-content:space-between; align-items:center; gap:8px; }
   .song h3 button { border:0; min-height:44px; width:44px; padding:0; justify-content:center; color:var(--mute); }
@@ -193,6 +194,7 @@
   .flag { fill:none; stroke:var(--ink); stroke-width:2.6; } .flag.past { stroke:#bdbbb4; }
   .rest { font-family:'Noto Music',serif; font-size:42px; text-anchor:middle; fill:var(--ink); } .rest.past { fill:#bdbbb4; }
   .sl.bar { stroke-width:1.6; }
+  .playhead { stroke:var(--lv); stroke-width:4; } .playtip { fill:var(--lv); }
   .sym { font-size:24px; font-weight:900; fill:var(--ink); } .sym.past { fill:#bdbbb4; } .stem.past, .sl.past { stroke:#bdbbb4; }
   .note { fill:var(--ink); } .note.past { fill:#bdbbb4; } .note.hit { fill:var(--lv); stroke:var(--ink); stroke-width:2; }
   .halo { fill:none; stroke:var(--lv); }
@@ -586,7 +588,9 @@ function searchUI() {
   w.className = 'search'; w.setAttribute('role', 'search');
   w.innerHTML = `<label for="sq">Cerca una canzone</label>
     <div class="srow"><input id="sq" type="search" value="${esc(srch.q)}" placeholder="Titolo o artista" autocomplete="off" enterkeyhint="search"><button class="primary">${icon('search')} Cerca</button></div>
-    <p class="msg" role="status">${esc(srch.msg)}</p><ul class="results"></ul>`;
+    <p class="msg" role="status">${esc(srch.msg)}</p><ul class="results"></ul>
+    ${srch.q && !srch.items.length && srch.msg !== 'Cerco…' ? `<div class="ext"><a class="btn" href="https://musescore.com/sheetmusic?text=${encodeURIComponent(srch.q)}" target="_blank" rel="noopener">${icon('search')} Cerca "${esc(srch.q)}" su MuseScore</a>
+      <p class="hint">Lì trovi gli arrangiamenti per pianoforte delle canzoni recenti. Apri quello che ti piace, scarica il file <b>MIDI</b> (serve un account MuseScore; alcuni spartiti sono a pagamento) e aggiungilo qui sotto con "Aggiungi canzoni".</p></div>` : ''}`;
   const ul = w.querySelector('.results');
   srch.items.forEach(r => {
     const li = document.createElement('li');
@@ -620,7 +624,7 @@ async function search(q, page) {
     d.results.sort((x, y) => score(y) - score(x));
     srch.items = page ? srch.items.concat(d.results) : d.results; srch.page = page; srch.total = d.total;
     srch.msg = d.total ? `${d.total} risultati dall'archivio BitMidi. I file sono fatti da utenti: se una versione suona male, provane un'altra.`
-                       : `Nessun risultato per "${q}". Prova solo il titolo, senza artista, o il titolo originale in inglese.`;
+                       : `"${q}" non è nell'archivio gratuito: contiene soprattutto canzoni fino ai primi anni 2010.`;
   } catch { srch.msg = 'Ricerca non riuscita: controlla la connessione e riprova.'; }
   refreshSearch(page ? '.more button' : '.results button');
 }
@@ -740,7 +744,7 @@ function start(i) {
   const tm = canTime(); $('#mode').hidden = !tm; $('#calib').hidden = !tm || mode === 'wait'; $('#mode').value = mode;
   if (!tm || mode === 'wait') while (cur.st[step]?.rest) step++;
   buildKeys(); render();
-  if (tm && mode !== 'wait') beginTimed();
+  if (tm && mode !== 'wait') { setTip('Suona quando la nota tocca la linea colorata. Prima 4 battiti di attacco.', true); beginTimed(); }
 }
 function buildKeys() {
   const used = cur.st.flatMap(s => s.need || []);
@@ -811,6 +815,7 @@ function sayText(s, names) {
   if (s.any) { const pcs = new Set(s.any.map(m => m % 12)), pc = s.any[0] % 12; return `Suona ${pcs.size === 1 ? `un <em>${s.flat ? FLATN[pc] : NAMES[pc]}</em>` : 'un <em>tasto nero</em>'} qualsiasi`; }
   if (!s.need) return '';
   const left = s.need.filter(m => !hit.has(m));
+  if (!left.length) return timed ? 'Bene, avanti così…' : '';
   const nm = left.map(m => names ? (s.flats?.includes(m) ? FLATN[m % 12] : NAMES[m % 12]) : '?').join(' ');
   const f = s.need.length === 1 && s.finger ? ` — dito ${s.finger}, ${FINGER[s.finger]}` : '';
   if (s.need.length > 1) return `Suona insieme <em>${nm}</em>${micOn ? ' (col microfono, una alla volta)' : ''}`;
@@ -822,17 +827,23 @@ const RESTS = ['𝄻', '𝄼', '𝄽', '𝄾', '𝄿'];
 const dia = m => (Math.floor(m / 12) - 1) * 7 + PC_DIA[m % 12];
 const posY = m => m >= 60 ? 120 - (dia(m) - 30) * 7 : 190 - (dia(m) - 26) * 7;
 // note vere: testa ovale inclinata, gambo, tagli addizionali; le alte (da Do4) in chiave di violino, le basse in chiave di basso
+// A tempo: lo spartito scorre verso la linea fissa; si suona quando la nota la tocca
+const PLAY_X = 210, PXB = 95;   // posizione della linea, pixel per battito
+const beatNow = () => timed ? (performance.now() - timed.t0) / (timed.spb * 1000) : 0;
 function drawStaff(names) {
-  const many = cur.cards ? 5 : 8, W = 200 + many * 100;
+  const many = cur.cards ? 5 : 8, W = timed ? 1000 : 200 + many * 100;
   $('#staff').setAttribute('viewBox', `0 0 ${W} 300`);
   let h = '';
   for (let i = 0; i < 5; i++) for (const y0 of [64, 190]) h += `<line x1="20" x2="${W - 10}" y1="${y0 + i * SP}" y2="${y0 + i * SP}" class="sl"/>`;
   h += `<line x1="20" x2="20" y1="64" y2="246" class="sl" style="stroke-width:2.5"/>`;
   h += `<text x="30" y="113" class="clef">𝄞</text><text x="32" y="234" class="clefb">𝄢</text>`;
-  const from = Math.max(0, step - 1), RX = 8.6, RY = 6.3, bars = canTime(), bpb = 4;
-  cur.st.slice(from, from + many).forEach((s, k) => {
-    const idxS = from + k, x = 200 + k * 100, rel = idxS - step, past = rel < 0 ? 'past' : '';
-    if (bars && k > 0 && s.beat % bpb === 0) h += `<line x1="${x - 50}" x2="${x - 50}" y1="64" y2="246" class="sl bar"/>`;
+  const RX = 8.6, RY = 6.3, bars = canTime(), bpb = 4, b0 = cur.st[step]?.beat ?? 0;
+  const from = timed ? Math.max(0, cur.st.findIndex(x => x.beat >= b0 - 3)) : Math.max(0, step - 1);
+  const view = timed ? cur.st.slice(from).filter(x => x.beat <= b0 + 12) : cur.st.slice(from, from + many);
+  if (timed) h += `<clipPath id="rollclip"><rect x="88" y="0" width="${W}" height="300"/></clipPath><g clip-path="url(#rollclip)"><g id="rollin" transform="translate(${-beatNow() * PXB} 0)">`;
+  view.forEach((s, k) => {
+    const idxS = from + k, x = timed ? PLAY_X + s.beat * PXB : 200 + k * 100, rel = idxS - step, past = rel < 0 ? 'past' : '';
+    if (bars && (timed || k > 0) && s.beat % bpb === 0 && s.beat > 0) h += `<line x1="${x - (timed ? 22 : 50)}" x2="${x - (timed ? 22 : 50)}" y1="64" y2="246" class="sl bar"/>`;
     if (s.rest) { h += `<text x="${x}" y="${s.dur >= 2 ? 92 : 102}" class="rest ${past}">${RESTS[s.dur >= 4 ? 0 : s.dur >= 2 ? 1 : s.dur >= 1 ? 2 : s.dur >= .5 ? 3 : 4]}</text>`; return; }
     if (!s.need) return;
     if ((cur.lead || cur.cards?.[s.card]?.lead) && s.acc && s.acc !== '.') h += `<text x="${x - 10}" y="26" class="sym ${past}">${esc(s.acc)}</text>`;
@@ -865,6 +876,7 @@ function drawStaff(names) {
       }
     }
   });
+  if (timed) h += `</g></g><line x1="${PLAY_X}" x2="${PLAY_X}" y1="40" y2="262" class="playhead"/><path d="M${PLAY_X - 9} 34h18l-9 12z" class="playtip"/>`;
   burst = -1;
   $('#staff').innerHTML = h;
 }
@@ -1114,8 +1126,9 @@ function tick() {
     if (x.need && (timed.done.get(i)?.size || 0) < x.need.length) miss(i);
     timed.i = i + 1;
   }
-  let k = step; while (k + 1 < cur.st.length && cur.st[k + 1].beat <= beatNow + 0.1) k++;
+  let k = step; while (k + 1 < cur.st.length && cur.st[k + 1].beat <= beatNow + 0.45) k++;
   if (k !== step) { step = k; hit = timed.done.get(step) || new Set(); wrongKeys.clear(); render(); }
+  $('#rollin')?.setAttribute('transform', `translate(${-beatNow * PXB} 0)`);   // lo spartito scorre a ogni fotogramma
   if (beatNow >= timed.total + 0.6) return finish();
   timed.raf = requestAnimationFrame(tick);
 }
