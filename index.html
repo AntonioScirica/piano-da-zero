@@ -927,8 +927,9 @@ function sayText(s, names) {
   if (!left.length) return timed ? t('goOn') : '';
   const nm = left.map(m => names ? (s.flats?.includes(m) ? FLATN[m % 12] : NAMES[m % 12]) : '?').join(' ');
   const f = s.need.length === 1 && s.finger ? t('finger', { n:s.finger, f:FINGER[s.finger] }) : '';
-  if (s.need.length > 1) return t('together', { x:nm }) + (micOn ? t('micOne') : '');
-  return names ? t('playNote', { x:nm, f }) : t('which', { f });
+  if (s.need.length > 1) return t('together', { x:nm }) + (s.dur >= 1.5 ? t('hold', { n:String(s.dur).replace('.', LANG === 'en' ? '.' : ',') }) : '') + (micOn ? t('micOne') : '');
+  const hold = s.dur >= 1.5 ? t('hold', { n:String(s.dur).replace('.', LANG === 'en' ? '.' : ',') }) : '';   // note lunghe: quanto tenere
+  return (names ? t('playNote', { x:nm, f }) : t('which', { f })) + hold;
 }
 const ledger = (x, y, w, cls = '') => `<line x1="${x - w}" x2="${x + w}" y1="${y}" y2="${y}" class="sl ${cls}"/>`;
 const SP = 14;                                   // spazio tra le linee del pentagramma
@@ -938,7 +939,7 @@ const posY = m => m >= 60 ? 120 - (dia(m) - 30) * 7 : 190 - (dia(m) - 26) * 7;
 // note vere: testa ovale inclinata, gambo, tagli addizionali; le alte (da Do4) in chiave di violino, le basse in chiave di basso
 // A tempo: lo spartito scorre verso la linea fissa; si suona quando la nota la tocca
 const PLAY_X = 210, PXB = 95, FOLLOW_X = 470;
-let lastTx = null, lastHead = null, viewOff = null;   // posizione della linea, pixel per battito
+let lastTx = null, lastHead = null, viewOff = null, moveDur = 0;   // posizione della linea, pixel per battito
 const beatNow = () => timed ? (performance.now() - timed.t0) / (timed.spb * 1000) : 0;
 function drawStaff(names) {
   const W = 1000;
@@ -997,7 +998,9 @@ function drawStaff(names) {
   h += `</g></g><g id="head" class="${timed ? 'live' : ''}" style="transform:translateX(${lastHead ?? headX}px)"><line x1="0" x2="0" y1="40" y2="262" class="playhead"/><path d="M-9 34h18l-9 12z" class="playtip"/></g>`;
   burst = -1;
   $('#staff').innerHTML = h;
-  if (!timed) requestAnimationFrame(() => { const g = $('#rollin'), hd = $('#head'); if (g) g.style.transform = `translateX(${tx}px)`; if (hd) hd.style.transform = `translateX(${headX}px)`; });
+  const mv = moveDur; moveDur = 0;   // Impara: la linea va alla nota dopo nel tempo della nota appena suonata
+  if (!timed) requestAnimationFrame(() => { const g = $('#rollin'), hd = $('#head'), tr = mv ? `transform ${mv}s linear` : '';
+    if (g) { g.style.transition = tr; g.style.transform = `translateX(${tx}px)`; } if (hd) { hd.style.transition = tr; hd.style.transform = `translateX(${headX}px)`; } });
   lastTx = tx; lastHead = headX;
 }
 function ring(m) {
@@ -1021,6 +1024,7 @@ function floatXp(m, txt) {
 }
 function advance(m) {
   const s = cur.st[step];
+  if (!timed && !s.next) moveDur = (s.dur || 1) * 60 / (cur.bpm || 80);   // semiminima ≈ 0,75 s, minima il doppio
   if (!s.next) {
     (s.need || []).forEach(n => (P.err[n] ||= [0, 0])[0]++);   // tentativi riusciti per nota
     if (stepErr) setTip(cur.cards ? '' : cur.tip || '');

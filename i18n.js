@@ -69,6 +69,7 @@ const STR = {
   cancel:['Annulla', 'Cancel', 'Скасувати'],
   // Home
   lv:['Lv {lv}', 'Lv {lv}', 'Рів. {lv}'],
+  hold:[' e tieni {n} battiti', ' and hold for {n} beats', ' і тримай {n} долі'],
   meSub:['Lv {lv} · {x}', 'Lv {lv} · {x}', 'Рів. {lv} · {x}'],
   pmSwitch:['Cambia profilo', 'Switch profile', 'Змінити профіль'],
   pmLogout:['Esci', 'Log out', 'Вийти'],
