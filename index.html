@@ -936,7 +936,7 @@ function advance(m) {
   render();
 }
 // Metodo "aspetta la nota giusta"
-function handle(m) {
+function handle(m, src) {
   if (!cur || $('#player').hidden || !$('#done').hidden || step >= cur.st.length) return;
   const s = cur.st[step];
   if (s.next) return advance();
@@ -951,6 +951,7 @@ function handle(m) {
       return render();
     }
   }
+  if (src === 'mic' && (s.need || s.any || []).every(n => Math.abs(n - m) > 9)) return;   // col microfono un suono lontanissimo è voce o rumore
   errors++; combo = 0; wrongKeys.add(m); errSteps.add(step); stepErr++;
   const tgt = s.need ? s.need.filter(n => !hit.has(n)) : [];
   tgt.forEach(n => (P.err[n] ||= [0, 0])[1]++);
@@ -1162,6 +1163,7 @@ function handleTimed(m, src) {
     const n = x.need.includes(m) && !got.has(m) ? m : micOn ? x.need.find(y => y % 12 === m % 12 && !got.has(y)) : undefined;
     if (n !== undefined && Math.abs(d) < Math.abs(bd)) { best = i; bd = d; bn = n; }
   }
+  if (best < 0 && src === 'mic' && cur.st.slice(step, step + 3).every(x => !x.need || x.need.every(n => Math.abs(n - m) > 9))) return;   // voce o rumore
   if (best < 0) {   // nota che non c'entra
     errors++; combo = 0; wrongKeys.add(m); render(); setTimeout(() => { wrongKeys.delete(m); timed && render(); }, 350); return;
   }
@@ -1204,7 +1206,8 @@ function noteOn(m, src) {
   if (src === 'screen' || src === 'pc') beep(m);   // la pianola suona già da sola
   const k = $(`.key[data-m="${m}"]`);
   if (k) { k.classList.add('on'); setTimeout(() => k.classList.remove('on'), 160); }
-  timed ? handleTimed(m, src) : handle(m);
+  if (src === 'mic' && !$(`.key[data-m="${m}"]`)) return;   // fuori dalla tastiera sullo schermo: rumore, non un errore
+  timed ? handleTimed(m, src) : handle(m, src);
 }
 
 // tastiera del computer: A W S E D F T G Y H U J K (Z/X = ottava)
@@ -1234,10 +1237,19 @@ function detect(b, sr) {
   for (let lag = 0; lag < n; lag++) { let s = 0; for (let i = 0; i < n; i++) s += b[i] * b[i + lag]; c[lag] = s; }
   let l = 1; while (l < n - 1 && c[l] > c[l + 1]) l++;
   let max = 0; for (let i = l; i < n; i++) max = Math.max(max, c[i]);
-  if (max < 0.5 * c[0]) return [null, rms];
+  if (max < 0.5 * c[0]) return [null, rms, 0];
   let p = l; while (p < n - 1 && !(c[p] >= 0.9 * max && c[p] >= c[p + 1])) p++;
   const a = c[p - 1], bb = c[p], cc = c[p + 1], shift = (a - cc) / (2 * (a - 2 * bb + cc)) || 0;
-  return [sr / (p + shift), rms];
+  return [sr / (p + shift), rms, max / c[0]];   // chiarezza: quanto il suono è regolare (tastiera ≈ 1, voce meno)
+}
+// Filtro anti-voce: una nota vale solo se è da tastiera.
+// attacco netto entro 280 ms, 4 letture stabili (±0,3 semitoni), intonata (entro 22 centesimi), suono chiaro
+const MIC = { win:280, frames:4, spread:0.3, cents:22, clarity:0.82, minRms:0.025 };
+function micPick(fr) {   // fr: semitoni stimati (decimali) dopo l'ultimo attacco
+  if (fr.length < MIC.frames) return null;
+  const r = fr.slice(-MIC.frames), avg = r.reduce((x, y) => x + y) / r.length, m = Math.round(avg);
+  if (Math.max(...r) - Math.min(...r) > MIC.spread || Math.abs(avg - m) * 100 > MIC.cents) return null;
+  return m;
 }
 const micLabel = () => $('#mic').innerHTML = icon('mic') + (micOn ? 'Microfono attivo' : 'Usa il microfono');
 micLabel();
@@ -1249,15 +1261,18 @@ $('#mic').onclick = async () => {
     const a = audio(); await a.resume();
     const an = a.createAnalyser(); an.fftSize = 2048;
     a.createMediaStreamSource(s).connect(an);
-    const buf = new Float32Array(2048); let cand = null, cnt = 0, last = null, env = 0;
+    const buf = new Float32Array(2048); let onset = -1e9, fr = [], last = null, env = 0;
     micOn = true; micLabel(); $('#mic').classList.add('primary');
     (function loop() {
       an.getFloatTimeDomainData(buf);
-      const [f, rms] = detect(buf, a.sampleRate), m = f ? Math.round(69 + 12 * Math.log2(f / 440)) : null;
-      if (rms > 1.5 * env && rms > 0.02) last = null;   // nuovo attacco: permette note ripetute
+      const [f, rms, cl] = detect(buf, a.sampleRate), now = performance.now();
+      if (rms > 1.6 * env && rms > MIC.minRms) { onset = now; fr = []; last = null; }   // nuovo attacco di un tasto
       env = Math.max(rms, env * 0.9);
-      if (m === cand) cnt++; else { cand = m; cnt = 0; }
-      if (cnt === 3) { if (m !== null && m !== last) noteOn(m, 'mic'); last = m; }
+      if (f && cl >= MIC.clarity && now - onset < MIC.win) {
+        fr.push(69 + 12 * Math.log2(f / 440));
+        const m = micPick(fr);
+        if (m !== null && m !== last) { last = m; onset = -1e9; noteOn(m, 'mic'); }   // una nota per attacco
+      }
       requestAnimationFrame(loop);
     })();
   } catch (e) { alert('Non riesco ad aprire il microfono: ' + e.message + '. Controlla i permessi del browser.'); }
@@ -1277,6 +1292,7 @@ console.assert(LEVELS.every(L => L.lessons.every(x => x.notime || x.cards || (()
 console.assert(new Set(LEVELS.flatMap(L => L.lessons.map(x => slug(x.t)))).size === LEVELS.reduce((a, L) => a + L.lessons.length, 0), 'id lezioni unici');
 console.assert(token('Bb4').flats[0] === 70 && token('*Bb').any.every(m => m % 12 === 10), 'bemolli');
 console.assert(LEVELS.every(L => L.lessons.every(x => !x.acc || words(x.acc).length === compile(x).length)), 'sigle allineate');
+console.assert(micPick([60.02, 59.98, 60.05, 60.01]) === 60 && micPick([60.4, 60.45, 60.38, 60.42]) === null && micPick([58, 59, 60, 61]) === null, 'filtro voce');
 console.assert(lvOf(0) === 1 && lvOf(100) === 2 && lvOf(399) === 2 && lvOf(400) === 3, 'livelli');
 console.assert(token('*F#').any.every(m => m % 12 === 6) && token('*#').any.every(m => SHARP[m % 12]), 'token any');
 console.assert(LEVELS.every(L => L.lessons.every(x => compile(x).every(s => s.next || s.rest || (s.need || s.any).every(Number.isInteger)))), 'curriculum');
