@@ -137,6 +137,8 @@
   .players { display:flex; flex-wrap:wrap; gap:16px; }
   .player { all:unset; box-sizing:border-box; cursor:pointer; width:220px; aspect-ratio:1; background:var(--c); color:var(--ci); padding:16px; display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden; }
   .player:focus-visible { outline:3px solid var(--ink); outline-offset:4px; }
+  .whosub { font-size:20px; font-weight:600; margin:-14px 0 24px; color:var(--mute); }
+  .newbtn { margin-top:24px; }
   .player b { font-size:120px; font-weight:900; line-height:.8; position:relative; }
   .player span { font-weight:800; font-size:22px; position:relative; }
   .player small { font-weight:600; font-size:14px; }
@@ -378,6 +380,7 @@ function compile(x) {
 
 // ===== Stato salvato: giocatori, punti, classifica =====
 const store = { get:(k,d) => JSON.parse(localStorage.getItem(k) ?? 'null') ?? d, set:(k,v) => localStorage.setItem(k, JSON.stringify(v)) };
+if (store.get('dataVersion', 0) < 3) { localStorage.clear(); store.set('dataVersion', 3); }   // azzeramento richiesto: tutti ripartono da zero, una volta sola
 const PCOL = [['#2747d6','#fff'], ['#e0367a','#111'], ['#1f9d6b','#111'], ['#ff7a1a','#111'], ['#6a3fd1','#fff'], ['#f2b705','#111']];
 const PART = 24;   // una "parte" di canzone = 24 passi
 let profiles = store.get('profiles', []), P = null, songs = store.get('songs', []), showNames = store.get('names', true), micOn = false;
@@ -492,18 +495,27 @@ function arcs(size, n, sw, at, inner = 8) {
 }
 
 // ===== Chi suona? =====
-function showWho() {
-  const w = $('#who'); w.hidden = false;
-  w.innerHTML = `<div><h1>Chi suona?</h1><div class="players">${profiles.map((p, i) => `<button class="player" data-i="${i}" style="--c:${p.c};--ci:${p.ci}">${arcs(200, 3, 4, 'right:-60px;top:-60px')}<b>${esc(p.name[0].toUpperCase())}</b><span>${esc(p.name)}<br><small>Lv ${lvOf(p.xp)} · ${p.xp} XP</small></span></button>`).join('')}</div>
-    <form class="newp" id="newp"><label>${profiles.length ? 'Nuovo giocatore' : 'Come ti chiami?'}<input id="pname" maxlength="16" required autocomplete="off"></label><button class="primary">${icon('plus')} ${profiles.length ? 'Aggiungi' : 'Inizia'}</button></form></div>`;
+function showWho(creating) {
+  const w = $('#who'), has = profiles.length > 0;
+  w.hidden = false;
+  w.innerHTML = has && !creating
+    ? `<div><h1>Chi suona?</h1><p class="whosub">Tocca il tuo profilo per entrare.</p>
+        <div class="players">${profiles.map((p, i) => `<button class="player" data-i="${i}" style="--c:${p.c};--ci:${p.ci}">${arcs(200, 3, 4, 'right:-60px;top:-60px')}<b>${esc(p.name[0].toUpperCase())}</b><span>${esc(p.name)}<br><small>Lv ${lvOf(p.xp)} · ${p.xp} XP · Entra</small></span></button>`).join('')}</div>
+        <button class="newbtn" id="newbtn">${icon('plus')} Nuovo profilo</button></div>`
+    : `<div><h1>${has ? 'Nuovo profilo' : 'Benvenuto.'}</h1>
+        <p class="whosub">${has ? 'Un profilo per ogni persona: progressi, livelli e classifica separati.' : 'Crea il tuo profilo: progressi e livelli restano salvati su questo dispositivo.'}</p>
+        <form class="newp" id="newp"><label>Come ti chiami?<input id="pname" maxlength="16" required autocomplete="off" autocapitalize="words"></label>
+        <button class="primary">${icon('plus')} Crea profilo</button>${has ? '<button type="button" id="backwho">Annulla</button>' : ''}</form></div>`;
   w.querySelectorAll('.player').forEach(b => b.onclick = () => pick(+b.dataset.i));
-  $('#newp').onsubmit = e => {
+  if ($('#newbtn')) $('#newbtn').onclick = () => showWho(true);
+  if ($('#backwho')) $('#backwho').onclick = () => showWho();
+  if ($('#newp')) $('#newp').onsubmit = e => {
     e.preventDefault();
     const name = $('#pname').value.trim(); if (!name) return;
     const same = profiles.findIndex(p => p.name.toLowerCase() === name.toLowerCase());
-    if (same >= 0) return pick(same);   // stesso nome = stesso giocatore
+    if (same >= 0) return pick(same);   // stesso nome = stesso profilo
     const [c, ci] = PCOL[profiles.length % PCOL.length];
-    profiles.push({ id:'p' + Date.now(), name, c, ci, xp:0, prog:profiles.length ? {} : store.get('progress', {}), days:[], daily:{}, week:{}, best:0, err:{}, srs:{} });
+    profiles.push({ id:'p' + Date.now(), name, c, ci, xp:0, prog:{}, days:[], daily:{}, week:{}, best:0, err:{}, srs:{} });
     saveP(); pick(profiles.length - 1);
   };
   (w.querySelector('.player') || $('#pname')).focus();
@@ -1343,12 +1355,7 @@ navigator.storage?.persist?.();   // chiede all'iPad di non cancellare i progres
 P = profiles.find(p => p.id === store.get('current'));
 profiles.forEach(migrateIds); saveP();
 if (P) { P.err ||= {}; P.srs ||= {}; }
-if (!P) showWho();
-else {
-  renderHome();
-  const deep = location.hash.match(/^#lezione-(\d+)$/);   // link diretto a una lezione
-  if (deep && allLessons()[+deep[1]]) start(+deep[1]);
-}
+showWho();   // all'apertura: entra nel tuo profilo o creane uno nuovo
 </script>
 </body>
 </html>
