@@ -96,6 +96,7 @@
   .danger h2 { font-size:20px; font-weight:800; } .danger p { color:var(--mute); font-size:15px; margin-top:4px; max-width:36ch; }
   button.bad { border-color:var(--bad); color:var(--bad); } button.bad:hover { background:var(--bad); color:#fff; }
   #closeSet { justify-self:start; }
+  .langsel { font:inherit; font-weight:700; min-height:48px; border:2px solid var(--ink); background:var(--paper); border-radius:0; padding:0 10px; }
   .me small { display:block; font-weight:600; font-size:13px; color:var(--mute); }
   .stats { display:grid; grid-template-columns:auto 1fr 1fr; gap:32px; align-items:end; }
   .stat b { font-size:44px; font-weight:900; letter-spacing:-.03em; line-height:1; display:flex; align-items:center; gap:8px; }
@@ -285,7 +286,6 @@
     <span class="chip" id="status"></span>
     <button id="mic"></button>
     <label class="switch"><input type="checkbox" id="names"> <span data-t="names">Nomi delle note</span></label>
-    <span id="langbar"></span>
   </header>
   <main id="home"></main>
 </div>
@@ -529,13 +529,12 @@ function showWho(creating) {
   w.innerHTML = has && !creating
     ? `<div><h1>${t('who')}</h1><p class="whosub">${t('whoSub')}</p>
         <div class="players">${profiles.map((p, i) => `<button class="player" data-i="${i}" style="--c:${p.c};--ci:${p.ci}">${arcs(200, 3, 4, 'right:-60px;top:-60px')}<b>${esc(p.name[0].toUpperCase())}</b><span>${esc(p.name)}<br><small>${t('tileSub', { lv:lvOf(p.xp), xp:p.xp })}</small></span></button>`).join('')}
-          <button class="player newtile" id="newbtn"><b aria-hidden="true">+</b><span>${t('newP')}<br><small>${t('newPsub')}</small></span></button></div><div class="wlang">${langSel('lang-who')}</div></div>`
+          <button class="player newtile" id="newbtn"><b aria-hidden="true">+</b><span>${t('newP')}<br><small>${t('newPsub')}</small></span></button></div></div>`
     : `<div><h1>${has ? t('newP') : t('welcome')}</h1>
         <p class="whosub">${has ? t('newPtxt') : t('welcomeTxt')}</p>
         <form class="newp" id="newp"><label>${t('yourName')}<input id="pname" maxlength="16" required autocomplete="off" autocapitalize="words"></label>
-        <button class="primary">${icon('plus')} ${t('create')}</button>${has ? `<button type="button" id="backwho">${t('cancel')}</button>` : ''}</form><div class="wlang">${langSel('lang-who')}</div></div>`;
+        <button class="primary">${icon('plus')} ${t('create')}</button>${has ? `<button type="button" id="backwho">${t('cancel')}</button>` : ''}</form></div>`;
   w.querySelectorAll('.player').forEach(b => b.onclick = () => pick(+b.dataset.i));
-  $('#lang-who').onchange = setLang;
   if ($('#newbtn')) $('#newbtn').onclick = () => showWho(true);
   if ($('#backwho')) $('#backwho').onclick = () => showWho();
   if ($('#newp')) $('#newp').onsubmit = e => {
@@ -551,7 +550,7 @@ function showWho(creating) {
 }
 function setLang(e) {   // salva la lingua e ricarica; dalla home si rientra nello stesso profilo
   store.set('lang', e.target.value);
-  if (P && $('#who').hidden) sessionStorage.setItem('relang', P.id);
+  if (P) { sessionStorage.setItem('relang', P.id); sessionStorage.setItem('reopenSettings', '1'); }
   location.reload();
 }
 // ===== Menu del profilo: cambia, esci, impostazioni =====
@@ -573,6 +572,7 @@ function showSettings(msg = '') {
   w.innerHTML = `<div class="setbox"><h1>${t('setTitle')}</h1>
     <form id="renameF" class="newp"><label>${t('setName')}<input id="rname" maxlength="16" required value="${esc(P.name)}" autocomplete="off"></label><button class="primary">${t('setSave')}</button></form>
     <p class="msg" role="status">${esc(msg)}</p>
+    <div class="danger"><div><h2><label for="lang-set">${t('lang')}</label></h2></div><select id="lang-set" class="langsel">${Object.entries(LANGS).map(([k, v]) => `<option value="${k}" lang="${k}"${k === LANG ? ' selected' : ''}>${v}</option>`).join('')}</select></div>
     <div class="danger"><div><h2>${t('setReset')}</h2><p>${t('setResetTxt')}</p></div><button id="resetP">${t('setReset')}</button></div>
     <div class="danger"><div><h2>${t('setDelete')}</h2><p>${t('setDeleteTxt')}</p></div><button id="deleteP" class="bad">${icon('trash')} ${t('setDelete')}</button></div>
     <button id="closeSet" class="primary">${t('close')}</button></div>`;
@@ -592,6 +592,7 @@ function showSettings(msg = '') {
     profiles = profiles.filter(p => p !== P); saveP(); P = null; store.set('current', null); w.hidden = true; showWho();
   };
   $('#closeSet').onclick = closeSettings;
+  $('#lang-set').onchange = setLang;
   $('#rname').focus();
 }
 function pick(i) { P = profiles[i]; P.err ||= {}; P.srs ||= {}; migrateIds(P); store.set('current', P.id); $('#who').hidden = true; goHome(); }
@@ -1378,7 +1379,7 @@ addEventListener('click', e => { if (pendingTap && pendingTap.contains(e.target)
 
 $('#names').checked = showNames;
 $('#names').onchange = e => { showNames = e.target.checked; store.set('names', showNames); };
-$('#langbar').outerHTML = langSel('lang-home'); $('#lang-home').onchange = setLang;
+
 
 // self-check
 console.assert(note('C4') === 60 && note('F#4') === 66 && note('Bb3') === 58, 'note()');
@@ -1401,7 +1402,8 @@ P = profiles.find(p => p.id === store.get('current'));
 profiles.forEach(migrateIds); saveP();
 if (P) { P.err ||= {}; P.srs ||= {}; }
 const relang = sessionStorage.getItem('relang'), ri = profiles.findIndex(p => p.id === relang); sessionStorage.removeItem('relang');
-if (ri >= 0) pick(ri); else showWho();   // all'apertura: entra nel tuo profilo o creane uno nuovo (dopo il cambio lingua: torna alla home)
+if (ri >= 0) { pick(ri); if (sessionStorage.getItem('reopenSettings')) showSettings(); } else showWho();
+sessionStorage.removeItem('reopenSettings');   // all'apertura: entra nel tuo profilo o creane uno nuovo (dopo il cambio lingua: torna alla home)
 </script>
 </body>
 </html>

@@ -3,9 +3,7 @@
 const LANGS = { it:'Italiano', en:'English', uk:'Українська' };
 const LANG = (() => {
   let l = null; try { l = JSON.parse(localStorage.getItem('lang')); } catch {}
-  if (LANGS[l]) return l;
-  const n = (navigator.language || '').toLowerCase();
-  return n.startsWith('it') ? 'it' : n.startsWith('uk') ? 'uk' : 'en';
+  return LANGS[l] ? l : 'it';   // italiano di default; si cambia nelle impostazioni del profilo
 })();
 document.documentElement.lang = LANG;
 const CURR_TR = {};   // traduzioni del curriculum: curriculum.en.js, curriculum.uk.js
