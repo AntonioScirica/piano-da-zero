@@ -43,6 +43,9 @@
   .switch input::after { content:''; position:absolute; top:3px; left:3px; width:16px; height:16px; background:var(--ink); transition:transform .2s var(--ease); }
   .switch input:checked { background:var(--ink); }
   .switch input:checked::after { background:var(--paper); transform:translateX(18px); }
+  .lang { display:inline-flex; align-items:center; gap:10px; font-weight:700; font-size:16px; min-height:48px; }
+  .lang select { font:inherit; min-height:44px; border:2px solid var(--ink); background:var(--paper); color:var(--ink); border-radius:0; padding:0 8px; cursor:pointer; }
+  .wlang { margin-top:28px; }
   main { padding:clamp(20px,4vw,48px); max-width:1400px; margin:0 auto; }
 
   .next { all:unset; box-sizing:border-box; cursor:pointer; display:grid; grid-template-columns:1fr; align-content:end; gap:28px; width:100%;
@@ -267,11 +270,12 @@
 <body>
 <div id="home-view">
   <header class="topbar">
-    <span class="wordmark">Piano da zero</span>
+    <span class="wordmark" data-t="title">Piano da zero</span>
     <button class="me" id="me"></button>
     <span class="chip" id="status"></span>
     <button id="mic"></button>
-    <label class="switch"><input type="checkbox" id="names"> Nomi delle note</label>
+    <label class="switch"><input type="checkbox" id="names"> <span data-t="names">Nomi delle note</span></label>
+    <span id="langbar"></span>
   </header>
   <main id="home"></main>
 </div>
@@ -279,17 +283,17 @@
 <section id="player" hidden aria-live="polite">
   <div class="band on-colour">
     <span id="band-arcs"></span>
-    <button class="icon" id="back" aria-label="Torna ai livelli"></button>
+    <button class="icon" id="back" aria-label="Torna ai livelli" data-ta="back"></button>
     <div><h1 id="title"></h1><p class="sub" id="sub"></p></div>
     <div class="meta">
       <div class="count" id="count"></div>
       <div class="combo" id="combo" aria-live="polite"></div>
       <div class="tools">
-        <select id="mode" aria-label="Modalità"><option value="wait">Impara</option><option value="t70">A tempo 70%</option><option value="t100">A tempo 100%</option></select>
-        <button class="icon" id="calib" aria-label="Calibra il ritardo"></button>
-        <button class="icon" id="base" aria-label="Base musicale"></button>
-        <button class="icon" id="listen" aria-label="Ascolta la lezione"></button>
-        <button class="icon" id="restart" aria-label="Ricomincia"></button>
+        <select id="mode" aria-label="Modalità" data-ta="modeL"><option value="wait" data-t="mWait">Impara</option><option value="t70" data-t="m70">A tempo 70%</option><option value="t100" data-t="m100">A tempo 100%</option></select>
+        <button class="icon" id="calib" aria-label="Calibra il ritardo" data-ta="calib"></button>
+        <button class="icon" id="base" aria-label="Base musicale" data-ta="base"></button>
+        <button class="icon" id="listen" aria-label="Ascolta la lezione" data-ta="listen"></button>
+        <button class="icon" id="restart" aria-label="Ricomincia" data-ta="restart"></button>
       </div>
     </div>
   </div>
@@ -297,23 +301,28 @@
   <div class="stage" id="stage">
     <div class="card" id="card"></div>
     <div class="staffwrap" id="staffwrap">
-      <svg id="staff" viewBox="0 0 1000 300" role="img" aria-label="Pentagramma"></svg>
+      <svg id="staff" viewBox="0 0 1000 300" role="img" aria-label="Pentagramma" data-ta="staff"></svg>
       <p class="say" id="say"></p>
       <p class="tip" id="tip"></p>
     </div>
   </div>
-  <div id="mapbar"><span>Melody 61<br><small>Do contati da sinistra</small></span><div id="map" aria-hidden="true"></div></div>
+  <div id="mapbar"><span>Melody 61<br><small data-t="mapSub">Do contati da sinistra</small></span><div id="map" aria-hidden="true"></div></div>
   <div id="kbd"></div>
 </section>
-<div id="who" class="who" hidden role="dialog" aria-modal="true" aria-label="Chi suona?"></div>
+<div id="who" class="who" hidden role="dialog" aria-modal="true" aria-label="Chi suona?" data-ta="who"></div>
 <div id="done" class="on-colour" hidden role="dialog" aria-modal="true" aria-labelledby="done-h"></div>
 
+<script src="i18n.js"></script>
+<script src="curriculum.en.js"></script>
+<script src="curriculum.uk.js"></script>
 <script src="curriculum.js"></script>
 <script>
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const NAMES = ['Do','Do♯','Re','Re♯','Mi','Fa','Fa♯','Sol','Sol♯','La','La♯','Si'];
-const FINGER = ['','pollice','indice','medio','anulare','mignolo'];
+const NAMES = L10N.names, FINGER = L10N.fingers;   // nomi delle note e delle dita nella lingua scelta
+document.title = t('title');
+document.querySelectorAll('[data-t]').forEach(e => e.textContent = t(e.dataset.t));
+document.querySelectorAll('[data-ta]').forEach(e => e.setAttribute('aria-label', t(e.dataset.ta)));
 const PC_DIA = [0,0,1,1,2,3,3,4,4,5,5,6], SHARP = [0,1,0,1,0,0,1,0,1,0,1,0];
 const NOTE = {C:0,D:2,E:4,F:5,G:7,A:9,B:11};
 const note = s => { const [, l, a, o] = s.match(/^([A-G])([#b]?)(\d)$/); return 12*(+o+1) + NOTE[l] + (a==='#') - (a==='b'); };
@@ -339,10 +348,11 @@ const stars = (n, cls = '') => [0,1,2].map(i => `<svg viewBox="0 0 24 24" class=
 // n: note ("C4", accordo "C3+E3+G3", "*C" = un Do qualsiasi, "*#" = un tasto nero qualsiasi)
 // cards: schede di teoria; ogni scheda può chiedere di suonare (play) o solo leggere (Avanti)
 // pos: 'R'/'L' = posizione Do a 5 dita, mostra i numeri delle dita
-const SONGS_LEVEL = { title:'Le tue canzoni', d:'Cerca una canzone e suonala subito, oppure aggiungi un file .mid. Le canzoni restano solo su questo dispositivo.', c:'#111', ci:'#f3f3ef' };
-const DRILL_LEVEL = { title:'Allenamento', c:'#111', ci:'#f3f3ef' };
+const SONGS_LEVEL = { title:t('songsT'), d:t('songsD'), c:'#111', ci:'#f3f3ef' };
+const DRILL_LEVEL = { title:t('drillT'), c:'#111', ci:'#f3f3ef' };
+const LV = LEVELS.map(trLevel);   // livelli con titolo e descrizione tradotti, solo per mostrarli
 const AUTO_F = { R:{60:1,62:2,64:3,65:4,67:5}, L:{48:5,50:4,52:3,53:2,55:1}, G:{67:1,69:2,71:3,72:4,74:5}, LG:{43:5,45:4,47:3,48:2,50:1}, F:{65:1,67:2,69:3,70:4,72:5} };
-const FLATN = { 1:'Re♭', 3:'Mi♭', 6:'Sol♭', 8:'La♭', 10:'Si♭' };
+const FLATN = L10N.flats;
 const slug = t => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
 // "C4" semiminima, "C4:2" minima, "C4:4" semibreve, "C4:.5" croma, "C4:1.5" puntata, "r:1" pausa
@@ -385,7 +395,7 @@ const saveP = () => store.set('profiles', profiles);
 const ymd = d => d.toLocaleDateString('sv');
 const today = () => ymd(new Date());
 const weekKey = () => { const d = new Date(); d.setDate(d.getDate() - (d.getDay() + 6) % 7); return ymd(d); };
-const TITLES = ['Principiante', 'Apprendista', 'Esploratore', 'Musicista', 'Solista', 'Virtuoso', 'Maestro', 'Leggenda'];
+const TITLES = L10N.titles;
 const lvOf = xp => Math.floor(Math.sqrt(xp / 100)) + 1;         // Lv2 a 100 XP, Lv3 a 400, Lv4 a 900…
 const xpFor = lv => 100 * (lv - 1) ** 2;
 const titleOf = lv => TITLES[Math.min(TITLES.length - 1, Math.floor((lv - 1) / 2))];
@@ -418,11 +428,11 @@ function warmup() {
   let n = 'C4 D4 E4 F4 G4 F4 E4 D4 C4 E4 G4 E4 C4', f = '1 2 3 4 5 4 3 2 1 3 5 3 1';
   if (lv >= at('Mano sinistra')) { n += ' C3 D3 E3 F3 G3 F3 E3 D3 C3'; f += ' 5 4 3 2 1 2 3 4 5'; }
   if (lv >= at('Scale')) { n = 'C4 D4 E4 F4 G4 A4 B4 C5 B4 A4 G4 F4 E4 D4 C4 C3 D3 E3 F3 G3 A3 B3 C4 B3 A3 G3 F3 E3 D3 C3'; f = '1 2 3 1 2 3 4 5 4 3 2 1 3 2 1 5 4 3 2 1 3 2 1 2 3 1 2 3 4 5'; }
-  return { t:'Riscaldamento', id:'warmup', practice:true, level:'', L:{ title:'Riscaldamento', c:'#111', ci:'#f3f3ef' }, tip:'Lento e uniforme: ogni nota con la stessa forza, dita curve.', n, f };
+  return { t:t('warm'), id:'warmup', practice:true, level:'', L:{ title:t('warm'), c:'#111', ci:'#f3f3ef' }, tip:t('warmTip'), n, f };
 }
 // esercizi extra infiniti: nuove sequenze con le note, i ritmi e gli accordi del livello, sempre un po' più lunghe
 function genExtra(li) {
-  const L = LEVELS[li], singles = new Set(), chords = [], rh = new Set([1]);
+  const L = LV[li], singles = new Set(), chords = [], rh = new Set([1]);
   L.lessons.forEach(x => compile(x).forEach(s => { if (!s.need) return; s.need.length === 1 ? singles.add(s.need[0]) : chords.push(s.need); if ([0.5, 1, 2, 4].includes(s.dur)) rh.add(s.dur); }));
   const pool = [...singles].sort((a, b) => a - b), durs = [...rh].filter(d => d <= 2), n = (P.extra ||= {})[li] || 0, bars = 4 + Math.min(4, Math.floor(n / 3));
   if (pool.length < 3) return null;
@@ -437,24 +447,33 @@ function genExtra(li) {
       toks.push(head.map(nm).join('+') + (d === 1 ? '' : ':' + d)); left -= d;
     }
   }
-  return { t:'Esercizio extra', id:'extra', extraOf:li, practice:true, timedOk:true, level:li, L, tip:`Esercizio nuovo ogni volta, con quello che hai imparato nel livello ${li}. Leggi senza fretta.`, n:toks.join(' ') };
+  return { t:t('extra'), id:'extra', extraOf:li, practice:true, timedOk:true, level:li, L, tip:t('extraTip', { n:li }), n:toks.join(' ') };
 }
 // la sessione di oggi: si decide una volta al giorno, poi si spunta
 function todayPlan() {
   if (P.session?.date !== today() || P.session.v !== 2) {
     const list = allLessons(), beginner = LEVELS[0].lessons.some(x => !(P.prog['l-' + slug(x.t)] > 0));   // Livello 0 non ancora finito
-    const items = beginner ? [] : [{ ref:'warmup', label:'Riscaldamento', min:2 }];   // il riscaldamento solo quando conosci note e dita
+    const items = beginner ? [] : [{ ref:'warmup', kind:'warm', min:2 }];   // il riscaldamento solo quando conosci note e dita
     list.filter(x => !x.imported && P.srs[x.id]?.due <= today()).sort((a, b) => P.srs[a.id].due.localeCompare(P.srs[b.id].due))
-      .slice(0, 2).forEach(x => items.push({ ref:x.id, label:`Ripasso · ${x.t}`, min:3 }));
+      .slice(0, 2).forEach(x => items.push({ ref:x.id, kind:'rev', min:3 }));
     const ni = list.findIndex((x, i) => !x.imported && unlocked(list, i) && !(P.prog[x.id] > 0));
     const news = ni < 0 ? [] : list.slice(ni, ni + (beginner ? 3 : items.length > 1 ? 1 : 2)).filter(x => !x.imported);   // all'inizio tre lezioni del Livello 0, poi una o due
-    news.forEach(nx => items.push({ ref:nx.id, label:`${nx.goal ? 'Obiettivo' : 'Nuova'} · ${nx.t}`, min:6 }));
-    if (!beginner && drillPool().length >= 3) items.push({ ref:'drill', label:'Lettura · Allenamento lampo', min:2 });
+    news.forEach(nx => items.push({ ref:nx.id, kind:nx.goal ? 'goal' : 'new', min:6 }));
+    if (!beginner && drillPool().length >= 3) items.push({ ref:'drill', kind:'drill', min:2 });
     const sp = list.filter(x => x.song && x.part >= 0).sort((a, b) => (P.prog[a.id] || 0) - (P.prog[b.id] || 0))[0];
-    if (sp) items.push({ ref:sp.id, label:`Premio · ${sp.t} (${sp.sub})`, min:4 });
+    if (sp) items.push({ ref:sp.id, kind:'prize', min:4 });
     P.session = { date:today(), v:2, items, done:P.session?.date === today() ? P.session.done : [] }; saveP();
   }
   return P.session;
+}
+// etichetta calcolata ora, nella lingua scelta; le sessioni salvate prima avevano solo label in italiano
+function itemLabel(it, list = allLessons()) {
+  const x = list.find(y => y.id === it.ref);
+  const k = it.kind || (it.ref === 'warmup' ? 'warm' : it.ref === 'drill' ? 'drill' : x?.imported ? 'prize' : /^Ripasso/.test(it.label || '') ? 'rev' : x?.goal ? 'goal' : 'new');
+  if (k === 'warm') return t('warm');
+  if (k === 'drill') return t('iDrill');
+  if (!x) return it.label || it.ref;
+  return k === 'prize' ? t('iPrize', { x:x.t, p:x.sub }) : t({ rev:'iRev', goal:'iGoal', new:'iNew' }[k], { x:x.t });
 }
 const sessionLeft = () => { const se = todayPlan(); return se.items.filter(it => !se.done.includes(it.ref)); };
 function runItem(it) {
@@ -474,10 +493,10 @@ songs = songs.map(s => s.mel ? s : { ...s, div:480, tempo:500000, acc:[], mel:s.
 
 function allLessons() {
   const out = [];
-  LEVELS.forEach((L, li) => L.lessons.forEach((x, i) => out.push({ ...x, id:x.id || 'l-' + slug(x.t), level:li, L })));
+  LEVELS.forEach((L, li) => L.lessons.forEach(x => { const id = x.id || 'l-' + slug(x.t); out.push({ ...x, ...trLesson(x, id), id, level:li, L:LV[li] }); }));   // id sempre dal titolo italiano
   songs.forEach(s => {
     const n = songSteps(s, songDiff).length, parts = Math.ceil(n / PART);
-    const mk = p => ({ t:s.t, part:p, sub:p < 0 ? 'Tutta' : `Parte ${p + 1}`, tip:'La base parte ogni volta che suoni la nota giusta.', id:`${s.id}-${songDiff}-${p}`, level:LEVELS.length, L:SONGS_LEVEL, song:s, imported:true });
+    const mk = p => ({ t:s.t, part:p, sub:p < 0 ? t('whole') : t('part', { n:p + 1 }), tip:t('songTip'), id:`${s.id}-${songDiff}-${p}`, level:LEVELS.length, L:SONGS_LEVEL, song:s, imported:true });
     if (parts > 1) for (let p = 0; p < parts; p++) out.push(mk(p));
     out.push(mk(-1));
   });
@@ -496,14 +515,15 @@ function showWho(creating) {
   const w = $('#who'), has = profiles.length > 0;
   w.hidden = false;
   w.innerHTML = has && !creating
-    ? `<div><h1>Chi suona?</h1><p class="whosub">Tocca il tuo profilo per entrare.</p>
-        <div class="players">${profiles.map((p, i) => `<button class="player" data-i="${i}" style="--c:${p.c};--ci:${p.ci}">${arcs(200, 3, 4, 'right:-60px;top:-60px')}<b>${esc(p.name[0].toUpperCase())}</b><span>${esc(p.name)}<br><small>Lv ${lvOf(p.xp)} · ${p.xp} XP · Entra</small></span></button>`).join('')}
-          <button class="player newtile" id="newbtn"><b aria-hidden="true">+</b><span>Nuovo profilo<br><small>per un'altra persona</small></span></button></div></div>`
-    : `<div><h1>${has ? 'Nuovo profilo' : 'Benvenuto.'}</h1>
-        <p class="whosub">${has ? 'Un profilo per ogni persona: progressi, livelli e classifica separati.' : 'Crea il tuo profilo: progressi e livelli restano salvati su questo dispositivo.'}</p>
-        <form class="newp" id="newp"><label>Come ti chiami?<input id="pname" maxlength="16" required autocomplete="off" autocapitalize="words"></label>
-        <button class="primary">${icon('plus')} Crea profilo</button>${has ? '<button type="button" id="backwho">Annulla</button>' : ''}</form></div>`;
+    ? `<div><h1>${t('who')}</h1><p class="whosub">${t('whoSub')}</p>
+        <div class="players">${profiles.map((p, i) => `<button class="player" data-i="${i}" style="--c:${p.c};--ci:${p.ci}">${arcs(200, 3, 4, 'right:-60px;top:-60px')}<b>${esc(p.name[0].toUpperCase())}</b><span>${esc(p.name)}<br><small>${t('tileSub', { lv:lvOf(p.xp), xp:p.xp })}</small></span></button>`).join('')}
+          <button class="player newtile" id="newbtn"><b aria-hidden="true">+</b><span>${t('newP')}<br><small>${t('newPsub')}</small></span></button></div><div class="wlang">${langSel('lang-who')}</div></div>`
+    : `<div><h1>${has ? t('newP') : t('welcome')}</h1>
+        <p class="whosub">${has ? t('newPtxt') : t('welcomeTxt')}</p>
+        <form class="newp" id="newp"><label>${t('yourName')}<input id="pname" maxlength="16" required autocomplete="off" autocapitalize="words"></label>
+        <button class="primary">${icon('plus')} ${t('create')}</button>${has ? `<button type="button" id="backwho">${t('cancel')}</button>` : ''}</form><div class="wlang">${langSel('lang-who')}</div></div>`;
   w.querySelectorAll('.player').forEach(b => b.onclick = () => pick(+b.dataset.i));
+  $('#lang-who').onchange = setLang;
   if ($('#newbtn')) $('#newbtn').onclick = () => showWho(true);
   if ($('#backwho')) $('#backwho').onclick = () => showWho();
   if ($('#newp')) $('#newp').onsubmit = e => {
@@ -516,6 +536,11 @@ function showWho(creating) {
     saveP(); pick(profiles.length - 1);
   };
   (w.querySelector('.player') || $('#pname')).focus();
+}
+function setLang(e) {   // salva la lingua e ricarica; dalla home si rientra nello stesso profilo
+  store.set('lang', e.target.value);
+  if (P && $('#who').hidden) sessionStorage.setItem('relang', P.id);
+  location.reload();
 }
 function pick(i) { P = profiles[i]; P.err ||= {}; P.srs ||= {}; migrateIds(P); store.set('current', P.id); $('#who').hidden = true; goHome(); }
 
@@ -540,51 +565,51 @@ function renderHome() {
   const se = todayPlan(), left = sessionLeft(), mins = Math.floor(minToday(P));
   const lv = lvOf(P.xp), st = streakOf(P), dx = dayXp(P), into = P.xp - xpFor(lv), need = xpFor(lv + 1) - xpFor(lv);
   const me = $('#me'); me.style.setProperty('--pc', P.c); me.style.setProperty('--pci', P.ci);
-  me.innerHTML = `<i>${esc(P.name[0].toUpperCase())}</i><span>${esc(P.name)}<small>Lv ${lv} · ${titleOf(lv)} · cambia</small></span>`;
+  me.innerHTML = `<i>${esc(P.name[0].toUpperCase())}</i><span>${esc(P.name)}<small>${t('meSub', { lv, x:titleOf(lv) })}</small></span>`;
   me.onclick = showWho;
   const pool = drillPool(), ranked = [...profiles].sort((a, b) => weekXp(b) - weekXp(a) || b.xp - a.xp);
-  const ctaMain = left.length ? (left.length === se.items.length ? 'Inizia' : 'Continua') : 'Continua';
-  const ctaSub = left.length ? `Prossimo: ${left[0].label}` : `Prossima lezione: ${nx.t}`;
+  const ctaMain = left.length ? (left.length === se.items.length ? t('start') : t('cont')) : t('cont');
+  const ctaSub = left.length ? t('nextItem', { x:itemLabel(left[0], list) }) : t('nextLesson', { x:nx.t });
   home.innerHTML = `<section class="next on-colour session">
       ${arcs(560, 4, 3.2, 'right:-280px;bottom:-360px')}
-      <div class="shead"><div><h1>${left.length ? 'La sessione di oggi' : 'Sessione completata.'}</h1>
-        <p>${left.length ? `Circa ${se.items.reduce((a, it) => a + it.min, 0)} minuti · ${se.items.length - left.length} di ${se.items.length} fatti` : 'Ottimo lavoro. Domani una nuova sessione, intanto puoi andare avanti.'}</p></div>
+      <div class="shead"><div><h1>${left.length ? t('today') : t('sessDone')}</h1>
+        <p>${left.length ? t('sessInfo', { m:se.items.reduce((a, it) => a + it.min, 0), d:se.items.length - left.length, n:se.items.length }) : t('sessDoneTxt')}</p></div>
         <button class="go cta" id="continue"><span>${ctaMain} ${icon('arrow')}</span><small>${esc(ctaSub)}</small></button></div>
-      <ol class="steps">${se.items.map((it, k) => `<li class="${se.done.includes(it.ref) ? 'done' : ''}"><button data-k="${k}"><span class="num">${se.done.includes(it.ref) ? '✓' : k + 1}</span><span class="l">${esc(it.label)}</span><small>${it.min} min</small></button></li>`).join('')}</ol>
+      <ol class="steps">${se.items.map((it, k) => `<li class="${se.done.includes(it.ref) ? 'done' : ''}"><button data-k="${k}"><span class="num">${se.done.includes(it.ref) ? '✓' : k + 1}</span><span class="l">${esc(itemLabel(it, list))}</span><small>${t('min', { n:it.min })}</small></button></li>`).join('')}</ol>
     </section>
     <div class="stats">
-      <div class="stat"><b>${icon('flame')}${st}</b><span>${st === 1 ? 'giorno' : 'giorni'} di fila</span></div>
-      <div class="stat"><b>${mins}<small>/${GOAL_MIN} min</small></b><span>${mins >= GOAL_MIN ? 'Pratica di oggi fatta' : 'Pratica di oggi'} · ${dx} XP</span><div class="meter"><i style="width:${Math.min(100, mins / GOAL_MIN * 100)}%"></i></div></div>
-      <div class="stat"><b>Lv ${lv}<small>${titleOf(lv)}</small></b><span>${into}/${need} XP al livello ${lv + 1}</span><div class="meter"><i style="width:${into / need * 100}%"></i></div></div>
+      <div class="stat"><b>${icon('flame')}${st}</b><span>${t('streak', { n:st })}</span></div>
+      <div class="stat"><b>${mins}<small>/${t('min', { n:GOAL_MIN })}</small></b><span>${mins >= GOAL_MIN ? t('practiceDone') : t('practice')} · ${dx} XP</span><div class="meter"><i style="width:${Math.min(100, mins / GOAL_MIN * 100)}%"></i></div></div>
+      <div class="stat"><b>${t('lv', { lv })}<small>${titleOf(lv)}</small></b><span>${t('toLevel', { a:into, b:need, n:lv + 1 })}</span><div class="meter"><i style="width:${into / need * 100}%"></i></div></div>
     </div>
     <div class="row2">
       <button class="drill" id="drill" aria-disabled="${pool.length < 3}">${arcs(300, 3, 3, 'right:-90px;bottom:-120px')}
-        <h2>Allenamento lampo</h2><p>${pool.length < 3 ? 'Si sblocca dopo le prime lezioni del Livello 0.' : `20 note a caso tra quelle che conosci. Fai combo per punti doppi e tripli.`}</p></button>
-      <section class="board"><h2>Classifica della settimana</h2><ol>${ranked.map((p, i) => `<li class="${p === P ? 'you' : ''}"><span class="pos">${i + 1}</span><span class="nm">${esc(p.name)}${p === P ? ' <em class="tu">tu</em>' : ''}<small>Lv ${lvOf(p.xp)} · ${streakOf(p)} giorni di fila · ${p.xp} XP totali</small></span><span class="xp">${weekXp(p)} XP</span></li>`).join('')}</ol>
-        ${profiles.length < 2 ? '<p class="hint">Per sfidare qualcuno tocca il tuo nome in alto e aggiungi un giocatore.</p>' : ''}</section>
+        <h2>${t('drill')}</h2><p>${pool.length < 3 ? t('drillLocked') : t('drillTxt')}</p></button>
+      <section class="board"><h2>${t('board')}</h2><ol>${ranked.map((p, i) => `<li class="${p === P ? 'you' : ''}"><span class="pos">${i + 1}</span><span class="nm">${esc(p.name)}${p === P ? ` <em class="tu">${t('you')}</em>` : ''}<small>${t('boardSub', { lv:lvOf(p.xp), n:streakOf(p), xp:p.xp })}</small></span><span class="xp">${weekXp(p)} XP</span></li>`).join('')}</ol>
+        ${profiles.length < 2 ? `<p class="hint">${t('boardHint')}</p>` : ''}</section>
     </div>
     <div class="levels" id="levels"></div>`;
   $('#continue').onclick = () => left.length ? runItem(left[0]) : start(ni);
   home.querySelectorAll('.steps button').forEach(b => b.onclick = () => runItem(se.items[+b.dataset.k]));
   $('#drill').onclick = () => pool.length >= 3 && start('drill');
-  LEVELS.forEach((L, li) => {
+  LV.forEach((L, li) => {
     const own = list.map((x, i) => [x, i]).filter(([x]) => x.level === li);
     const open = own.some(([, i]) => unlocked(list, i));
     const sec = document.createElement('section');
     sec.className = 'level';
     sec.style.setProperty('--c', L.c); sec.style.setProperty('--ci', L.ci);
-    sec.innerHTML = `<div class="poster ${open ? '' : 'locked'}">${arcs(220, 3, 4, 'right:-50px;top:-60px')}${open ? '' : icon('lock', 'i lk')}<b>${li}</b></div>
+    sec.innerHTML = `<div class="poster ${open ? '' : 'locked'}">${arcs(220, 3, 4, 'right:-50px;top:-60px')}${open ? '' : icon('lock', 'i lk') + `<span class="sr">${t('locked')}</span>`}<b>${li}</b></div>
       <h2>${esc(L.title)}</h2><p>${esc(L.d)}</p><ul class="lessons"></ul>`;
     own.forEach(([x, i]) => {
       const ok = unlocked(list, i), st = P.prog[x.id] || 0, li2 = document.createElement('li'), b = document.createElement('button');
       b.disabled = !ok; if (x.goal) b.className = 'goal';
-      b.innerHTML = `<span>${x.goal ? icon('trophy') : ''}${esc(x.t)}</span>${ok ? `<span class="stars" aria-label="${st} stelle su 3">${stars(st)}${P.master?.[x.id] ? `<span class="mast" title="Padroneggiata a tempo">${icon('check')}</span>` : ''}</span>` : icon('lock')}`;
+      b.innerHTML = `<span>${x.goal ? icon('trophy') : ''}${esc(x.t)}</span>${ok ? `<span class="stars" aria-label="${t('stars', { n:st })}">${stars(st)}${P.master?.[x.id] ? `<span class="mast" title="${t('mastered')}">${icon('check')}</span>` : ''}</span>` : icon('lock') + `<span class="sr">${t('locked')}</span>`}`;
       b.onclick = () => start(i);
       li2.append(b); sec.querySelector('.lessons').append(li2);
     });
     if (own.some(([x]) => P.prog[x.id] > 0)) {   // esercizi extra infiniti: dopo la prima lezione superata del livello
       const li3 = document.createElement('li'), b = document.createElement('button');
-      b.className = 'extra'; b.innerHTML = `<span>${icon('plus')} Esercizio extra</span><small>${(P.extra || {})[li] || 0} fatti</small>`;
+      b.className = 'extra'; b.innerHTML = `<span>${icon('plus')} ${t('extra')}</span><small>${t('extraDone', { n:(P.extra || {})[li] || 0 })}</small>`;
       b.onclick = () => { const x = genExtra(li); x && start(x); };
       li3.append(b); sec.querySelector('.lessons').append(li3);
     }
@@ -597,14 +622,14 @@ function renderHome() {
     <h2>${esc(SONGS_LEVEL.title)}</h2><p>${esc(SONGS_LEVEL.d)}</p></div><div class="libr"></div>`;
   const libr = sec.querySelector('.libr');
   libr.append(searchUI(), importUI());
-  if (!songs.length) libr.insertAdjacentHTML('beforeend', '<p class="hint">Ancora nessuna canzone. Cercala qui sopra, oppure aggiungi un file .mid che hai già.</p>');
+  if (!songs.length) libr.insertAdjacentHTML('beforeend', `<p class="hint">${t('noSongs')}</p>`);
   songs.forEach(so => {
     const d = document.createElement('div'); d.className = 'song';
-    d.innerHTML = `<h3><span>${esc(so.t)}</span><button aria-label="Elimina ${esc(so.t)}">${icon('trash')}</button></h3><div class="parts"></div>`;
-    d.querySelector('h3 button').onclick = () => { if (confirm(`Eliminare "${so.t}" dal catalogo? Non si può annullare.`)) { songs = songs.filter(x => x !== so); store.set('songs', songs); renderHome(); } };
+    d.innerHTML = `<h3><span>${esc(so.t)}</span><button aria-label="${esc(t('del', { x:so.t }))}">${icon('trash')}</button></h3><div class="parts"></div>`;
+    d.querySelector('h3 button').onclick = () => { if (confirm(t('delConfirm', { x:so.t }))) { songs = songs.filter(x => x !== so); store.set('songs', songs); renderHome(); } };
     list.forEach((x, i) => { if (x.song !== so) return;
       const b = document.createElement('button'), st = P.prog[x.id] || 0;
-      b.innerHTML = `${x.sub} <span class="stars" aria-label="${st} stelle su 3">${stars(st)}</span>`; b.onclick = () => start(i);
+      b.innerHTML = `${x.sub} <span class="stars" aria-label="${t('stars', { n:st })}">${stars(st)}</span>`; b.onclick = () => start(i);
       d.querySelector('.parts').append(b); });
     libr.append(d);
   });
@@ -617,21 +642,21 @@ const nice = n => n.replace(/\.midi?$/i, '').replace(/[-_]+/g, ' ').replace(/\s+
 function searchUI() {
   const w = document.createElement('form');
   w.className = 'search'; w.setAttribute('role', 'search');
-  w.innerHTML = `<label for="sq">Cerca una canzone</label>
-    <div class="srow"><input id="sq" type="search" value="${esc(srch.q)}" placeholder="Titolo o artista" autocomplete="off" enterkeyhint="search"><button class="primary">${icon('search')} Cerca</button></div>
+  w.innerHTML = `<label for="sq">${t('searchL')}</label>
+    <div class="srow"><input id="sq" type="search" value="${esc(srch.q)}" placeholder="${t('searchPh')}" autocomplete="off" enterkeyhint="search"><button class="primary">${icon('search')} ${t('searchB')}</button></div>
     <p class="msg" role="status">${esc(srch.msg)}</p><ul class="results"></ul>
-    ${srch.q && !srch.items.length && srch.msg !== 'Cerco…' ? `<div class="ext"><a class="btn" href="https://musescore.com/sheetmusic?text=${encodeURIComponent(srch.q)}" target="_blank" rel="noopener">${icon('search')} Cerca "${esc(srch.q)}" su MuseScore</a>
-      <p class="hint">Lì trovi gli arrangiamenti per pianoforte delle canzoni recenti. Apri quello che ti piace, scarica il file <b>MIDI</b> (serve un account MuseScore; alcuni spartiti sono a pagamento) e aggiungilo qui sotto con "Aggiungi canzoni".</p></div>` : ''}`;
+    ${srch.q && !srch.items.length && srch.msg !== t('searching') ? `<div class="ext"><a class="btn" href="https://musescore.com/sheetmusic?text=${encodeURIComponent(srch.q)}" target="_blank" rel="noopener">${icon('search')} ${t('museLink', { x:esc(srch.q) })}</a>
+      <p class="hint">${t('museHint')}</p></div>` : ''}`;
   const ul = w.querySelector('.results');
   srch.items.forEach(r => {
     const li = document.createElement('li');
-    li.innerHTML = `<span>${esc(nice(r.name))}<small>${Number(r.plays || 0).toLocaleString('it')} ascolti</small></span><button type="button">${icon('plus')} Suona</button>`;
+    li.innerHTML = `<span>${esc(nice(r.name))}<small>${t('plays', { n:Number(r.plays || 0), x:Number(r.plays || 0).toLocaleString(L10N.loc) })}</small></span><button type="button">${icon('plus')} ${t('play')}</button>`;
     li.querySelector('button').onclick = e => addFromWeb(r, e.currentTarget);
     ul.append(li);
   });
   if (srch.items.length && srch.items.length < srch.total) {
     const li = document.createElement('li'); li.className = 'more';
-    li.innerHTML = '<button type="button">Altri risultati</button>';
+    li.innerHTML = `<button type="button">${t('more')}</button>`;
     li.querySelector('button').onclick = () => search(srch.q, srch.page + 1);
     ul.append(li);
   }
@@ -645,7 +670,7 @@ function refreshSearch(focus) {
 }
 async function search(q, page) {
   if (!q) return;
-  srch.q = q; srch.msg = 'Cerco…'; refreshSearch();
+  srch.q = q; srch.msg = t('searching'); refreshSearch();
   try {
     const r = await fetch(`https://bitmidi.com/api/midi/search?q=${encodeURIComponent(q)}&page=${page}&pageSize=20`);
     if (!r.ok) throw Error(r.status);
@@ -654,23 +679,22 @@ async function search(q, page) {
     const ws = q.toLowerCase().split(/\s+/), score = x => { const n = nice(x.name).toLowerCase(); return ws.filter(w => n.includes(w)).length * 1e7 + (n.includes(q.toLowerCase()) ? 5e7 : 0) + (x.plays || 0); };
     d.results.sort((x, y) => score(y) - score(x));
     srch.items = page ? srch.items.concat(d.results) : d.results; srch.page = page; srch.total = d.total;
-    srch.msg = d.total ? `${d.total} risultati dall'archivio BitMidi. I file sono fatti da utenti: se una versione suona male, provane un'altra.`
-                       : `"${q}" non è nell'archivio gratuito: contiene soprattutto canzoni fino ai primi anni 2010.`;
-  } catch { srch.msg = 'Ricerca non riuscita: controlla la connessione e riprova.'; }
+    srch.msg = d.total ? t('results', { n:d.total }) : t('notFound', { q });
+  } catch { srch.msg = t('searchErr'); }
   refreshSearch(page ? '.more button' : '.results button');
 }
 async function addFromWeb(r, btn) {
   if (!/^\/uploads\/\d+\.midi?$/i.test(r.downloadUrl || '')) return;   // solo file dell'archivio
-  btn.disabled = true; btn.textContent = 'Scarico…';
+  btn.disabled = true; btn.textContent = t('downloading');
   try {
     const res = await fetch('https://bitmidi.com' + r.downloadUrl);
-    if (!res.ok) throw Error('download non riuscito');
+    if (!res.ok) throw Error(t('dlFail'));
     const so = makeSong(nice(r.name), parseMidi(await res.arrayBuffer()));
     songs.push(so);
-    try { store.set('songs', songs); } catch { songs.pop(); throw Error('memoria piena, elimina qualche canzone'); }
+    try { store.set('songs', songs); } catch { songs.pop(); throw Error(t('memFull')); }
     start(allLessons().findIndex(x => x.song === so));   // dritto allo spartito
   } catch (e) {
-    btn.disabled = false; btn.textContent = 'Riprova';
+    btn.disabled = false; btn.textContent = t('retry');
     srch.msg = `"${nice(r.name)}": ${e.message}.`;
     const m = document.querySelector('.search .msg'); if (m) m.textContent = srch.msg;
   }
@@ -679,8 +703,8 @@ async function addFromWeb(r, btn) {
 function importUI() {
   const w = document.createElement('div');
   w.className = 'import';
-  w.innerHTML = `<div class="seg" role="group" aria-label="Difficoltà delle canzoni">${[['facile', 'Facile: melodia'], ['normale', 'Normale: con accordi']].map(([d, l]) => `<button aria-pressed="${songDiff === d}" data-d="${d}">${l}</button>`).join('')}</div>
-    <label class="btn">${icon('upload')} Aggiungi canzoni (.mid)<input type="file" accept=".mid,.midi,audio/midi" multiple hidden></label><p class="msg" role="status"></p>`;
+  w.innerHTML = `<div class="seg" role="group" aria-label="${t('diffL')}">${[['facile', t('easyL')], ['normale', t('normL')]].map(([d, l]) => `<button aria-pressed="${songDiff === d}" data-d="${d}">${l}</button>`).join('')}</div>
+    <label class="btn">${icon('upload')} ${t('addSongs')}<input type="file" accept=".mid,.midi,audio/midi" multiple hidden></label><p class="msg" role="status"></p>`;
   w.querySelectorAll('.seg button').forEach(b => b.onclick = () => { songDiff = b.dataset.d; store.set('songDiff', songDiff); renderHome(); });
   w.querySelector('input').onchange = async e => {
     const ok = [], bad = [];
@@ -689,10 +713,10 @@ function importUI() {
       catch (err) { bad.push(`${f.name} (${err.message})`); }
     }
     try { store.set('songs', songs); }
-    catch { songs.splice(songs.length - ok.length); w.querySelector('.msg').textContent = 'Memoria piena: elimina qualche canzone e riprova.'; return; }
+    catch { songs.splice(songs.length - ok.length); w.querySelector('.msg').textContent = t('memFull2'); return; }
     if (ok.length) renderHome();
     const msg = document.querySelector('.import .msg');
-    if (msg) msg.textContent = [ok.length ? `Aggiunte ${ok.length} canzoni.` : '', bad.length ? `Non lette: ${bad.join(', ')}.` : ''].join(' ');
+    if (msg) msg.textContent = [ok.length ? t('added', { n:ok.length }) : '', bad.length ? t('unread', { x:bad.join(', ') }) : ''].join(' ');
   };
   return w;
 }
@@ -703,9 +727,9 @@ function parseMidi(buf) {
   const str = n => { let s = ''; for (let i = 0; i < n; i++) s += String.fromCharCode(d.getUint8(p++)); return s; };
   const u32 = () => (p += 4, d.getUint32(p - 4)), u16 = () => (p += 2, d.getUint16(p - 2));
   const vl = () => { let v = 0, b; do { b = d.getUint8(p++); v = (v << 7) | (b & 127); } while (b & 128); return v; };
-  if (str(4) !== 'MThd') throw Error('non è un file MIDI');
+  if (str(4) !== 'MThd') throw Error(t('notMidi'));
   const hl = u32(); u16(); const nt = u16(), div = u16(); p += hl - 6;
-  if (div & 0x8000) throw Error('formato SMPTE non supportato');
+  if (div & 0x8000) throw Error(t('smpte'));
   let tempo = 0; const tracks = new Map();
   for (let t = 0; t < nt && p < d.byteLength; t++) {
     const id = str(4), end = u32() + p;
@@ -729,13 +753,13 @@ function parseMidi(buf) {
   }
   return { div, tempo:tempo || 500000, tracks:[...tracks.values()] };
 }
-function makeSong(t, mid) {
+function makeSong(title, mid) {
   const pitched = mid.tracks.filter(x => x.ch !== 9 && x.notes.length >= 16);
-  if (!pitched.length) throw Error('nessuna melodia trovata');
+  if (!pitched.length) throw Error(t('noMel'));
   const avg = x => x.notes.reduce((a, n) => a + n[1], 0) / x.notes.length;
   const mel = pitched.reduce((a, b) => avg(b) > avg(a) ? b : a);   // ponytail: melodia = traccia più acuta; scelta manuale se sbaglia spesso
   const byTick = (a, b) => a[0] - b[0];
-  return { id:'song-' + Date.now() + Math.random().toString(36).slice(2, 6), t, div:mid.div, tempo:mid.tempo,
+  return { id:'song-' + Date.now() + Math.random().toString(36).slice(2, 6), t:title, div:mid.div, tempo:mid.tempo,
     mel:mel.notes.slice().sort(byTick),
     acc:mid.tracks.filter(x => x !== mel).flatMap(x => x.notes.map(n => [n[0], n[1], x.ch === 9 ? 1 : 0])).sort(byTick) };
 }
@@ -759,7 +783,7 @@ let errSteps = new Set(), stepErr = 0, pending = null, idleT = 0, doneAt = 0;
 const multOf = c => c >= 20 ? 3 : c >= 8 ? 2 : 1;
 function start(i) {
   const prevIdx = idx; idx = i;
-  if (i === 'drill') { const pool = drillPool(); if (pool.length < 3) return goHome(); cur = { t:'Allenamento lampo', id:'drill', level:'', L:DRILL_LEVEL, tip:'Leggi la nota e suonala. Più combo fai, più punti prendi.', steps:Array.from({ length:20 }, () => [pickWeighted(pool)]) }; }
+  if (i === 'drill') { const pool = drillPool(); if (pool.length < 3) return goHome(); cur = { t:t('drill'), id:'drill', level:'', L:DRILL_LEVEL, tip:t('drillTip'), steps:Array.from({ length:20 }, () => [pickWeighted(pool)]) }; }
   else if (typeof i === 'object') { cur = i; idx = prevIdx; }
   else cur = allLessons()[i];
   cur.st = cur.st0 ? cur.st0.map(x => ({ ...x })) : compile(cur);
@@ -770,12 +794,12 @@ function start(i) {
   $('#home-view').hidden = true; $('#player').hidden = false; $('#done').hidden = true;
   $('#band-arcs').innerHTML = arcs(460, 4, 3, 'right:-170px;top:-270px');
   $('#title').textContent = cur.t;
-  $('#sub').textContent = cur.repair ? cur.sub : cur.practice ? 'Allenamento' : cur.imported ? `${cur.sub} · ${songDiff === 'facile' ? 'Facile' : 'Normale'}` : cur.id === 'drill' ? 'Allenamento' : `${cur.goal ? 'Obiettivo · ' : ''}Livello ${cur.level} · ${cur.L.title}`;
+  $('#sub').textContent = cur.repair ? cur.sub : cur.practice ? t('drillT') : cur.imported ? `${cur.sub} · ${songDiff === 'facile' ? t('easy') : t('normal')}` : cur.id === 'drill' ? t('drillT') : `${cur.goal ? t('goalP') : ''}${t('levelSub', { n:cur.level, x:cur.L.title })}`;
   setTip(cur.cards ? '' : cur.tip || '');
   const tm = canTime(); $('#mode').hidden = !tm; $('#calib').hidden = !tm || mode === 'wait'; $('#mode').value = mode;
   if (!tm || mode === 'wait') while (cur.st[step]?.rest) step++;
   buildKeys(); render();
-  if (tm && mode !== 'wait') { setTip('Suona quando la nota tocca la linea colorata. Prima 4 battiti di attacco.', true); beginTimed(); }
+  if (tm && mode !== 'wait') { setTip(t('timedTip'), true); beginTimed(); }
 }
 function buildKeys() {
   const used = cur.st.flatMap(s => s.need || []);
@@ -821,21 +845,21 @@ function render() {
     k.classList.toggle('wrong', wrongKeys.has(m));
     const fg = targets.has(m) && ti >= 0 && fingers[ti] ? `<span class="fg">${esc(fingers[ti])}</span>` : '';
     const ord = m % 12 === 0 && m >= 36 && m <= 96 ? (m - 36) / 12 + 1 : 0;   // i Do della Melody 61 contati da sinistra
-    const label = !SHARP[m % 12] && names ? NAMES[m % 12] + (ord ? `<small class="ord">${ord}°</small>` : '') : '';
+    const label = !SHARP[m % 12] && names ? NAMES[m % 12] + (ord ? `<small class="ord">${L10N.ord(ord)}</small>` : '') : '';
     k.innerHTML = fg + (m === 60 ? '<span class="c4" aria-hidden="true"></span>' : '') + `<span>${label}</span>`;
   });
   document.querySelectorAll('.mk').forEach(k => k.classList.toggle('t', targets.has(+k.dataset.m)));
   // testa
   const total = cur.st.length, practice = cur.st.filter(x => !x.next).length, done = cur.st.slice(0, step).filter(x => !x.next).length;
   $('#count').innerHTML = practice ? `${done}<small>/${practice}</small>` : '';
-  $('#combo').textContent = combo >= 3 ? `Combo ${combo}${multOf(combo) > 1 ? ` · punti ×${multOf(combo)}` : ''}` : '';
+  $('#combo').textContent = combo >= 3 ? t('combo', { n:combo }) + (multOf(combo) > 1 ? t('comboX', { m:multOf(combo) }) : '') : '';
   $('#bar').style.width = 100 * step / total + '%';
   // scena: scheda di teoria e/o pentagramma
   const showStaff = !card || card.staff;
   $('#stage').className = 'stage ' + (card ? (showStaff ? 'with-card' : 'card-only') : '');
   $('#card').hidden = !card;
   if (card) {
-    $('#card').innerHTML = `<h2>${esc(card.h)}</h2><p>${esc(card.p)}</p>${s.next ? `<button class="primary cont" id="cont">Avanti ${icon('arrow')}</button><p style="font-size:16px;color:var(--mute)">oppure premi un tasto qualsiasi</p>` : ''}`;
+    $('#card').innerHTML = `<h2>${esc(card.h)}</h2><p>${esc(card.p)}</p>${s.next ? `<button class="primary cont" id="cont">${t('next')} ${icon('arrow')}</button><p style="font-size:16px;color:var(--mute)">${t('anyKey')}</p>` : ''}`;
     if (s.next) $('#cont').onclick = () => advance();
   }
   $('#staffwrap').hidden = !showStaff;
@@ -844,14 +868,14 @@ function render() {
 }
 function sayText(s, names) {
   if (s.next) return '';
-  if (s.any) { const pcs = new Set(s.any.map(m => m % 12)), pc = s.any[0] % 12; return `Suona ${pcs.size === 1 ? `un <em>${s.flat ? FLATN[pc] : NAMES[pc]}</em>` : 'un <em>tasto nero</em>'} qualsiasi`; }
+  if (s.any) { const pcs = new Set(s.any.map(m => m % 12)), pc = s.any[0] % 12; return pcs.size === 1 ? t('sayAny', { x:s.flat ? FLATN[pc] : NAMES[pc] }) : t('sayBlack'); }
   if (!s.need) return '';
   const left = s.need.filter(m => !hit.has(m));
-  if (!left.length) return timed ? 'Bene, avanti così…' : '';
+  if (!left.length) return timed ? t('goOn') : '';
   const nm = left.map(m => names ? (s.flats?.includes(m) ? FLATN[m % 12] : NAMES[m % 12]) : '?').join(' ');
-  const f = s.need.length === 1 && s.finger ? ` — dito ${s.finger}, ${FINGER[s.finger]}` : '';
-  if (s.need.length > 1) return `Suona insieme <em>${nm}</em>${micOn ? ' (col microfono, una alla volta)' : ''}`;
-  return names ? `Suona il <em>${nm}</em>${f}` : `Quale nota è?${f}`;
+  const f = s.need.length === 1 && s.finger ? t('finger', { n:s.finger, f:FINGER[s.finger] }) : '';
+  if (s.need.length > 1) return t('together', { x:nm }) + (micOn ? t('micOne') : '');
+  return names ? t('playNote', { x:nm, f }) : t('which', { f });
 }
 const ledger = (x, y, w, cls = '') => `<line x1="${x - w}" x2="${x + w}" y1="${y}" y2="${y}" class="sl ${cls}"/>`;
 const SP = 14;                                   // spazio tra le linee del pentagramma
@@ -929,19 +953,13 @@ function ring(m) {
   k.append(r); r.addEventListener('animationend', () => r.remove());
 }
 // ===== Consigli del maestro =====
-const WHERE = ['Il Do è il bianco a sinistra dei due tasti neri.', 'Il Do♯ è il nero a destra del Do.', 'Il Re sta in mezzo ai due tasti neri.', 'Il Re♯ è il secondo nero del gruppo da due.',
-  'Il Mi è il bianco a destra dei due tasti neri.', 'Il Fa è il bianco a sinistra dei tre tasti neri.', 'Il Fa♯ è il primo nero del gruppo da tre.', 'Il Sol sta tra il primo e il secondo nero del gruppo da tre.',
-  'Il Sol♯ è il nero in mezzo al gruppo da tre.', 'Il La sta tra il secondo e il terzo nero del gruppo da tre.', 'Il La♯ è l\'ultimo nero del gruppo da tre.', 'Il Si è il bianco a destra dei tre tasti neri.'];
-const ADVICE = ['Dita curve, come se tenessi una pallina. Polso morbido, all\'altezza dei tasti.', 'Siediti al centro, davanti al Do centrale, con i gomiti un po\' più avanti del busto.',
-  'Meglio lento e giusto che veloce e sbagliato: ogni ripetizione sbagliata ne chiede tre giuste per essere cancellata.', 'Guarda lo spartito, non le mani: le dita imparano la strada da sole.',
-  'Pochi minuti ogni giorno valgono più di un\'ora una volta a settimana.', 'Se un punto non viene, isolalo: due o tre note, lente, finché vengono tre volte di fila.',
-  'Respira e rilassa le spalle: la tensione rende le dita lente.', 'Canta o conta a voce mentre suoni: aiuta il ritmo e la memoria.', 'Prima di suonare, trova con gli occhi la prima nota e metti già il dito giusto sopra.'];
+const WHERE = L10N.where, ADVICE = L10N.advice;   // consigli del maestro nella lingua scelta
 function setTip(t, hot) { const el = $('#tip'); el.textContent = t; el.classList.toggle('hot', !!hot); }
 function hint(s, why, m) {
   const target = (s.need || []).find(n => !hit.has(n)) ?? s.need?.[0]; if (target === undefined) return;
-  if (why === 'octave') return setTip('Nota giusta, ottava sbagliata: usa il pallino del Do centrale come riferimento.', true);
-  if (why === 'near') return setTip('Quasi: hai preso il tasto vicino. Un dito per tasto, dita curve.', true);
-  setTip(WHERE[target % 12] + (s.finger ? ` Usa il dito ${String(s.finger).split('-')[0]}.` : ''), true);
+  if (why === 'octave') return setTip(t('hOct'), true);
+  if (why === 'near') return setTip(t('hNear'), true);
+  setTip(WHERE[target % 12] + (s.finger ? t('useF', { n:String(s.finger).split('-')[0] }) : ''), true);
 }
 function floatXp(m, txt) {
   const k = $(`.key[data-m="${m}"]`); if (!k) return;
@@ -1002,9 +1020,9 @@ function makeChunks(st, errSet) {
 const CLEAN = 3;   // un tratto è riparato dopo 3 volte di fila senza errori
 function startRepair() {
   const p = pending;
-  start({ t:'Ripara gli errori', repair:true, id:'repair', L:p.lesson.L, level:'', hideNames:p.rep === CLEAN - 1,
-    sub:`Tratto ${p.ci + 1} di ${p.chunks.length} · pulito ${p.rep} su ${CLEAN}`,
-    tip:p.rep === 0 ? 'Qui avevi sbagliato. Suona lento: conta la precisione, non la velocità.' : p.rep === CLEAN - 1 ? 'Ultima volta, senza nomi delle note.' : 'Bene. Ancora, senza errori.',
+  start({ t:t('repT'), repair:true, id:'repair', L:p.lesson.L, level:'', hideNames:p.rep === CLEAN - 1,
+    sub:t('repSub', { a:p.ci + 1, b:p.chunks.length, r:p.rep, c:CLEAN }),
+    tip:p.rep === 0 ? t('rep0') : p.rep === CLEAN - 1 ? t('repLast') : t('repMid'),
     st0:p.chunks[p.ci] });
 }
 function finish() {
@@ -1039,17 +1057,17 @@ function showDone(r) {
   P.best = Math.max(P.best || 0, r.bestCombo);
   addXp(total);
   const after = lvOf(P.xp), list = allLessons(), hasNext = practice || idx + 1 < list.length;
-  const advice = r.acc != null && r.acc < 0.7 ? 'Il tempo è difficile all\'inizio: torna su "A tempo 70%" e conta ad alta voce 1-2-3-4.' : r.acc != null && r.tmode === 't70' && r.acc >= 0.9 ? 'Ottimo a velocità ridotta: ora prova "A tempo 100%".' : r.errors > 4 ? 'Molti errori: rifalla più lenta. Tre volte giuste valgono più di trenta sbagliate.' : ADVICE[(P.xp + r.n) % ADVICE.length];
+  const advice = r.acc != null && r.acc < 0.7 ? t('advSlow') : r.acc != null && r.tmode === 't70' && r.acc >= 0.9 ? t('adv70') : r.errors > 4 ? t('advErr') : ADVICE[(P.xp + r.n) % ADVICE.length];
   const d = $('#done');
   d.innerHTML = `${arcs(1400, 4, 1.6, 'left:50%;top:50%;transform:translate(-50%,-50%)', 33)}<div class="inner">
-    <h2 id="done-h">${st === 3 ? 'Perfetto.' : 'Fatto.'}</h2><div class="big" aria-label="${st} stelle su 3">${stars(st)}</div>
-    <div class="gain"><div><b>+${total}</b><span>XP${first ? ' (+20 prima volta)' : ''}</span></div>${r.acc != null ? `<div><b>${Math.round(r.acc * 100)}%</b><span>a tempo (${r.tmode === 't70' ? '70%' : '100%'})</span></div><div><b>${r.judge.Perfetto}</b><span>perfette</span></div><div><b>${r.judge['Fuori tempo'] + r.judge.Mancata}</b><span>fuori tempo o mancate</span></div>` : `<div><b>${r.bestCombo}</b><span>combo migliore</span></div>`}<div><b>${r.errors}</b><span>${r.errors === 1 ? 'errore' : 'errori'}</span></div>${r.fixed ? `<div><b>${r.fixed}</b><span>${r.fixed === 1 ? 'punto riparato' : 'punti riparati'}</span></div>` : ''}<div><b>${streakOf(P)}</b><span>giorni di fila</span></div></div>
-    ${after > before ? `<p class="lvup">Livello ${after} raggiunto · ${titleOf(after)}</p>` : ''}
-    ${mastered ? '<p class="lvup">Padroneggiata: suonata a tempo al 100%</p>' : ''}
-    ${r.acc != null && r.acc < 0.7 ? '' : ''}${sessionDone ? `<p class="lvup">Sessione di oggi completata · ${streakOf(P)} ${streakOf(P) === 1 ? 'giorno' : 'giorni'} di fila</p>` : ''}
+    <h2 id="done-h">${st === 3 ? t('perfect') : t('doneH')}</h2><div class="big" aria-label="${t('stars', { n:st })}">${stars(st)}</div>
+    <div class="gain"><div><b>+${total}</b><span>XP${first ? t('xpFirst') : ''}</span></div>${r.acc != null ? `<div><b>${Math.round(r.acc * 100)}%</b><span>${t('inTime', { p:r.tmode === 't70' ? '70%' : '100%' })}</span></div><div><b>${r.judge.Perfetto}</b><span>${t('perfN')}</span></div><div><b>${r.judge['Fuori tempo'] + r.judge.Mancata}</b><span>${t('offMiss')}</span></div>` : `<div><b>${r.bestCombo}</b><span>${t('bestCombo')}</span></div>`}<div><b>${r.errors}</b><span>${t('errs', { n:r.errors })}</span></div>${r.fixed ? `<div><b>${r.fixed}</b><span>${t('fixed', { n:r.fixed })}</span></div>` : ''}<div><b>${streakOf(P)}</b><span>${t('daysRow', { n:streakOf(P) })}</span></div></div>
+    ${after > before ? `<p class="lvup">${t('lvUp', { n:after, x:titleOf(after) })}</p>` : ''}
+    ${mastered ? `<p class="lvup">${t('masteredDone')}</p>` : ''}
+    ${r.acc != null && r.acc < 0.7 ? '' : ''}${sessionDone ? `<p class="lvup">${t('sessComplete', { n:streakOf(P) })}</p>` : ''}
     <p class="advice">${esc(advice)}</p>
-    <div class="acts">${inSession && nextIt ? `<button class="primary" id="snext">Avanti nella sessione ${icon('arrow')}</button>` : ''}${hasNext ? `<button class="${inSession && nextIt ? '' : 'primary'}" id="next">${cur.id === 'drill' ? 'Ancora' : cur.extraOf !== undefined ? 'Un altro esercizio' : practice ? 'Di nuovo' : 'Prossima lezione'} ${icon('arrow')}</button>` : ''}
-      <button id="again">${icon('restart')} Riprova</button><button id="home-btn">Home</button></div><p class="anykey">oppure premi un tasto qualsiasi della pianola</p></div>`;
+    <div class="acts">${inSession && nextIt ? `<button class="primary" id="snext">${t('sNext')} ${icon('arrow')}</button>` : ''}${hasNext ? `<button class="${inSession && nextIt ? '' : 'primary'}" id="next">${cur.id === 'drill' ? t('again') : cur.extraOf !== undefined ? t('anotherEx') : practice ? t('oncemore') : t('nextL')} ${icon('arrow')}</button>` : ''}
+      <button id="again">${icon('restart')} ${t('retry')}</button><button id="home-btn">${t('home')}</button></div><p class="anykey">${t('anyKeyDone')}</p></div>`;
   $('#player').hidden = false; d.hidden = false; doneAt = performance.now();
   $('#again').onclick = () => start(idx);
   if (hasNext) $('#next').onclick = () => start(cur.id === 'drill' ? 'drill' : cur.extraOf !== undefined ? genExtra(cur.extraOf) : cur.practice ? warmup() : idx + 1);
@@ -1060,7 +1078,7 @@ function showDone(r) {
 function goHome() { stopTimed(); calib = null; history.replaceState(null, '', location.pathname); clearTimeout(idleT); pending = null; cur = null; $('#player').hidden = true; $('#done').hidden = true; $('#home-view').hidden = false; renderHome(); }
 $('#calib').innerHTML = icon('target'); $('#back').innerHTML = icon('back'); $('#listen').innerHTML = icon('play'); $('#restart').innerHTML = icon('restart');
 $('#back').onclick = () => { stopTimed(); calib = null; pending ? showDone(pending) : goHome(); };   // uscire dalla riparazione chiude comunque la lezione
-const baseLabel = () => { $('#base').innerHTML = icon('drum'); $('#base').setAttribute('aria-pressed', baseOn); $('#base').title = baseOn ? 'Base accesa' : 'Base spenta'; $('#base').classList.toggle('off', !baseOn); };
+const baseLabel = () => { $('#base').innerHTML = icon('drum'); $('#base').setAttribute('aria-pressed', baseOn); $('#base').title = baseOn ? t('baseOn') : t('baseOff'); $('#base').classList.toggle('off', !baseOn); };
 $('#mode').onchange = e => { mode = e.target.value; store.set('mode', mode); start(idx); };
 $('#calib').onclick = calibrate;
 $('#base').onclick = () => { baseOn = !baseOn; store.set('base', baseOn); baseLabel(); };
@@ -1164,7 +1182,7 @@ function beginTimed() {
 function tick() {
   if (!timed) return;
   const now = performance.now(), ms = timed.spb * 1000, beatNow = (now - timed.t0) / ms;
-  if (beatNow < 0) $('#say').innerHTML = `Pronti… <em>${Math.ceil(-beatNow)}</em>`;
+  if (beatNow < 0) $('#say').innerHTML = t('ready', { n:Math.ceil(-beatNow) });
   for (let i = timed.i; i < cur.st.length; i++) {   // note non suonate in tempo = mancate
     const x = cur.st[i]; if (now < timed.t0 + x.beat * ms + WIN) break;
     if (x.need && (timed.done.get(i)?.size || 0) < x.need.length) miss(i);
@@ -1176,7 +1194,8 @@ function tick() {
   if (beatNow >= timed.total + 0.6) return finish();
   timed.raf = requestAnimationFrame(tick);
 }
-function judgeFloat(m, label) { const k = $(`.key[data-m="${m}"]`); if (!k) return; const f = document.createElement('span'); f.className = 'xpf j-' + (label === 'Perfetto' ? 'p' : label === 'Bene' ? 'b' : 'o'); f.textContent = label; k.append(f); f.addEventListener('animationend', () => f.remove()); }
+const JUDGE = { Perfetto:'jPerf', Bene:'jGood', Presto:'jEarly', Tardi:'jLate', Mancata:'jMiss' };   // chiavi interne in italiano, testo tradotto
+function judgeFloat(m, label) { const k = $(`.key[data-m="${m}"]`); if (!k) return; const f = document.createElement('span'); f.className = 'xpf j-' + (label === 'Perfetto' ? 'p' : label === 'Bene' ? 'b' : 'o'); f.textContent = t(JUDGE[label]); k.append(f); f.addEventListener('animationend', () => f.remove()); }
 function miss(i) {
   errors++; combo = 0; errSteps.add(i); timed.judge.Mancata++;
   const m = cur.st[i].need.find(n => !timed.done.get(i)?.has(n)); if (m !== undefined) { (P.err[m] ||= [0, 0])[1]++; judgeFloat(m, 'Mancata'); }
@@ -1213,14 +1232,14 @@ function calibrate() {
   const spb = 60 / 90, at0 = a.currentTime + 4 * spb + 0.3, t0 = performance.now() + (4 * spb + 0.3) * 1000;
   for (let b = -4; b < 8; b++) clickAt(at0 + b * spb, b < 0 || b % 4 === 0);
   calib = { t0, spb, hits:[], src:'midi' };
-  $('#say').innerHTML = 'Calibrazione: suona <em>un tasto qualsiasi</em> insieme a ogni click, dopo i 4 di attacco.';
-  setTip('Serve una volta per dispositivo: corregge il ritardo di microfono o cavo.', true);
+  $('#say').innerHTML = t('calSay');
+  setTip(t('calTip'), true);
   setTimeout(() => {
     const ds = calib.hits.map(t => { const b = Math.round((t - calib.t0) / (calib.spb * 1000)); return t - (calib.t0 + b * calib.spb * 1000); }).filter(d => Math.abs(d) < 400).sort((x, y) => x - y);
     const kind = calib.src === 'mic' ? 'mic' : 'midi'; calib = null;
-    if (ds.length < 4) { setTip('Pochi tasti sentiti: riprova suonando più forte, insieme ai click.', true); return; }
+    if (ds.length < 4) { setTip(t('calFew'), true); return; }
     P.lat = { ...(P.lat || {}), [kind]:Math.round(ds[ds.length >> 1]) }; saveP();
-    setTip(`Fatto: ritardo ${kind === 'mic' ? 'del microfono' : 'della tastiera'} ${P.lat[kind]} ms. Ora la modalità a tempo è precisa.`, true);
+    setTip(t('calOk', { k:t(kind === 'mic' ? 'calMic' : 'calKbd'), ms:P.lat[kind] }), true);
     setTimeout(() => start(idx), 1800);
   }, (12 * spb + 1) * 1000);
 }
@@ -1252,7 +1271,7 @@ if (navigator.requestMIDIAccess) navigator.requestMIDIAccess().then(acc => {
   const bind = () => {
     let n = 0;
     acc.inputs.forEach(i => { n++; i.onmidimessage = e => { const [s, d, v] = e.data; if ((s & 0xf0) === 0x90 && v > 0) noteOn(d, 'midi'); }; });
-    midiCount = n; status('midi', n ? 'Pianola collegata via USB' : '');
+    midiCount = n; status('midi', n ? t('usb') : '');
   };
   bind(); acc.onstatechange = bind;
 }, () => status('midi', '')); else status('midi', '');
@@ -1270,12 +1289,12 @@ function detect(b, sr) {
   const a = c[p - 1], bb = c[p], cc = c[p + 1], shift = (a - cc) / (2 * (a - 2 * bb + cc)) || 0;
   return [sr / (p + shift), rms, max / c[0]];   // chiarezza: quanto il suono è regolare (tastiera ≈ 1, voce meno)
 }
-const micLabel = () => $('#mic').innerHTML = icon('mic') + (micOn ? 'Microfono attivo' : 'Usa il microfono');
+const micLabel = () => $('#mic').innerHTML = icon('mic') + (micOn ? t('micOn') : t('micUse'));
 micLabel();
 async function startMic() {
   if (micOn) return;
   try { audio().resume(); } catch {}   // iPad: l'audio va acceso durante il tocco, prima di aspettare il permesso
-  if (!navigator.mediaDevices?.getUserMedia) { alert('Il microfono funziona solo da un indirizzo https:// o da localhost.'); return; }
+  if (!navigator.mediaDevices?.getUserMedia) { alert(t('aHttps')); return; }
   try {
     const s = await navigator.mediaDevices.getUserMedia({ audio:{ echoCancellation:true, noiseSuppression:false, autoGainControl:false } });
     const a = audio(); await a.resume();
@@ -1292,7 +1311,7 @@ async function startMic() {
       if (cnt === 3) { if (m !== null && m !== last) noteOn(m, 'mic'); last = m; }
       requestAnimationFrame(loop);
     })();
-  } catch (e) { micTried = true; alert('Il microfono non è autorizzato, quindi l\'app non sente la pianola.\n\nSu iPad: Impostazioni › Safari › Microfono › Consenti (oppure tocca "aA" nella barra degli indirizzi › Impostazioni sito web › Microfono). Poi ricarica la pagina.'); }
+  } catch (e) { micTried = true; alert(t('aDenied')); }
 }
 $('#mic').onclick = startMic;
 // microfono acceso da solo al primo tocco (i browser non lo permettono prima); non serve se la pianola è collegata col cavo
@@ -1307,6 +1326,7 @@ addEventListener('click', e => { if (pendingTap && pendingTap.contains(e.target)
 
 $('#names').checked = showNames;
 $('#names').onchange = e => { showNames = e.target.checked; store.set('names', showNames); };
+$('#langbar').outerHTML = langSel('lang-home'); $('#lang-home').onchange = setLang;
 
 // self-check
 console.assert(note('C4') === 60 && note('F#4') === 66 && note('Bb3') === 58, 'note()');
@@ -1323,11 +1343,13 @@ console.assert(lvOf(0) === 1 && lvOf(100) === 2 && lvOf(399) === 2 && lvOf(400) 
 console.assert(token('*F#').any.every(m => m % 12 === 6) && token('*#').any.every(m => SHARP[m % 12]), 'token any');
 console.assert(LEVELS.every(L => L.lessons.every(x => compile(x).every(s => s.next || s.rest || (s.need || s.any).every(Number.isInteger)))), 'curriculum');
 console.assert(compile(LEVELS[1].lessons[0])[1].finger === 2, 'dita automatiche');
+console.assert(['en', 'uk'].every(l => CURR_TR[l].levels.length === LEVELS.length && LEVELS.every(L => L.lessons.every(x => { const tr = CURR_TR[l].lessons['l-' + slug(x.t)]; return tr?.t && (x.cards ? tr.cards?.length === x.cards.length : !x.tip || tr.tip); }))), 'traduzioni lezioni');
 navigator.storage?.persist?.();   // chiede all'iPad di non cancellare i progressi
 P = profiles.find(p => p.id === store.get('current'));
 profiles.forEach(migrateIds); saveP();
 if (P) { P.err ||= {}; P.srs ||= {}; }
-showWho();   // all'apertura: entra nel tuo profilo o creane uno nuovo
+const relang = sessionStorage.getItem('relang'), ri = profiles.findIndex(p => p.id === relang); sessionStorage.removeItem('relang');
+if (ri >= 0) pick(ri); else showWho();   // all'apertura: entra nel tuo profilo o creane uno nuovo (dopo il cambio lingua: torna alla home)
 </script>
 </body>
 </html>
