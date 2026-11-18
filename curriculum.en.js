@@ -30,11 +30,11 @@ CURR_TR.en = {
       { h:'Left is low, right is high', p:'Keys on the left make low, deep sounds; keys on the right make high, bright ones. Try one key at the very start of the keyboard and one at the very end.' } ]},
     'l-trova-il-do':{ t:'Find C', cards:[
       { h:'C', p:'C is the white key just left of the two black keys. There’s one for every group of two.' },
-      { h:'Play four Cs', p:'Any of them, even the same one every time. Look for the two black keys and step down to the white key on their left.' } ]},
+      { h:'Play four Cs', p:'First any one: you’ll see there are lots. Then always use the one in the middle, closest to your hand: it’s the C every lesson starts from.' } ]},
     'l-le-sette-note':{ t:'The seven notes', cards:[
       { h:'C D E F G A B', p:'They’re the seven white keys, always in this order. After B, a new C begins.' },
-      { h:'Play them in a row', p:'Start from a C and go up to the right, one white key at a time.' },
-      { h:'F', p:'F is the white key left of the three black keys. C and F are your landmarks.' } ]},
+      { h:'Play them in a row', p:'Start from the C in the middle of the keyboard and go up to the right, one white key at a time.' },
+      { h:'F', p:'F is the white key left of the three black keys. First any one, then the one in the middle, near your hand.' } ]},
     'l-il-do-centrale':{ t:'Middle C', cards:[
       { h:'Middle C', p:'It’s the C in the middle of the keyboard, usually right below the brand name. Here it has a dot under it. All the first lessons start from it.' } ]},
     'l-le-dita-hanno-un-numero':{ t:'Fingers have numbers', cards:[
@@ -88,7 +88,7 @@ CURR_TR.en = {
     'l-passeggiata-in-sol':{ t:'A Walk in G', tip:'An original piece with backing: G, C, E minor, D.' },
     'l-il-diesis':{ t:'The sharp', cards:[
       { h:'♯ means: one key up', p:'A sharp raises the note to the key just to its right, usually a black one. F♯ is the black key right of F.' },
-      { h:'Play three F♯s', p:'The first black key in the group of three.' } ]},
+      { h:'Play three F♯s', p:'The first black key in the group of three. First any one, then the one in the middle.' } ]},
     'l-il-fa-diesis':{ t:'F sharp', tip:'F♯ = the black key right of F.' },
     'l-scala-di-sol':{ t:'G major scale', tip:'After B, your thumb tucks under to play C.' },
     'l-tanti-auguri-in-sol':{ t:'Happy Birthday in G', tip:'Same song, new key.' },
@@ -109,7 +109,7 @@ CURR_TR.en = {
     'l-quattro-accordi':{ t:'Four Chords', tip:'An original piece: bass in the left hand, melody in the right, the backing does the rest.' },
     'l-il-bemolle':{ t:'The flat', cards:[
       { h:'♭ means: one key down', p:'A flat lowers the note to the key just to its left, usually a black one. B♭ is the black key left of B.' },
-      { h:'Play three B♭s', p:'The last black key in the group of three.' } ]},
+      { h:'Play three B♭s', p:'The last black key in the group of three. First any one, then the one in the middle.' } ]},
     'l-la-posizione-di-fa':{ t:'F position', tip:'Right thumb on F, ring finger on B♭.' },
     'l-melodia-in-fa':{ t:'Melody in F', tip:'Every B becomes B♭: it’s written in the key signature.' },
     'l-scala-di-do-a-destra':{ t:'C major scale, right hand', tip:'After E, your thumb tucks under to play F.' },

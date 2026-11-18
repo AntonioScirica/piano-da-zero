@@ -10,11 +10,11 @@ const LEVELS = [
       { anim:'lowhigh', h:'Sinistra grave, destra acuto', p:'I tasti a sinistra fanno suoni bassi e gravi, quelli a destra suoni alti e acuti. Prova a suonare un tasto all\'inizio e uno alla fine della pianola.' } ]},
     { t:'Trova il Do', cards:[
       { anim:'find:C', h:'Il Do', p:'Il Do è il tasto bianco subito a sinistra dei due tasti neri. Ce n\'è uno per ogni gruppo da due.', mark:'*C' },
-      { h:'Suona quattro Do', p:'Uno qualsiasi, anche sempre lo stesso. Cerca i due tasti neri e scendi al bianco a sinistra.', play:'*C *C *C *C' } ]},
+      { h:'Suona quattro Do', p:'Prima uno qualsiasi: vedi che ce ne sono tanti. Poi usa sempre quello in mezzo, il più vicino alla mano: è il Do da cui partono le lezioni.', play:'*C C4 C4 C4' } ]},
     { t:'Le sette note', cards:[
       { anim:'seven', h:'Do Re Mi Fa Sol La Si', p:'Sono i sette tasti bianchi, sempre in quest\'ordine. Dopo il Si ricomincia un altro Do.' },
-      { h:'Suonale in fila', p:'Parti da un Do e sali verso destra, un tasto bianco alla volta.', play:'*C *D *E *F *G *A *B' },
-      { anim:'find:F', h:'Il Fa', p:'Il Fa è il tasto bianco a sinistra dei tre tasti neri. Do e Fa sono i tuoi punti di riferimento.', mark:'*F', play:'*F *F *F' } ]},
+      { h:'Suonale in fila', p:'Parti dal Do in mezzo alla tastiera e sali verso destra, un tasto bianco alla volta.', play:'C4 D4 E4 F4 G4 A4 B4' },
+      { anim:'find:F', h:'Il Fa', p:'Il Fa è il tasto bianco a sinistra dei tre tasti neri. Prima uno qualsiasi, poi quello in mezzo, vicino alla mano.', mark:'*F', play:'*F F4 F4' } ]},
     { t:'Il Do centrale', cards:[
       { anim:'middleC', h:'Il Do centrale', p:'È il Do a metà della tastiera, di solito sotto il nome della pianola. Qui sotto ha un pallino. Tutte le prime lezioni partono da lui.', play:'C4 C4 C4' } ]},
     { t:'Le dita hanno un numero', cards:[
@@ -84,7 +84,7 @@ const LEVELS = [
   { title:'Tasti neri', d:'Il diesis e la prima tonalità con un tasto nero.', c:'#ff7a1a', ci:'#111', lessons:[
     { t:'Il diesis', cards:[
       { anim:'sharp', h:'♯ vuol dire: un tasto più su', p:'Il diesis alza la nota al tasto subito a destra, di solito un nero. Fa♯ è il nero a destra del Fa.', mark:'*F#' },
-      { h:'Suona tre Fa♯', p:'Il primo nero del gruppo da tre.', play:'*F# *F# *F#' } ]},
+      { h:'Suona tre Fa♯', p:'Il primo nero del gruppo da tre. Prima uno qualsiasi, poi quello in mezzo.', play:'*F# F#4 F#4' } ]},
     { t:'Il Fa diesis', tip:'Fa♯ = il nero a destra del Fa.', n:'G4 F#4 G4 A4 G4 F#4 E4 D4 G4 F#4 G4' },
     { t:'Scala di Sol', tip:'Dopo il Si, il pollice passa sotto per il Do.', n:'G4 A4 B4 C5 D5 E5 F#5 G5 G5 F#5 E5 D5 C5 B4 A4 G4' },
     { t:'Tanti auguri in Sol', notime:true, tip:'Stesso brano, nuova tonalità.', n:'D4 D4 E4 D4 G4 F#4 D4 D4 E4 D4 A4 G4 D4 D4 D5 B4 G4 F#4 E4 C5 C5 B4 G4 A4 G4' } ]},
@@ -112,7 +112,7 @@ const LEVELS = [
   { title:'Posizione di Fa', d:'La mano sul Fa e il primo bemolle: Si♭.', c:'#d4a373', ci:'#111', lessons:[
     { t:'Il bemolle', cards:[
       { anim:'flat', h:'♭ vuol dire: un tasto più giù', p:'Il bemolle abbassa la nota al tasto subito a sinistra, di solito un nero. Si♭ è il nero a sinistra del Si.', mark:'*Bb' },
-      { h:'Suona tre Si♭', p:'L\'ultimo nero del gruppo da tre.', play:'*Bb *Bb *Bb' } ]},
+      { h:'Suona tre Si♭', p:'L\'ultimo nero del gruppo da tre. Prima uno qualsiasi, poi quello in mezzo.', play:'*Bb Bb4 Bb4' } ]},
     { t:'La posizione di Fa', pos:'F', tip:'Pollice destro sul Fa, anulare sul Si♭.', n:'F4 G4 A4 Bb4 C5 Bb4 A4 G4 F4:4 A4 C5 A4 F4 G4 Bb4 G4 F4:4' },
     { t:'Melodia in Fa', pos:'F', tip:'Ogni Si diventa Si♭: è scritto in chiave.', n:'F4 A4 C5 A4 Bb4 A4 G4:2 G4 Bb4 A4 G4 F4:4' } ]},
   { title:'Scale', d:'Il passaggio del pollice per suonare oltre 5 note.', c:'#c8102e', ci:'#fff', lessons:[
