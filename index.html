@@ -138,7 +138,8 @@
   .player { all:unset; box-sizing:border-box; cursor:pointer; width:220px; aspect-ratio:1; background:var(--c); color:var(--ci); padding:16px; display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden; }
   .player:focus-visible { outline:3px solid var(--ink); outline-offset:4px; }
   .whosub { font-size:20px; font-weight:600; margin:-14px 0 24px; color:var(--mute); }
-  .newbtn { margin-top:24px; }
+  .player.newtile { --c:var(--paper); --ci:var(--ink); border:3px solid var(--ink); }
+  .player.newtile:hover { --c:var(--ink); --ci:var(--paper); }
   .player b { font-size:120px; font-weight:900; line-height:.8; position:relative; }
   .player span { font-weight:800; font-size:22px; position:relative; }
   .player small { font-weight:600; font-size:14px; }
@@ -500,8 +501,8 @@ function showWho(creating) {
   w.hidden = false;
   w.innerHTML = has && !creating
     ? `<div><h1>Chi suona?</h1><p class="whosub">Tocca il tuo profilo per entrare.</p>
-        <div class="players">${profiles.map((p, i) => `<button class="player" data-i="${i}" style="--c:${p.c};--ci:${p.ci}">${arcs(200, 3, 4, 'right:-60px;top:-60px')}<b>${esc(p.name[0].toUpperCase())}</b><span>${esc(p.name)}<br><small>Lv ${lvOf(p.xp)} · ${p.xp} XP · Entra</small></span></button>`).join('')}</div>
-        <button class="newbtn" id="newbtn">${icon('plus')} Nuovo profilo</button></div>`
+        <div class="players">${profiles.map((p, i) => `<button class="player" data-i="${i}" style="--c:${p.c};--ci:${p.ci}">${arcs(200, 3, 4, 'right:-60px;top:-60px')}<b>${esc(p.name[0].toUpperCase())}</b><span>${esc(p.name)}<br><small>Lv ${lvOf(p.xp)} · ${p.xp} XP · Entra</small></span></button>`).join('')}
+          <button class="player newtile" id="newbtn"><b aria-hidden="true">+</b><span>Nuovo profilo<br><small>per un'altra persona</small></span></button></div></div>`
     : `<div><h1>${has ? 'Nuovo profilo' : 'Benvenuto.'}</h1>
         <p class="whosub">${has ? 'Un profilo per ogni persona: progressi, livelli e classifica separati.' : 'Crea il tuo profilo: progressi e livelli restano salvati su questo dispositivo.'}</p>
         <form class="newp" id="newp"><label>Come ti chiami?<input id="pname" maxlength="16" required autocomplete="off" autocapitalize="words"></label>
