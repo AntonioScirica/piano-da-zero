@@ -18,7 +18,7 @@ const I18N = {
     advice:['Dita curve, come se tenessi una pallina. Polso morbido, all\'altezza dei tasti.', 'Siediti al centro, davanti al Do centrale, con i gomiti un po\' più avanti del busto.',
       'Meglio lento e giusto che veloce e sbagliato: ogni ripetizione sbagliata ne chiede tre giuste per essere cancellata.', 'Guarda lo spartito, non le mani: le dita imparano la strada da sole.',
       'Pochi minuti ogni giorno valgono più di un\'ora una volta a settimana.', 'Se un punto non viene, isolalo: due o tre note, lente, finché vengono tre volte di fila.',
-      'Respira e rilassa le spalle: la tensione rende le dita lente.', 'Canta o conta a voce mentre suoni: aiuta il ritmo e la memoria.', 'Prima di suonare, trova con gli occhi la prima nota e metti già il dito giusto sopra.'] },
+      'Respira e rilassa le spalle: la tensione rende le dita lente.', 'Conta i battiti nella testa, senza voce: aiuta il ritmo e il microfono sente solo la pianola.', 'Prima di suonare, trova con gli occhi la prima nota e metti già il dito giusto sopra.'] },
   en:{ loc:'en', names:['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'], flats:{ 1:'D♭', 3:'E♭', 6:'G♭', 8:'A♭', 10:'B♭' },
     fingers:['','thumb','index','middle','ring','little'], ord:n => n + (['th','st','nd','rd'][n % 10 < 4 && Math.floor(n / 10) % 10 !== 1 ? n % 10 : 0]),
     titles:['Beginner', 'Apprentice', 'Explorer', 'Musician', 'Soloist', 'Virtuoso', 'Maestro', 'Legend'],
@@ -28,7 +28,7 @@ const I18N = {
     advice:['Curved fingers, as if you were holding a small ball. Soft wrist, level with the keys.', 'Sit in the middle, in front of middle C, with your elbows slightly ahead of your body.',
       'Slow and right beats fast and wrong: every wrong repetition takes three right ones to undo.', 'Look at the music, not your hands: your fingers learn the way on their own.',
       'A few minutes every day are worth more than an hour once a week.', 'If a spot won’t come, isolate it: two or three notes, slowly, until they come out right three times in a row.',
-      'Breathe and drop your shoulders: tension makes your fingers slow.', 'Sing or count out loud while you play: it helps your rhythm and your memory.', 'Before you play, find the first note with your eyes and put the right finger on it.'] },
+      'Breathe and drop your shoulders: tension makes your fingers slow.', 'Count the beats in your head, silently: it helps your rhythm, and the microphone only hears the keyboard.', 'Before you play, find the first note with your eyes and put the right finger on it.'] },
   uk:{ loc:'uk', names:['До','До♯','Ре','Ре♯','Мі','Фа','Фа♯','Соль','Соль♯','Ля','Ля♯','Сі'], flats:{ 1:'Ре♭', 3:'Мі♭', 6:'Соль♭', 8:'Ля♭', 10:'Сі♭' },
     fingers:['','великий','вказівний','середній','безіменний','мізинець'], ord:n => n + (['', '-ше', '-ге', '-тє'][n] || '-те'),
     titles:['Новачок', 'Учень', 'Дослідник', 'Музикант', 'Соліст', 'Віртуоз', 'Маестро', 'Легенда'],
@@ -38,7 +38,7 @@ const I18N = {
     advice:['Пальці заокруглені, ніби тримаєш маленький м’ячик. Зап’ястя м’яке, на рівні клавіш.', 'Сідай посередині, навпроти центрального До, лікті трохи попереду тулуба.',
       'Краще повільно й правильно, ніж швидко й з помилками: щоб стерти одне неправильне повторення, потрібні три правильні.', 'Дивись у ноти, а не на руки: пальці самі запам’ятають дорогу.',
       'Кілька хвилин щодня дають більше, ніж година раз на тиждень.', 'Якщо якесь місце не виходить, візьми його окремо: дві-три ноти, повільно, поки не вийде тричі поспіль.',
-      'Дихай і розслаб плечі: напруга сповільнює пальці.', 'Співай або рахуй уголос, коли граєш: це допомагає ритму й пам’яті.', 'Перш ніж грати, знайди очима першу ноту й одразу постав на неї потрібний палець.'] },
+      'Дихай і розслаб плечі: напруга сповільнює пальці.', 'Рахуй долі подумки, без голосу: це допомагає ритму, а мікрофон чує тільки інструмент.', 'Перш ніж грати, знайди очима першу ноту й одразу постав на неї потрібний палець.'] },
 };
 
 // testi dell'interfaccia: [italiano, inglese, ucraino]
@@ -201,7 +201,7 @@ const STR = {
   repLast:['Ultima volta, senza nomi delle note.', 'One last time, without note names.', 'Останній раз, без назв нот.'],
   repMid:['Bene. Ancora, senza errori.', 'Good. Again, with no mistakes.', 'Добре. Ще раз, без помилок.'],
   // fine lezione
-  advSlow:['Il tempo è difficile all\'inizio: torna su "A tempo 70%" e conta ad alta voce 1-2-3-4.', 'Timing is hard at first: go back to "In time 70%" and count out loud 1-2-3-4.', 'Спочатку темп дається важко: повернися до «У темпі 70%» і рахуй уголос 1-2-3-4.'],
+  advSlow:['Il tempo è difficile all\'inizio: torna su "A tempo 70%" e conta 1-2-3-4 nella testa.', 'Timing is hard at first: go back to "In time 70%" and count 1-2-3-4 in your head.', 'Спочатку темп дається важко: повернися до «У темпі 70%» і рахуй 1-2-3-4 подумки.'],
   adv70:['Ottimo a velocità ridotta: ora prova "A tempo 100%".', 'Great at reduced speed: now try "In time 100%".', 'Чудово на зниженій швидкості: тепер спробуй «У темпі 100%».'],
   advErr:['Molti errori: rifalla più lenta. Tre volte giuste valgono più di trenta sbagliate.', 'Lots of mistakes: try it again, slower. Three right times are worth more than thirty wrong ones.', 'Багато помилок: зіграй ще раз, повільніше. Три правильні рази варті більше, ніж тридцять неправильних.'],
   perfect:['Perfetto.', 'Perfect.', 'Ідеально.'], doneH:['Fatto.', 'Done.', 'Готово.'],

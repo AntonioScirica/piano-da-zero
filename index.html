@@ -184,7 +184,7 @@
   .import label.check input { width:22px; height:22px; accent-color:var(--ink); }
 
   /* ===== Lezione ===== */
-  #player { height:100dvh; display:grid; grid-template-rows:auto 6px 1fr auto auto; overflow:hidden; }
+  #player { height:100dvh; display:grid; grid-template-rows:auto 6px 1fr auto auto auto; overflow:hidden; }
   .band { min-height:min(24vh,210px); background:var(--lv); color:var(--on-lv); padding:clamp(14px,2.4vh,26px) clamp(20px,3vw,40px); display:grid; grid-template-columns:auto 1fr auto; gap:20px; align-items:start; position:relative; overflow:hidden; }
   .band h1 { font-size:clamp(30px,min(11vh,8vw),96px); overflow-wrap:anywhere; font-weight:900; line-height:.9; letter-spacing:-.04em; position:relative; text-wrap:balance; }
   .band .sub { font-weight:600; font-size:17px; margin-top:8px; position:relative; }
@@ -263,14 +263,15 @@
   @keyframes burst { from { transform:scale(.6); opacity:1; } to { transform:scale(2.4); opacity:0; } }
 
   /* ===== Fine lezione ===== */
-  .tourcap { grid-column:1/-1; align-self:end; display:flex; align-items:center; gap:16px; background:var(--ink); color:var(--paper); padding:14px 18px; margin-bottom:10px; animation:slidein .35s var(--ease) both; }
-  .tourcap p { flex:1; font-size:clamp(19px,2.8vh,26px); font-weight:800; line-height:1.25; }
+  .tourcap { display:flex; align-items:center; gap:16px; background:var(--ink); color:var(--paper); padding:12px clamp(20px,3vw,40px); border-bottom:2px solid var(--paper); animation:slidein .35s var(--ease) both; }
+  .tourcap p { flex:1; font-size:clamp(18px,2.6vh,24px); font-weight:800; line-height:1.25; }
   .tourbtns { display:flex; gap:8px; } .tourbtns button { border-color:var(--paper); color:var(--paper); min-height:44px; font-size:15px; }
   .tourbtns button:hover { background:var(--paper); color:var(--ink); } .tourbtns button[aria-pressed="false"] { opacity:.5; }
   .replay { margin:12px 12px 0 0; min-height:40px; font-size:14px; padding:0 12px; }
+  #kbd.touring .key > span:not(.fg) { visibility:hidden; }
   #staff.touring #rollin, #staff.touring #head { opacity:.08; transition:opacity .3s; }
   #fx { position:absolute; inset:0; pointer-events:none; z-index:8; }
-  .ftag { position:absolute; transform:translateX(-50%); background:var(--ink); color:var(--paper); font-weight:800; font-size:clamp(15px,1.9vw,20px); padding:4px 10px; white-space:nowrap; animation:pop .35s var(--ease) both; }
+  .ftag { position:absolute; background:var(--ink); color:var(--paper); font-weight:800; font-size:clamp(15px,1.9vw,20px); padding:4px 10px; white-space:nowrap; animation:pop .35s var(--ease) both; }
   .ftag.big { font-size:clamp(18px,2.6vw,26px); background:var(--lv); color:var(--on-lv); border:2px solid var(--ink); }
   .ftag.fing { width:clamp(34px,4.4vh,44px); height:clamp(34px,4.4vh,44px); border-radius:50%; display:grid; place-items:center; padding:0; font-size:clamp(18px,2.6vh,24px); }
   .ftag.soft { background:var(--paper); color:var(--ink); border:2px dashed var(--ink); }
@@ -281,7 +282,7 @@
   .mk.pulse { animation:mkpulse .8s ease-in-out infinite alternate; background:var(--lv) !important; }
   .demo-note { animation:pop .4s var(--ease) both; transform-box:fill-box; transform-origin:center; }
   .demo-lbl { font-size:22px; font-weight:800; text-anchor:middle; fill:var(--ink); animation:pop .4s var(--ease) both; }
-  @keyframes pop { from { opacity:0; transform:translateX(-50%) translateY(10px) scale(.8); } to { opacity:1; } }
+  @keyframes pop { from { opacity:0; transform:translateY(10px) scale(.85); } to { opacity:1; transform:none; } }
   .demo-note, .demo-lbl { animation-name:popsvg; } @keyframes popsvg { from { opacity:0; transform:scale(.5); } to { opacity:1; transform:none; } }
   @keyframes together { to { filter:brightness(1.25); transform:translateY(3px); } }
   @keyframes mkpulse { from { opacity:1; } to { opacity:.45; } }
@@ -355,8 +356,8 @@
       <p class="say" id="say"></p>
       <p class="tip" id="tip"></p>
     </div>
-    <div class="tourcap" id="tourcap" hidden></div>
   </div>
+  <div class="tourcap" id="tourcap" hidden></div>
   <div id="mapbar"><span>Melody 61<br><small data-t="mapSub">Do contati da sinistra</small></span><div id="map" aria-hidden="true"></div></div>
   <div id="kbd"></div>
 </section>
@@ -365,10 +366,10 @@
 <div id="lvl" class="on-colour" hidden role="dialog" aria-modal="true"></div>
 <div id="done" class="on-colour" hidden role="dialog" aria-modal="true" aria-labelledby="done-h"></div>
 
-<script src="i18n.js?v=202611181801"></script>
-<script src="curriculum.en.js?v=202611181801"></script>
-<script src="curriculum.uk.js?v=202611181801"></script>
-<script src="curriculum.js?v=202611181801"></script>
+<script src="i18n.js?v=202611181806"></script>
+<script src="curriculum.en.js?v=202611181806"></script>
+<script src="curriculum.uk.js?v=202611181806"></script>
+<script src="curriculum.js?v=202611181806"></script>
 <script>
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -936,9 +937,10 @@ function tag(m, text, cls = '') {
   const k = keyEl(m), fx = $('#fx'); if (!k || !fx) return;
   const r = k.getBoundingClientRect(), b = fx.getBoundingClientRect(), el = document.createElement('span');
   el.className = 'ftag ' + cls; el.textContent = text;
-  el.style.left = (r.left - b.left + r.width / 2) + 'px';
-  el.style.top = (k.classList.contains('black') ? r.height + 8 : r.height * 0.42) + 'px';
   fx.append(el);
+  el.style.top = (b.height - el.offsetHeight - 12) + 'px';   // in basso, al posto dei nomi (nascosti durante la spiegazione)
+  const w = el.offsetWidth, cx = r.left - b.left + r.width / 2;
+  el.style.left = Math.max(4, Math.min(b.width - w - 4, cx - w / 2)) + 'px';   // mai tagliata dai bordi
 }
 function clearFx() {
   document.querySelectorAll('.key.lit, .key.lit2, .key.together').forEach(k => k.classList.remove('lit', 'lit2', 'together'));
@@ -1060,7 +1062,7 @@ function speak(text, done) {
 function startTour(name, key) {
   stopAnim(); endTour(true);
   const n = (TOURS[name]?.it || []).length; if (!n) return;
-  tour = { name, key, i:0, n }; $('#staff').classList.add('touring');
+  tour = { name, key, i:0, n }; $('#staff').classList.add('touring'); $('#kbd').classList.add('touring');
   const cap = $('#tourcap'); cap.hidden = false;
   cap.innerHTML = `<p id="tourtxt" aria-live="polite"></p><div class="tourbtns"><button id="tourVoice" aria-pressed="${voiceOn}">${icon('mic')} ${t('tVoice')}</button><button id="tourSkip">${t('tSkip')} ${icon('arrow')}</button></div>`;
   $('#tourSkip').onclick = () => endTour();
@@ -1077,7 +1079,7 @@ function tourStep() {
 }
 function endTour(silent) {
   if (!tour) return;
-  const key = tour.key; tour = null; $('#staff').classList.remove('touring');
+  const key = tour.key; tour = null; $('#staff').classList.remove('touring'); $('#kbd').classList.remove('touring');
   try { speechSynthesis.cancel(); } catch {}
   animTs.forEach(clearTimeout); animTs = []; clearFx();
   (cur.toured ||= new Set()).add(key);
@@ -1363,7 +1365,7 @@ function showLevelDone(li) {
     ${N ? `<div class="lv-unlock" style="--nc:${N.c};--nci:${N.ci}"><b>${li + 1}</b><div><p class="lv-kick">${t('lvlUnlock', { n:li + 1 })}</p><h3 style="font-size:26px;font-weight:900">${esc(N.title)}</h3></div></div>` : `<p class="lv-d">${t('lvlLast')}</p>`}
     <button id="lvlGo">${t('cont')} ${icon('arrow')}</button></div></div>`;
   lvlAt = performance.now();
-  $('#lvlGo').onclick = () => { d.hidden = true; ($('#snext') || $('#next') || $('#home-btn'))?.focus(); };
+  $('#lvlGo').onclick = () => { d.hidden = true; ($('#next') || $('#home-btn'))?.focus(); };
   $('#lvlGo').focus();
 }
 let lvlAt = 0;
@@ -1396,14 +1398,13 @@ function showDone(r) {
     ${mastered ? `<p class="lvup">${t('masteredDone')}</p>` : ''}
     ${r.acc != null && r.acc < 0.7 ? '' : ''}${sessionDone ? `<p class="lvup">${t('sessComplete', { n:streakOf(P) })}</p>` : ''}
     <p class="advice">${esc(advice)}</p>
-    <div class="acts">${inSession && nextIt ? `<button class="primary" id="snext">${t('sNext')} ${icon('arrow')}</button>` : ''}${hasNext ? `<button class="${inSession && nextIt ? '' : 'primary'}" id="next">${cur.id === 'drill' ? t('again') : cur.extraOf !== undefined ? t('anotherEx') : practice ? t('oncemore') : t('nextL')} ${icon('arrow')}</button>` : ''}
-      <button id="again">${icon('restart')} ${t('retry')}</button><button id="home-btn">${t('home')}</button></div><p class="anykey">${t('anyKeyDone')}</p></div>`;
+    <div class="acts"><button class="primary" id="next">${t('next')} ${icon('arrow')}</button><button id="again">${icon('restart')} ${t('retry')}</button><button id="home-btn">${t('home')}</button></div><p class="anykey">${t('anyKeyDone')}</p></div>`;
   $('#player').hidden = false; d.hidden = false; doneAt = performance.now();
   if (lvDone) showLevelDone(cur.level);
   $('#again').onclick = () => start(idx);
-  if (hasNext) $('#next').onclick = () => start(cur.id === 'drill' ? 'drill' : cur.extraOf !== undefined ? genExtra(cur.extraOf) : cur.practice ? warmup() : idx + 1);
-  if (inSession && nextIt) $('#snext').onclick = () => runItem(nextIt);
-  ($('#snext') || $('#next') || $('#home-btn')).focus();
+  // Avanti: il prossimo passo della sessione; altrimenti la prossima lezione (o un altro esercizio)
+  $('#next').onclick = () => inSession && nextIt ? runItem(nextIt) : start(cur.id === 'drill' ? 'drill' : cur.extraOf !== undefined ? genExtra(cur.extraOf) : cur.practice ? warmup() : hasNext ? idx + 1 : idx);
+  $('#next').focus();
   $('#home-btn').onclick = goHome;
 }
 function goHome() { stopTimed(); cancelHold(true); if (cur) endTour(true); $('#tourcap').hidden = true; stopAnim(); animKey = null; $('#lvl').hidden = true; calib = null; history.replaceState(null, '', location.pathname); clearTimeout(idleT); pending = null; cur = null; $('#player').hidden = true; $('#done').hidden = true; $('#home-view').hidden = false; renderHome(); }
@@ -1582,7 +1583,7 @@ function noteOn(m, src) {
   if (src === 'mic' && heard[m % 12] > performance.now()) return;   // è la base, non la pianola
   if (!$('#lvl').hidden) { if (performance.now() - lvlAt > 1200) $('#lvlGo')?.click(); return; }
   if (tour) return;   // durante la spiegazione: la voce e le note non contano
-  if (!$('#done').hidden) { if (performance.now() - doneAt > 1000) ($('#snext') || $('#next') || $('#home-btn')).click(); return; }   // fine lezione: un tasto = avanti
+  if (!$('#done').hidden) { if (performance.now() - doneAt > 1000) ($('#next') || $('#home-btn')).click(); return; }   // fine lezione: un tasto = avanti
   if (src === 'screen' || src === 'pc') beep(m);   // la pianola suona già da sola
   const k = $(`.key[data-m="${m}"]`);
   if (k) { k.classList.add('on'); setTimeout(() => k.classList.remove('on'), 160); }

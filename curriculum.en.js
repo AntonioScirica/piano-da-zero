@@ -49,13 +49,13 @@ CURR_TR.en = {
     'l-salti':{ t:'Skips', tip:'C and E, without stopping on D.' },
     'l-contare-fino-a-4':{ t:'Counting to 4', cards:[
       { h:'Music has a pulse', p:'Like a heartbeat: steady. You count 1, 2, 3, 4 and start again. Each group of 4 is a bar, closed by a bar line.' },
-      { h:'The quarter note', p:'A filled-in note with a stem lasts 1 beat. Play C and count out loud: one, two, three, four.' } ]},
+      { h:'The quarter note', p:'A filled-in note with a stem lasts 1 beat. Play C and count in your head, silently: one, two, three, four.' } ]},
     'l-la-minima':{ t:'The half note', cards:[
       { h:'A half note lasts 2', p:'Hollow head with a stem: hold the key down for 2 beats. Count “one-two” while you hold it.' } ]},
     'l-la-semibreve':{ t:'The whole note', tip:'Hollow head, no stem: 4 beats. Try In time mode too.' },
     'l-la-pausa':{ t:'The rest', cards:[
       { h:'Silence counts too', p:'A rest is a beat with no sound: lift your finger but keep counting. In Learn mode it’s skipped; in time you have to wait it out.' } ]},
-    'l-ritmo-misto':{ t:'Mixed rhythm', tip:'Use In time 70% and count out loud.' },
+    'l-ritmo-misto':{ t:'Mixed rhythm', tip:'Use In time 70% and count the beats in your head.' },
     'l-prima-marcia':{ t:'First March', tip:'An original piece with backing: half, quarter and whole notes.' },
     'l-fa-e-sol':{ t:'F and G', tip:'Ring finger on F, little finger on G.' },
     'l-su-e-giu':{ t:'Up and down', tip:'Without looking at your hands.' },

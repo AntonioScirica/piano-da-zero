@@ -31,13 +31,13 @@ const LEVELS = [
   { title:'Il ritmo', d:'Contare i battiti: semiminima, minima, semibreve e pausa.', c:'#0b7a75', ci:'#fff', lessons:[
     { t:'Contare fino a 4', cards:[
       { h:'La musica ha un battito', p:'Come il cuore: regolare. Si conta 1, 2, 3, 4 e si ricomincia. Ogni gruppo da 4 è una battuta, chiusa da una stanghetta.' },
-      { h:'La semiminima', p:'La nota piena con il gambo dura 1 battito. Suona il Do e conta ad alta voce: uno, due, tre, quattro.', staff:true, play:'C4 C4 C4 C4 C4 C4 C4 C4', f:'1 1 1 1 1 1 1 1' } ]},
+      { h:'La semiminima', p:'La nota piena con il gambo dura 1 battito. Suona il Do e conta nella testa, senza voce: uno, due, tre, quattro.', staff:true, play:'C4 C4 C4 C4 C4 C4 C4 C4', f:'1 1 1 1 1 1 1 1' } ]},
     { t:'La minima', cards:[
       { h:'La minima dura 2', p:'Testa vuota con il gambo: tieni premuto il tasto per 2 battiti. Conta "uno-due" mentre tieni giù.', staff:true, play:'C4:2 C4:2 D4:2 D4:2 E4:2 D4:2 C4:4', f:'1 1 2 2 3 2 1' } ]},
     { t:'La semibreve', pos:'R', tip:'Testa vuota senza gambo: 4 battiti. Prova anche la modalità A tempo.', n:'C4 D4 E4:2 E4 D4 C4:2 C4:4 E4 D4 C4 D4 E4:2 D4:2 C4:4' },
     { t:'La pausa', cards:[
       { h:'Anche il silenzio si conta', p:'La pausa è un battito senza suono: alza il dito ma continua a contare. In modalità Impara si salta, a tempo va rispettata.', staff:true, play:'C4 r C4 r D4 r D4 r E4 E4 r:2 C4:4' } ]},
-    { t:'Ritmo misto', pos:'R', tip:'Usa A tempo 70% e conta ad alta voce.', n:'C4 D4 E4 C4 E4:2 E4:2 D4 D4 E4 D4 C4:4 E4 F4 G4:2 F4 E4 D4:2 C4 E4 D4:2 C4:4' },
+    { t:'Ritmo misto', pos:'R', tip:'Usa A tempo 70% e conta i battiti nella testa.', n:'C4 D4 E4 C4 E4:2 E4:2 D4 D4 E4 D4 C4:4 E4 F4 G4:2 F4 E4 D4:2 C4 E4 D4:2 C4:4' },
     { t:'Prima marcia', goal:true, pos:'R', bpm:84, tip:'Brano originale con la base: minime, semiminime e semibrevi.',
       n:'C4:2 E4:2 G4:2 E4:2 F4 E4 D4:2 C4:4 E4 F4 G4:2 A4 G4 F4:2 E4 D4 E4 F4 E4:2 D4:2 C4:4',
       acc:'C . . . G . . C C . . F . . C . . . G . C' } ]},
