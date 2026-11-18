@@ -263,6 +263,40 @@
   @keyframes burst { from { transform:scale(.6); opacity:1; } to { transform:scale(2.4); opacity:0; } }
 
   /* ===== Fine lezione ===== */
+  #fx { position:absolute; inset:0; pointer-events:none; z-index:8; }
+  .ftag { position:absolute; transform:translateX(-50%); background:var(--ink); color:var(--paper); font-weight:800; font-size:clamp(13px,1.6vw,17px); padding:3px 9px; white-space:nowrap; animation:pop .35s var(--ease) both; }
+  .ftag.big { font-size:clamp(16px,2.2vw,22px); background:var(--lv); color:var(--on-lv); border:2px solid var(--ink); }
+  .ftag.fing { width:clamp(34px,4.4vh,44px); height:clamp(34px,4.4vh,44px); border-radius:50%; display:grid; place-items:center; padding:0; font-size:clamp(18px,2.6vh,24px); }
+  .ftag.soft { background:var(--paper); color:var(--ink); border:2px dashed var(--ink); }
+  .key.lit { background:var(--lv) !important; color:var(--on-lv); transition:background .25s; }
+  .key.lit2.white { background:color-mix(in srgb,var(--lv) 30%,#fff) !important; }
+  .key.lit2.black, .key.lit.black { box-shadow:inset 0 0 0 4px var(--lv), inset 0 -40px 0 var(--lv); }
+  .key.together { animation:together .6s var(--ease) 3 alternate; }
+  .mk.pulse { animation:mkpulse .8s ease-in-out infinite alternate; background:var(--lv) !important; }
+  .demo-note { animation:pop .4s var(--ease) both; transform-box:fill-box; transform-origin:center; }
+  .demo-lbl { font-size:22px; font-weight:800; text-anchor:middle; fill:var(--ink); animation:pop .4s var(--ease) both; }
+  @keyframes pop { from { opacity:0; transform:translateX(-50%) translateY(10px) scale(.8); } to { opacity:1; } }
+  .demo-note, .demo-lbl { animation-name:popsvg; } @keyframes popsvg { from { opacity:0; transform:scale(.5); } to { opacity:1; transform:none; } }
+  @keyframes together { to { filter:brightness(1.25); transform:translateY(3px); } }
+  @keyframes mkpulse { from { opacity:1; } to { opacity:.45; } }
+  /* livello: inizio e fine */
+  #lvl { position:fixed; inset:0; z-index:12; background:var(--lv); color:var(--on-lv); display:grid; place-items:center; overflow:hidden; padding:24px; }
+  #lvl .arcs { animation:grow 1.4s var(--ease) both; }
+  #lvl .lv-inner { position:relative; display:grid; grid-template-columns:auto 1fr; gap:clamp(20px,4vw,56px); align-items:center; max-width:1000px; }
+  #lvl .lv-num { font-size:clamp(160px,30vh,300px); font-weight:900; line-height:.75; letter-spacing:-.04em; animation:slidein .8s var(--ease) both; }
+  #lvl h2 { font-size:clamp(40px,7vh,76px); font-weight:900; line-height:.95; letter-spacing:-.03em; animation:slidein .8s .1s var(--ease) both; }
+  #lvl .lv-kick { font-weight:800; font-size:18px; animation:slidein .8s .05s var(--ease) both; }
+  #lvl p.lv-d { font-size:20px; margin-top:12px; max-width:44ch; animation:slidein .8s .2s var(--ease) both; }
+  #lvl ol { list-style:none; padding:0; margin-top:18px; display:grid; gap:6px; }
+  #lvl ol li { font-size:19px; font-weight:700; display:flex; gap:10px; align-items:center; animation:slidein .5s var(--ease) both; }
+  #lvl ol li::before { content:''; width:10px; height:10px; background:var(--on-lv); flex:none; }
+  #lvl button { margin-top:24px; background:var(--on-lv); color:var(--lv); border-color:var(--on-lv); font-size:20px; min-height:56px; padding:0 28px; animation:slidein .6s .9s var(--ease) both; }
+  #lvl .lv-unlock { margin-top:22px; display:flex; gap:16px; align-items:center; border:3px solid var(--on-lv); padding:12px 16px; animation:slidein .7s 1s var(--ease) both; }
+  #lvl .lv-unlock b { font-size:64px; font-weight:900; line-height:.8; padding:6px 14px; background:var(--nc); color:var(--nci); }
+  #lvl .bigstars { display:flex; gap:10px; margin-top:16px; } #lvl .bigstars svg { width:44px; height:44px; fill:currentColor; stroke:currentColor; animation:pop .5s var(--ease) both; }
+  @keyframes slidein { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:none; } }
+  @keyframes grow { from { transform:scale(.2); opacity:0; } to { transform:none; opacity:1; } }
+  @media (max-width:760px) { #lvl .lv-inner { grid-template-columns:1fr; } }
   #done { position:fixed; inset:0; background:var(--lv); color:var(--on-lv); display:grid; place-items:center; z-index:10; overflow:hidden; animation:rise .45s var(--ease); }
   #done .inner { position:relative; text-align:center; padding:24px; }
   #done h2 { font-size:clamp(80px,16vh,170px); font-weight:900; letter-spacing:-.04em; line-height:.85; }
@@ -274,7 +308,7 @@
   #done button { border-color:var(--on-lv); } #done button.primary { background:var(--on-lv); color:var(--lv); }
   #done button:hover { background:var(--on-lv); color:var(--lv); }
   @keyframes rise { from { clip-path:circle(0 at 50% 50%); } to { clip-path:circle(150% at 50% 50%); } }
-  @media (prefers-reduced-motion:reduce) { .ring, .burst, .pulse, .xpf { display:none; } #done { animation:none; } * { transition:none !important; } }
+  @media (prefers-reduced-motion:reduce) { .ftag, .demo-note, .demo-lbl, #lvl *, .key.together, .mk.pulse { animation:none !important; } .ring, .burst, .pulse, .xpf { display:none; } #done { animation:none; } * { transition:none !important; } }
   @media (max-width:760px) { .lib { grid-template-columns:1fr; } .stats, .row2 { grid-template-columns:1fr; } .next .arcs { display:none; } .stage { padding-block:16px; align-items:start; } .stage.with-card { grid-template-columns:1fr; } .band { grid-template-columns:auto 1fr; } .band .meta { grid-column:1/-1; flex-direction:row; justify-content:space-between; align-items:center; } }
 </style>
 </head>
@@ -321,6 +355,7 @@
 </section>
 <div id="who" class="who" hidden role="dialog" aria-modal="true" aria-label="Chi suona?" data-ta="who"></div>
 <div id="settings" class="who" hidden role="dialog" aria-modal="true"></div>
+<div id="lvl" class="on-colour" hidden role="dialog" aria-modal="true"></div>
 <div id="done" class="on-colour" hidden role="dialog" aria-modal="true" aria-labelledby="done-h"></div>
 
 <script src="i18n.js"></script>
@@ -841,7 +876,7 @@ function start(i) {
   else cur = allLessons()[i];
   cur.st = cur.st0 ? cur.st0.map(x => ({ ...x })) : compile(cur);
   if (!cur.repair) { pending = null; history.replaceState(null, '', i === 'drill' ? '#allenamento' : `#lezione-${i}`); }
-  stopTimed(); cancelHold(true); lastTx = null; lastHead = null; viewOff = null; lastAct = 0; step = 0; hit = new Set(); wrongKeys.clear(); errors = 0; burst = -1; combo = 0; bestCombo = 0; lessonXp = 0; errSteps.clear(); stepErr = 0;
+  stopTimed(); cancelHold(true); stopAnim(); animKey = null; lastTx = null; lastHead = null; viewOff = null; lastAct = 0; step = 0; hit = new Set(); wrongKeys.clear(); errors = 0; burst = -1; combo = 0; bestCombo = 0; lessonXp = 0; errSteps.clear(); stepErr = 0;
   $('#base').hidden = !(cur.song || cur.acc); baseLabel();
   setLevel(cur.L);
   $('#home-view').hidden = true; $('#player').hidden = false; $('#done').hidden = true;
@@ -852,6 +887,7 @@ function start(i) {
   const tm = canTime(); $('#mode').hidden = !tm; $('#calib').hidden = !tm || mode === 'wait'; $('#mode').value = mode;
   if (!tm || mode === 'wait') while (cur.st[step]?.rest) step++;
   buildKeys(); render();
+  if (typeof i === 'number' && !cur.imported && LEVELS[cur.level]?.lessons[0] && 'l-' + slug(LEVELS[cur.level].lessons[0].t) === cur.id && !(P.seenLv ||= {})[cur.level]) { P.seenLv[cur.level] = true; saveP(); showLevelIntro(cur.level); }
   if (tm && mode !== 'wait') { setTip(t('timedTip'), true); beginTimed(); }
 }
 function buildKeys() {
@@ -873,6 +909,7 @@ function buildKeys() {
     k.onpointerup = k.onpointerleave = k.onpointercancel = () => noteOff(m, 'screen');
     kbd.append(k);
   }
+  kbd.insertAdjacentHTML('beforeend', '<div id="fx" aria-hidden="true"></div>');
   // mappa della Melody 61 (61 tasti, Do2–Do7): la zona chiara è dove vanno le mani
   const MLO = 36, MHI = 96, mw = [];
   for (let m = MLO; m <= MHI; m++) if (!SHARP[m % 12]) mw.push(m);
@@ -884,9 +921,75 @@ function buildKeys() {
   mh += `<b class="win" style="left:${wl(Math.max(lo, MLO))}%;width:${wl(Math.min(hi, MHI) + 1) - wl(Math.max(lo, MLO))}%"></b>`;
   $('#map').innerHTML = mh;
 }
+// ===== Animazioni delle schede di teoria: mostrano dove sta la nota e cosa vuol dire =====
+let animTs = [], animOn = null, animKey = null;
+const keyEl = m => $(`.key[data-m="${m}"]`);
+const lit = (m, cls = 'lit') => keyEl(m)?.classList.add(cls);
+function tag(m, text, cls = '') {
+  const k = keyEl(m), fx = $('#fx'); if (!k || !fx) return;
+  const r = k.getBoundingClientRect(), b = fx.getBoundingClientRect(), el = document.createElement('span');
+  el.className = 'ftag ' + cls; el.textContent = text;
+  el.style.left = (r.left - b.left + r.width / 2) + 'px';
+  el.style.top = (k.classList.contains('black') ? r.height + 8 : r.height * 0.42) + 'px';
+  fx.append(el);
+}
+function clearFx() {
+  document.querySelectorAll('.key.lit, .key.lit2, .key.together').forEach(k => k.classList.remove('lit', 'lit2', 'together'));
+  document.querySelectorAll('.mk.pulse').forEach(k => k.classList.remove('pulse'));
+  if ($('#fx')) $('#fx').innerHTML = ''; $('#demo')?.remove();
+}
+function stopAnim() { animTs.forEach(clearTimeout); animTs = []; animOn = null; clearFx(); }
+function demo(list) {   // note disegnate sul pentagramma durante la spiegazione
+  $('#demo')?.remove(); const svg = $('#staff'); if (!svg || $('#staffwrap').hidden) return;
+  const g = document.createElementNS('http://www.w3.org/2000/svg', 'g'); g.id = 'demo';
+  g.innerHTML = list.map(({ m, x, l }) => { const y = posY(m), led = (m === 60 ? `<line x1="${x - 16}" x2="${x + 16}" y1="${y}" y2="${y}" class="sl"/>` : '');
+    return `${led}<ellipse cx="${x}" cy="${y}" rx="9" ry="6.6" transform="rotate(-20 ${x} ${y})" class="note demo-note"/>${l ? `<text x="${x}" y="${m >= 60 ? 40 : 284}" class="demo-lbl">${esc(l)}</text>` : ''}`; }).join('');
+  svg.append(g);
+}
+const WK = [0, 2, 4, 5, 7, 9, 11];
+const ANIMS = {
+  groups:() => [[0, () => { [49, 51, 61, 63].forEach(m => lit(m)); tag(50, t('tag2')); tag(62, t('tag2')); }],
+    [1600, () => { clearFx(); [54, 56, 58, 66, 68, 70].forEach(m => lit(m)); tag(56, t('tag3')); tag(68, t('tag3')); }],
+    [3200, () => { [49, 51, 61, 63].forEach(m => lit(m, 'lit2')); }], [4200, () => {}]],
+  lowhigh:() => { const w = []; for (let m = 48; m <= 72; m++) if (WK.includes(m % 12)) w.push(m);
+    return [[0, () => tag(48, t('low'), 'big')], ...w.map((m, i) => [200 + i * 110, () => lit(m, i < w.length / 2 ? 'lit2' : 'lit')]), [200 + w.length * 110, () => tag(72, t('high'), 'big')]]; },
+  find:(x) => { const pc = NOTE[x], ref = pc === 0 ? [1, 3] : [6, 8, 10], st = [];
+    [48, 60, 72].forEach((o, i) => { const m = o + pc; if (m > 72) return;
+      st.push([i * 1700, () => ref.forEach(r => lit(o + r, 'lit2'))], [i * 1700 + 800, () => { lit(m); tag(m, NAMES[pc]); }]); });
+    return st; },
+  seven:() => WK.map((pc, i) => [i * 650, () => { lit(60 + pc); tag(60 + pc, NAMES[pc]); }]).concat([[WK.length * 650 + 200, () => { lit(72, 'lit2'); tag(72, NAMES[0], 'soft'); }]]),
+  middleC:() => [[0, () => { [48, 72].forEach(m => { lit(m, 'lit2'); tag(m, NAMES[0], 'soft'); }); }],
+    [900, () => { lit(60); tag(60, t('midC'), 'big'); document.querySelector('.mk[data-m="60"]')?.classList.add('pulse'); }], [3000, () => {}]],
+  fingers:() => [60, 62, 64, 65, 67].map((m, i) => [i * 550, () => { lit(m); tag(m, String(i + 1), 'fing'); }]).concat([[3200, () => {}]]),
+  staff:() => { const ns = [60, 62, 64, 65, 67], acc = [];
+    return ns.map((m, i) => [i * 900, () => { clearFx(); lit(m); tag(m, NAMES[m % 12]); acc.push({ m, x:300 + i * 130, l:NAMES[m % 12] }); demo(acc); }]).concat([[ns.length * 900 + 800, () => {}]]); },
+  bass:() => { const ns = [48, 50, 52, 53, 55], acc = [];
+    return ns.map((m, i) => [i * 900, () => { clearFx(); lit(m); tag(m, NAMES[m % 12]); acc.push({ m, x:300 + i * 130, l:NAMES[m % 12] }); demo(acc); }]).concat([[ns.length * 900 + 800, () => {}]]); },
+  intervals:() => [[62, 'iv2'], [64, 'iv3'], [65, 'iv4'], [67, 'iv5']].map(([m, k], i) => [i * 1500, () => {
+    clearFx(); lit(60); lit(m); tag(m, t(k), 'big'); demo([{ m:60, x:320 }, { m, x:470, l:t(k) }]); }]).concat([[6200, () => {}]]),
+  sharp:() => [[0, () => { lit(65); tag(65, NAMES[5]); }], [1100, () => { lit(66); tag(66, NAMES[6] + ' · ' + t('upOne'), 'big'); }], [3000, () => {}]],
+  flat:() => [[0, () => { lit(71); tag(71, NAMES[11]); }], [1100, () => { lit(70); tag(70, FLATN[10] + ' · ' + t('downOne'), 'big'); }], [3000, () => {}]],
+  chord:() => [[0, () => { lit(60); tag(60, NAMES[0]); }], [700, () => tag(62, t('skip'), 'soft')], [1100, () => { lit(64); tag(64, NAMES[4]); }],
+    [1800, () => tag(65, t('skip'), 'soft')], [2200, () => { lit(67); tag(67, NAMES[7]); }], [3000, () => [60, 64, 67].forEach(m => keyEl(m)?.classList.add('together'))], [4800, () => {}]],
+};
+function playAnim(name, loop) {
+  stopAnim(); if (!name) return;
+  const [kind, arg] = name.split(':'), make = ANIMS[kind]; if (!make) return;
+  animOn = name;
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const run = () => {
+    const steps = make(arg), end = steps[steps.length - 1][0];
+    if (still) { steps.forEach(([, fn]) => fn()); return; }   // senza animazioni: stato finale
+    steps.forEach(([ms, fn]) => animTs.push(setTimeout(() => animOn === name && fn(), ms)));
+    if (loop) animTs.push(setTimeout(() => { if (animOn === name) { clearFx(); run(); } }, end + 1800));
+  };
+  requestAnimationFrame(run);
+}
 function render() {
   const s = cur.st[step] || {}, card = cur.cards?.[s.card], names = showNames && !card?.hideNames && !cur.hideNames;
   clearTimeout(idleT);
+  const ak = card?.anim && !timed ? cur.id + ':' + s.card : null;   // la scheda cambia: parte la sua animazione
+  if (ak !== animKey) { animKey = ak; ak ? playAnim(card.anim, !!s.next) : stopAnim(); }
   if (s.need && !timed && !$('#player').hidden) { const at = step; idleT = setTimeout(() => cur && step === at && hint(s, 'idle'), 9000); }
   // tastiera
   const targets = new Set((s.need || []).filter(m => !hit.has(m)).concat(s.any || []));
@@ -1137,6 +1240,31 @@ function finish() {
   if (chunks.length) { pending = { ...res, chunks, ci:0, rep:0 }; return startRepair(); }
   showDone(res);
 }
+// ===== Livelli: animazione all'inizio (cosa imparerai) e alla fine (completato) =====
+function showLevelIntro(li) {
+  const L = LV[li], d = $('#lvl'), lessons = allLessons().filter(x => x.level === li && !x.imported);
+  setLevel(L); d.hidden = false;
+  d.innerHTML = `${arcs(1200, 5, 1.4, 'left:50%;top:50%;transform:translate(-50%,-50%)', 30)}<div class="lv-inner"><div class="lv-num">${li}</div>
+    <div><p class="lv-kick">${t('lvlN', { n:li })}</p><h2>${esc(L.title)}</h2><p class="lv-d">${esc(L.d)}</p>
+    <p class="lv-kick" style="margin-top:18px">${t('lvlLearn')}</p><ol>${lessons.map((x, i) => `<li style="animation-delay:${0.35 + i * 0.12}s">${x.goal ? icon('trophy') : ''}${esc(x.t)}</li>`).join('')}</ol>
+    <button id="lvlGo">${t('lvlGo')} ${icon('arrow')}</button></div></div>`;
+  lvlAt = performance.now();
+  $('#lvlGo').onclick = () => { d.hidden = true; setLevel(cur.L); render(); };
+  $('#lvlGo').focus();
+}
+function showLevelDone(li) {
+  const L = LV[li], N = LV[li + 1], d = $('#lvl'), ids = LEVELS[li].lessons.map(x => 'l-' + slug(x.t));
+  const got = ids.reduce((a, id) => a + (P.prog[id] || 0), 0), tot = ids.length * 3;
+  d.hidden = false;
+  d.innerHTML = `${arcs(1400, 6, 1.2, 'left:50%;top:50%;transform:translate(-50%,-50%)', 20)}<div class="lv-inner"><div class="lv-num">${li}</div>
+    <div><h2>${t('lvlDone', { n:li })}</h2><div class="bigstars">${stars(3)}</div><p class="lv-d">${t('lvlStars', { s:got, t:tot })}</p>
+    ${N ? `<div class="lv-unlock" style="--nc:${N.c};--nci:${N.ci}"><b>${li + 1}</b><div><p class="lv-kick">${t('lvlUnlock', { n:li + 1 })}</p><h3 style="font-size:26px;font-weight:900">${esc(N.title)}</h3></div></div>` : `<p class="lv-d">${t('lvlLast')}</p>`}
+    <button id="lvlGo">${t('cont')} ${icon('arrow')}</button></div></div>`;
+  lvlAt = performance.now();
+  $('#lvlGo').onclick = () => { d.hidden = true; ($('#snext') || $('#next') || $('#home-btn'))?.focus(); };
+  $('#lvlGo').focus();
+}
+let lvlAt = 0;
 function showDone(r) {
   pending = null; cur = r.lesson; idx = r.idx; setLevel(cur.L);
   const st = r.acc != null ? (r.acc >= 0.9 ? 3 : r.acc >= 0.7 ? 2 : 1) : r.errors <= 1 ? 3 : r.errors <= Math.max(3, r.n * 0.15) ? 2 : 1;
@@ -1146,6 +1274,8 @@ function showDone(r) {
   const first = !practice && !(P.prog[cur.id] > 0);
   const total = r.lessonXp + st * 5 + (first ? 20 : 0) + r.repairXp, before = lvOf(P.xp);
   if (!practice) { P.prog[cur.id] = Math.max(P.prog[cur.id] || 0, st); if (!cur.imported) schedule(cur.id, st); }
+  const lvDone = !practice && !cur.imported && cur.level !== '' && LEVELS[cur.level]?.lessons.every(x => P.prog['l-' + slug(x.t)] > 0) && !(P.doneLv ||= {})[cur.level];
+  if (lvDone) P.doneLv[cur.level] = true;
   if (cur.extraOf !== undefined) (P.extra ||= {})[cur.extraOf] = (P.extra[cur.extraOf] || 0) + 1;
   const se = todayPlan(), inSession = se.items.some(it => it.ref === cur.id) && !se.done.includes(cur.id);
   if (inSession) se.done.push(cur.id);
@@ -1167,13 +1297,14 @@ function showDone(r) {
     <div class="acts">${inSession && nextIt ? `<button class="primary" id="snext">${t('sNext')} ${icon('arrow')}</button>` : ''}${hasNext ? `<button class="${inSession && nextIt ? '' : 'primary'}" id="next">${cur.id === 'drill' ? t('again') : cur.extraOf !== undefined ? t('anotherEx') : practice ? t('oncemore') : t('nextL')} ${icon('arrow')}</button>` : ''}
       <button id="again">${icon('restart')} ${t('retry')}</button><button id="home-btn">${t('home')}</button></div><p class="anykey">${t('anyKeyDone')}</p></div>`;
   $('#player').hidden = false; d.hidden = false; doneAt = performance.now();
+  if (lvDone) showLevelDone(cur.level);
   $('#again').onclick = () => start(idx);
   if (hasNext) $('#next').onclick = () => start(cur.id === 'drill' ? 'drill' : cur.extraOf !== undefined ? genExtra(cur.extraOf) : cur.practice ? warmup() : idx + 1);
   if (inSession && nextIt) $('#snext').onclick = () => runItem(nextIt);
   ($('#snext') || $('#next') || $('#home-btn')).focus();
   $('#home-btn').onclick = goHome;
 }
-function goHome() { stopTimed(); cancelHold(true); calib = null; history.replaceState(null, '', location.pathname); clearTimeout(idleT); pending = null; cur = null; $('#player').hidden = true; $('#done').hidden = true; $('#home-view').hidden = false; renderHome(); }
+function goHome() { stopTimed(); cancelHold(true); stopAnim(); animKey = null; $('#lvl').hidden = true; calib = null; history.replaceState(null, '', location.pathname); clearTimeout(idleT); pending = null; cur = null; $('#player').hidden = true; $('#done').hidden = true; $('#home-view').hidden = false; renderHome(); }
 $('#calib').innerHTML = icon('target'); $('#back').innerHTML = icon('back'); $('#listen').innerHTML = icon('play'); $('#restart').innerHTML = icon('restart');
 $('#back').onclick = () => { stopTimed(); calib = null; pending ? showDone(pending) : goHome(); };   // uscire dalla riparazione chiude comunque la lezione
 const baseLabel = () => { $('#base').innerHTML = icon('drum'); $('#base').setAttribute('aria-pressed', baseOn); $('#base').title = baseOn ? t('baseOn') : t('baseOff'); $('#base').classList.toggle('off', !baseOn); };
@@ -1347,6 +1478,7 @@ function noteOn(m, src) {
   const now = performance.now();
   if (P && cur && !$('#player').hidden) { if (lastAct) P.mins = { [today()]:minToday(P) + Math.min(10000, now - lastAct) / 60000 }; lastAct = now; }   // pause oltre 10 s non contano
   if (src === 'mic' && heard[m % 12] > performance.now()) return;   // è la base, non la pianola
+  if (!$('#lvl').hidden) { if (performance.now() - lvlAt > 1200) $('#lvlGo')?.click(); return; }
   if (!$('#done').hidden) { if (performance.now() - doneAt > 1000) ($('#snext') || $('#next') || $('#home-btn')).click(); return; }   // fine lezione: un tasto = avanti
   if (src === 'screen' || src === 'pc') beep(m);   // la pianola suona già da sola
   const k = $(`.key[data-m="${m}"]`);

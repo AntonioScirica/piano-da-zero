@@ -5,23 +5,23 @@ const POP_RH = 'C4+E4+G4 B3+D4+G4 A3+C4+E4 A3+C4+F4';
 const LEVELS = [
   { title:'La tastiera', d:'Bianchi e neri, il Do, le 7 note, le dita, il pentagramma.', c:'#ee4b2b', ci:'#111', lessons:[
     { t:'Bianchi e neri', cards:[
-      { h:'Questa è la tastiera', p:'Tasti bianchi e tasti neri. I neri sono a gruppi: due, poi tre, poi di nuovo due e tre. Lo stesso schema si ripete per tutta la tastiera.', mark:'*#' },
+      { anim:'groups', h:'Questa è la tastiera', p:'Tasti bianchi e tasti neri. I neri sono a gruppi: due, poi tre, poi di nuovo due e tre. Lo stesso schema si ripete per tutta la tastiera.', mark:'*#' },
       { h:'Suona tre tasti neri', p:'Uno qualsiasi, poi un altro, poi un altro. Il suono parte da qui: la pianola o il microfono sentono cosa suoni.', play:'*# *# *#' },
-      { h:'Sinistra grave, destra acuto', p:'I tasti a sinistra fanno suoni bassi e gravi, quelli a destra suoni alti e acuti. Prova a suonare un tasto all\'inizio e uno alla fine della pianola.' } ]},
+      { anim:'lowhigh', h:'Sinistra grave, destra acuto', p:'I tasti a sinistra fanno suoni bassi e gravi, quelli a destra suoni alti e acuti. Prova a suonare un tasto all\'inizio e uno alla fine della pianola.' } ]},
     { t:'Trova il Do', cards:[
-      { h:'Il Do', p:'Il Do è il tasto bianco subito a sinistra dei due tasti neri. Ce n\'è uno per ogni gruppo da due.', mark:'*C' },
+      { anim:'find:C', h:'Il Do', p:'Il Do è il tasto bianco subito a sinistra dei due tasti neri. Ce n\'è uno per ogni gruppo da due.', mark:'*C' },
       { h:'Suona quattro Do', p:'Uno qualsiasi, anche sempre lo stesso. Cerca i due tasti neri e scendi al bianco a sinistra.', play:'*C *C *C *C' } ]},
     { t:'Le sette note', cards:[
-      { h:'Do Re Mi Fa Sol La Si', p:'Sono i sette tasti bianchi, sempre in quest\'ordine. Dopo il Si ricomincia un altro Do.' },
+      { anim:'seven', h:'Do Re Mi Fa Sol La Si', p:'Sono i sette tasti bianchi, sempre in quest\'ordine. Dopo il Si ricomincia un altro Do.' },
       { h:'Suonale in fila', p:'Parti da un Do e sali verso destra, un tasto bianco alla volta.', play:'*C *D *E *F *G *A *B' },
-      { h:'Il Fa', p:'Il Fa è il tasto bianco a sinistra dei tre tasti neri. Do e Fa sono i tuoi punti di riferimento.', mark:'*F', play:'*F *F *F' } ]},
+      { anim:'find:F', h:'Il Fa', p:'Il Fa è il tasto bianco a sinistra dei tre tasti neri. Do e Fa sono i tuoi punti di riferimento.', mark:'*F', play:'*F *F *F' } ]},
     { t:'Il Do centrale', cards:[
-      { h:'Il Do centrale', p:'È il Do a metà della tastiera, di solito sotto il nome della pianola. Qui sotto ha un pallino. Tutte le prime lezioni partono da lui.', play:'C4 C4 C4' } ]},
+      { anim:'middleC', h:'Il Do centrale', p:'È il Do a metà della tastiera, di solito sotto il nome della pianola. Qui sotto ha un pallino. Tutte le prime lezioni partono da lui.', play:'C4 C4 C4' } ]},
     { t:'Le dita hanno un numero', cards:[
-      { h:'Ogni dito ha un numero', p:'Pollice 1, indice 2, medio 3, anulare 4, mignolo 5. Vale per tutte e due le mani. Il numero appare sul tasto da suonare.' },
+      { anim:'fingers', h:'Ogni dito ha un numero', p:'Pollice 1, indice 2, medio 3, anulare 4, mignolo 5. Vale per tutte e due le mani. Il numero appare sul tasto da suonare.' },
       { h:'Un dito per tasto', p:'Pollice destro sul Do centrale, poi un dito per tasto fino al Sol. Le dita stanno curve, come se tenessi una palla.', play:'C4 D4 E4 F4 G4', f:'1 2 3 4 5' } ]},
     { t:'Il pentagramma', cards:[
-      { h:'Le note si scrivono su 5 linee', p:'Più una nota è in alto, più è acuta. Il simbolo a sinistra è la chiave di violino: indica la mano destra.', staff:true },
+      { anim:'staff', h:'Le note si scrivono su 5 linee', p:'Più una nota è in alto, più è acuta. Il simbolo a sinistra è la chiave di violino: indica la mano destra.', staff:true },
       { h:'Leggi e suona', p:'Il Do centrale sta su una lineetta sotto le 5 linee. Ogni nota dopo sale di un gradino: spazio, linea, spazio…', staff:true, play:'C4 D4 E4 F4 G4 G4 F4 E4 D4 C4', f:'1 2 3 4 5 5 4 3 2 1' },
       { h:'Ora senza nomi', p:'Leggi solo dal pentagramma. Se ti blocchi, conta i gradini dal Do.', staff:true, hideNames:true, play:'C4 E4 D4 F4 E4 G4 C4', f:'1 3 2 4 3 5 1' } ]} ]},
   { title:'Prime note', d:'Do, Re e Mi con la mano destra.', c:'#2747d6', ci:'#fff', lessons:[
@@ -51,14 +51,14 @@ const LEVELS = [
       acc:'C . . . G . . . Am . . . F . . . C . . . G . . . Am . . . G . C' } ]},
   { title:'Mano sinistra', d:'La chiave di basso e le prime note con la sinistra.', c:'#1f9d6b', ci:'#111', lessons:[
     { t:'La chiave di basso', cards:[
-      { h:'Il pentagramma di sotto', p:'La mano sinistra legge sul pentagramma in basso, in chiave di basso. Il Do un\'ottava sotto il centrale sta nel secondo spazio dal basso.', staff:true },
+      { anim:'bass', h:'Il pentagramma di sotto', p:'La mano sinistra legge sul pentagramma in basso, in chiave di basso. Il Do un\'ottava sotto il centrale sta nel secondo spazio dal basso.', staff:true },
       { h:'Mignolo sul Do', p:'Mano sinistra: mignolo (5) sul Do sotto il centrale, poi un dito per tasto. Il pollice arriva sul Sol.', staff:true, play:'C3 D3 E3 F3 G3', f:'5 4 3 2 1' } ]},
     { t:'Do basso', pos:'L', tip:'Mignolo sinistro sul Do.', n:'C3 C3 D3 D3 E3 E3 D3 C3' },
     { t:'Cinque dita a sinistra', pos:'L', tip:'Dita 5-4-3-2-1.', n:'C3 D3 E3 F3 G3 F3 E3 D3 C3' },
     { t:'Inno alla gioia a sinistra', pos:'L', tip:'La stessa melodia, con la sinistra.', n:ODE.replace(/4/g,'3') } ]},
   { title:'Leggere per intervalli', d:'Leggere guardando la distanza tra le note, non nota per nota.', c:'#f4a6c0', ci:'#111', lessons:[
     { t:'Seconde e terze', cards:[
-      { h:'Leggere per salti', p:'Non serve riconoscere ogni nota: guarda la distanza. Da linea a spazio vicino è una seconda, il tasto accanto. Da linea a linea è una terza: salti un tasto.', staff:true },
+      { anim:'intervals', h:'Leggere per salti', p:'Non serve riconoscere ogni nota: guarda la distanza. Da linea a spazio vicino è una seconda, il tasto accanto. Da linea a linea è una terza: salti un tasto.', staff:true },
       { h:'Seconde', p:'Note che salgono o scendono di un gradino: un dito dopo l\'altro.', staff:true, play:'C4 D4 E4 F4 G4 F4 E4 D4 C4', f:'1 2 3 4 5 4 3 2 1' },
       { h:'Terze', p:'Linea-linea o spazio-spazio: salti un dito.', staff:true, play:'C4 E4 D4 F4 E4 G4 E4 C4', f:'1 3 2 4 3 5 3 1' } ]},
     { t:'Quarte e quinte', cards:[
@@ -83,7 +83,7 @@ const LEVELS = [
       acc:'G . . . C . . Em . . . D G . . . C . . D . . . G' } ]},
   { title:'Tasti neri', d:'Il diesis e la prima tonalità con un tasto nero.', c:'#ff7a1a', ci:'#111', lessons:[
     { t:'Il diesis', cards:[
-      { h:'♯ vuol dire: un tasto più su', p:'Il diesis alza la nota al tasto subito a destra, di solito un nero. Fa♯ è il nero a destra del Fa.', mark:'*F#' },
+      { anim:'sharp', h:'♯ vuol dire: un tasto più su', p:'Il diesis alza la nota al tasto subito a destra, di solito un nero. Fa♯ è il nero a destra del Fa.', mark:'*F#' },
       { h:'Suona tre Fa♯', p:'Il primo nero del gruppo da tre.', play:'*F# *F# *F#' } ]},
     { t:'Il Fa diesis', tip:'Fa♯ = il nero a destra del Fa.', n:'G4 F#4 G4 A4 G4 F#4 E4 D4 G4 F#4 G4' },
     { t:'Scala di Sol', tip:'Dopo il Si, il pollice passa sotto per il Do.', n:'G4 A4 B4 C5 D5 E5 F#5 G5 G5 F#5 E5 D5 C5 B4 A4 G4' },
@@ -94,7 +94,7 @@ const LEVELS = [
     { t:'Sinistra a tempo', tip:'La sinistra entra sul primo battito di ogni battuta. Prova A tempo.', n:'C3+E4 D4 C4 D4 G2+D4 E4 F4:2 C3+E4 D4 C4 E4 G2+D4:2 C3+C4:2' } ]},
   { title:'Primi accordi', d:'Tre note insieme con la mano sinistra.', c:'#6a3fd1', ci:'#fff', lessons:[
     { t:'Cos\'è un accordo', cards:[
-      { h:'Tre note insieme', p:'Un accordo sono più note suonate nello stesso momento. Do maggiore è Do, Mi, Sol: salti un tasto bianco tra l\'una e l\'altra.', staff:true, play:'C4+E4+G4 C4+E4+G4', f:'1-3-5 1-3-5' },
+      { anim:'chord', h:'Tre note insieme', p:'Un accordo sono più note suonate nello stesso momento. Do maggiore è Do, Mi, Sol: salti un tasto bianco tra l\'una e l\'altra.', staff:true, play:'C4+E4+G4 C4+E4+G4', f:'1-3-5 1-3-5' },
       { h:'Col microfono', p:'Il microfono sente una nota alla volta: suona le note dell\'accordo una dopo l\'altra. Con il cavo USB puoi suonarle insieme.' } ]},
     { t:'Accordo di Do', tip:'Mano sinistra, dita 5-3-1 insieme.', n:'C3+E3+G3 C3+E3+G3 C3+E3+G3 C3+E3+G3', f:'5-3-1 5-3-1 5-3-1 5-3-1' },
     { t:'Do, Fa, Sol', tip:'I tre accordi più usati. Muovi solo le dita che servono.', n:'C3+E3+G3 C3+F3+A3 B2+D3+G3 C3+E3+G3 C3+E3+G3 C3+F3+A3 B2+D3+G3 C3+E3+G3' },
@@ -111,7 +111,7 @@ const LEVELS = [
       acc:'C . . . G . . . Am . . . F . . . C . . . G . . . Am . . . F . . .' } ]},
   { title:'Posizione di Fa', d:'La mano sul Fa e il primo bemolle: Si♭.', c:'#d4a373', ci:'#111', lessons:[
     { t:'Il bemolle', cards:[
-      { h:'♭ vuol dire: un tasto più giù', p:'Il bemolle abbassa la nota al tasto subito a sinistra, di solito un nero. Si♭ è il nero a sinistra del Si.', mark:'*Bb' },
+      { anim:'flat', h:'♭ vuol dire: un tasto più giù', p:'Il bemolle abbassa la nota al tasto subito a sinistra, di solito un nero. Si♭ è il nero a sinistra del Si.', mark:'*Bb' },
       { h:'Suona tre Si♭', p:'L\'ultimo nero del gruppo da tre.', play:'*Bb *Bb *Bb' } ]},
     { t:'La posizione di Fa', pos:'F', tip:'Pollice destro sul Fa, anulare sul Si♭.', n:'F4 G4 A4 Bb4 C5 Bb4 A4 G4 F4:4 A4 C5 A4 F4 G4 Bb4 G4 F4:4' },
     { t:'Melodia in Fa', pos:'F', tip:'Ogni Si diventa Si♭: è scritto in chiave.', n:'F4 A4 C5 A4 Bb4 A4 G4:2 G4 Bb4 A4 G4 F4:4' } ]},
